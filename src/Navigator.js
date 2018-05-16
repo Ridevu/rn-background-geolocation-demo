@@ -24,6 +24,7 @@ import Home from './home/Home';
 import HelloWorld from './hello-world/HelloWorld';
 import SimpleMap from './simple-map/SimpleMap';
 import AdvancedApp from './advanced/AdvancedApp';
+import LoginScreen from './loginscreen/loginscreen';
 
 class Root extends Component<{}> {  
   componentDidMount() {
@@ -72,6 +73,9 @@ export default Navigator = createStackNavigator({
   },
   Advanced: {
     screen: AdvancedApp
+  },
+  LoginScreen: {
+    screen: LoginScreen
   }
 }, {
   initialRouteName: 'Root',

@@ -154,6 +154,7 @@ export default class Home extends Component<{}> {
             <Button full style={styles.button} onPress={() => this.onClickNavigate('HelloWorld')}><Text>Hello World</Text></Button>
             <Button full style={styles.button} onPress={() => this.onClickNavigate('SimpleMap')}><Text>Simple Map</Text></Button>
             <Button full style={styles.button} onPress={() => this.onClickNavigate('Advanced')}><Text>Advanced</Text></Button>
+            <Button full style={styles.button} onPress={() => this.onClickNavigate('LoginScreen')}><Text>Login</Text></Button>
         </Body>
 
         <Footer style={styles.footer}>
