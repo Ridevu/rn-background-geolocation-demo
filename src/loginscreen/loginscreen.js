@@ -58,7 +58,6 @@ export default class LoginScreen extends Component {
                     AsyncStorage.setItem('mmp_user_id', responseJson.d.user.user_id.toString());
                     AsyncStorage.setItem('mmp_username', this.state.usernameValue);
                     AsyncStorage.setItem('mmp_password', this.state.passwordValue);
-                    // this.onClickNavigate('JobSelectionScreen');    
                     this.onClickNavigate('SimpleMap');    
                 }
             })

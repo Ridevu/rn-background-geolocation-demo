@@ -161,9 +161,11 @@ export default class SimpleMap extends Component<{}> {
         this.setState({
           showsUserLocation: true
         });
+        this.startAnonymousTrack();
       });
     } else {      
       BackgroundGeolocation.stop();
+      this.closeAnonymousTrack();
     }
   }
 
@@ -231,6 +233,117 @@ export default class SimpleMap extends Component<{}> {
     });
     return rs;
   }
+
+  startAnonymousTrack() {
+    var auth_token = "";
+    AsyncStorage.getItem('mmp_auth_token', (err, item) => auth_token = item);
+    fetch('https://managemyapi.azurewebsites.net/Mobile.asmx/SetJobStatus', {
+        method: 'POST',
+        headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json; charset=utf-8;',
+        'Data-Type': 'json'
+        },
+        body: JSON.stringify({
+            token: auth_token,
+            job_id: 0,
+            job_new_status: 1
+        }),
+    })
+    .then((response) => {
+        console.log("Started a new track");
+        console.log(JSON.stringify({
+            token: auth_token,
+            job_id: 0,
+            job_new_status: 1
+        }));
+    })
+    .catch((error) =>{
+        console.error(error);
+    }
+  );
+}
+
+closeAnonymousTrack() {
+    var auth_token = "";
+    AsyncStorage.getItem('mmp_auth_token', (err, item) => auth_token = item);
+    fetch('https://managemyapi.azurewebsites.net/Mobile.asmx/SetJobStatus', {
+        method: 'POST',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json; charset=utf-8;',
+            'Data-Type': 'json'
+        },
+        body: JSON.stringify({
+            token: auth_token,
+            job_id: 0,
+            job_new_status: 3
+        }),
+      })
+      .then((response) => {
+            console.log("Closed the track");
+            console.log(JSON.stringify({
+                token: auth_token,
+                job_id: 0,
+                job_new_status: 3
+            }));
+      })
+      .catch((error) =>{
+            console.error(error);
+      }
+    );
+}
+
+uploadSomePoints() {
+  var auth_token = "";
+  AsyncStorage.getItem('mmp_auth_token', (err, item) => auth_token = item);
+  fetch('https://managemyapi.azurewebsites.net/Mobile.asmx/UploadTrackpoints', {
+      method: 'POST',
+      headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json; charset=utf-8;',
+          'Data-Type': 'json'
+      },
+      body: JSON.stringify({
+          token: auth_token,
+          job_id: 0,
+          points: [
+            {
+                datetime: "2018-04-23 15:50:00",
+                lat: "-31.868819",
+                lon: "151.209295"
+            },
+            {
+                datetime: "2018-04-23 15:51:00",
+                lat: "-31.868319",
+                lon: "151.209295"
+            },
+            {
+                datetime: "2018-04-23 15:52:00",
+                lat: "-31.868719",
+                lon: "151.209295"
+            },
+            {
+                datetime: "2018-04-23 15:53:00",
+                lat: "-31.868119",
+                lon: "151.209295"
+            }
+          ]
+      }),
+    })
+    .then((response) => {
+          console.log("Closed the track");
+          console.log(JSON.stringify({
+              token: auth_token,
+              job_id: 0,
+              job_new_status: 3
+          }));
+    })
+    .catch((error) =>{
+          console.error(error);
+    }
+  );
+}
 
   render() {
     return (
