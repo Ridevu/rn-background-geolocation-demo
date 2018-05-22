@@ -219,15 +219,16 @@ export default class SimpleMap extends Component<{}> {
         lon: location.coords.longitude
       }]
     });
+    console.log('New marker set, unreported points count - ' + this.state.unreportedCoordinates.length.toString());
 
     if (this.state.unreportedCoordinates.length > 10)
     {
-        // TODO: send unreportedCoordinates to server
-        let coordinatesBuffer = unreportedCoordinates;
-        // flush them out
-        this.setState({
-            unreportedCoordinates: [this.state.unreportedCoordinates[this.state.unreportedCoordinates - 1]]
-          });              
+        // send the points
+        // if (this.uploadSomePoints()) {
+        //   this.setState({
+        //       unreportedCoordinates: [this.state.unreportedCoordinates[this.state.unreportedCoordinates - 1]]
+        //   });
+        // }
     }    
   }
 
@@ -277,6 +278,7 @@ export default class SimpleMap extends Component<{}> {
     })
     .then((response) => {
         console.log("Started an anonymous track");
+        this.uploadSomePoints(false);
     })
     .catch((error) =>{
         console.error(error);
@@ -308,7 +310,7 @@ async closeAnonymousTrack() {
       });
 }
 
-async uploadSomePoints(realPoints) {
+async uploadSomePoints(realPoints=true) {
   var auth_token = "";
   await AsyncStorage.getItem('@mmp:auth_token', (err, item) => auth_token = value = item);
   var pointsToReport =realPoints? this.state.unreportedCoordinates : dummyPoints;
@@ -327,14 +329,11 @@ async uploadSomePoints(realPoints) {
     })
     .then((response) => {
           console.log("Uploaded some points to track");
-          console.log(JSON.stringify({
-              token: auth_token,
-              job_id: 0,
-              job_new_status: 3
-          }));
+          return true;
     })
     .catch((error) =>{
           console.error(error);
+          return false;
     }
   );
 }
