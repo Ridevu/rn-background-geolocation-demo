@@ -3,7 +3,8 @@ import React, { Component } from 'react';
 import {
   Platform,
   StyleSheet,
-  View
+  View,
+  AsyncStorage
 } from 'react-native';
 
 // For dispatching back to HomeScreen
@@ -54,6 +55,7 @@ export default class SimpleMap extends Component<{}> {
       // MapView
       markers: [],
       coordinates: [],
+      unreportedCoordinates: [],
       showsUserLocation: false
     };
   }
@@ -203,8 +205,23 @@ export default class SimpleMap extends Component<{}> {
       coordinates: [...this.state.coordinates, {
         latitude: location.coords.latitude,
         longitude: location.coords.longitude
+      }],
+      unreportedCoordinates: [...this.state.unreportedCoordinates, {
+        "datetime": stringifyTime(new Date()),
+        lat: location.coords.latitude,
+        lon: location.coords.longitude
       }]
     });
+
+    if (this.state.unreportedCoordinates.length > 10)
+    {
+        // TODO: send unreportedCoordinates to server
+        let coordinatesBuffer = unreportedCoordinates;
+        // flush them out
+        this.setState({
+            unreportedCoordinates: [this.state.unreportedCoordinates[this.state.unreportedCoordinates - 1]]
+          });              
+    }    
   }
 
   setCenter(location) {
@@ -234,9 +251,14 @@ export default class SimpleMap extends Component<{}> {
     return rs;
   }
 
-  startAnonymousTrack() {
+  async startAnonymousTrack() {
     var auth_token = "";
-    AsyncStorage.getItem('mmp_auth_token', (err, item) => auth_token = item);
+    await AsyncStorage.getItem('@mmp:auth_token', (err, item) => auth_token = value = item);
+    body = JSON.stringify({
+      token: auth_token,
+      job_id: 0,
+      job_new_status: 1
+    });
     fetch('https://managemyapi.azurewebsites.net/Mobile.asmx/SetJobStatus', {
         method: 'POST',
         headers: {
@@ -244,29 +266,24 @@ export default class SimpleMap extends Component<{}> {
         'Content-Type': 'application/json; charset=utf-8;',
         'Data-Type': 'json'
         },
-        body: JSON.stringify({
-            token: auth_token,
-            job_id: 0,
-            job_new_status: 1
-        }),
+        body: body,
     })
     .then((response) => {
-        console.log("Started a new track");
-        console.log(JSON.stringify({
-            token: auth_token,
-            job_id: 0,
-            job_new_status: 1
-        }));
+        console.log("Started an anonymous track");
     })
     .catch((error) =>{
         console.error(error);
-    }
-  );
+    });
 }
 
-closeAnonymousTrack() {
+async closeAnonymousTrack() {
     var auth_token = "";
-    AsyncStorage.getItem('mmp_auth_token', (err, item) => auth_token = item);
+    await AsyncStorage.getItem('@mmp:auth_token', (err, item) => auth_token = value = item);
+    body = JSON.stringify({
+      token: auth_token,
+      job_id: 0,
+      job_new_status: 3
+    });
     fetch('https://managemyapi.azurewebsites.net/Mobile.asmx/SetJobStatus', {
         method: 'POST',
         headers: {
@@ -274,29 +291,19 @@ closeAnonymousTrack() {
             'Content-Type': 'application/json; charset=utf-8;',
             'Data-Type': 'json'
         },
-        body: JSON.stringify({
-            token: auth_token,
-            job_id: 0,
-            job_new_status: 3
-        }),
+        body: body,
       })
       .then((response) => {
-            console.log("Closed the track");
-            console.log(JSON.stringify({
-                token: auth_token,
-                job_id: 0,
-                job_new_status: 3
-            }));
+            console.log("Closed the anonymous track");
       })
       .catch((error) =>{
             console.error(error);
-      }
-    );
+      });
 }
 
-uploadSomePoints() {
+async uploadSomePoints() {
   var auth_token = "";
-  AsyncStorage.getItem('mmp_auth_token', (err, item) => auth_token = item);
+  await AsyncStorage.getItem('@mmp:auth_token', (err, item) => auth_token = value = item);  
   fetch('https://managemyapi.azurewebsites.net/Mobile.asmx/UploadTrackpoints', {
       method: 'POST',
       headers: {
@@ -332,7 +339,7 @@ uploadSomePoints() {
       }),
     })
     .then((response) => {
-          console.log("Closed the track");
+          console.log("Uploaded some points to track");
           console.log(JSON.stringify({
               token: auth_token,
               job_id: 0,
