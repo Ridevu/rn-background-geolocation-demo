@@ -4,12 +4,12 @@ import {StyleSheet, Text, View, TextInput, TouchableOpacity, Image, ImageBackgro
 
 import LoginForm from '../../components/loginform';
 
-
-import { StackNavigator, NavigationActions } from 'react-navigation';
+import { NavigationActions, StackActions } from 'react-navigation';
 
 import {StyleProvider} from "native-base";
 import Navigator from '../Navigator';
 
+import App from '../App';
 
 export default class LoginScreen extends Component {
     constructor(props) {
@@ -51,13 +51,13 @@ export default class LoginScreen extends Component {
             })
             .then((response) => response.json())
             .then((responseJson) => {
-                // this.setState({authToken: responseJson.d.token});
                 if(responseJson.d.auth_result == 0) {
-                    AsyncStorage.setItem('mmp_auth_token', responseJson.d.token);
+                    AsyncStorage.setItem('@mmp:auth_token', responseJson.d.token);
                     console.log("Auth token is " + responseJson.d.token);
                     AsyncStorage.setItem('mmp_user_id', responseJson.d.user.user_id.toString());
                     AsyncStorage.setItem('mmp_username', this.state.usernameValue);
                     AsyncStorage.setItem('mmp_password', this.state.passwordValue);
+                    AsyncStorage.getItem('@mmp:auth_token', (err, item) => console.log('Auth token in anymc storage is ' + item));
                     this.onClickNavigate('SimpleMap');    
                 }
             })
@@ -66,17 +66,23 @@ export default class LoginScreen extends Component {
             });
         }        
     }
+
+
     onClickNavigate(routeName) {
-        this.props.navigation.dispatch(NavigationActions.reset({
+        App.setRootRoute(routeName);
+        let action = StackActions.reset({
           index: 0,
-          key: null,
           actions: [
             NavigationActions.navigate({routeName: routeName, params: {
               username: this.state.username
             }})
-          ]
-        }));
-    }
+          ],
+          key: null
+        });
+        this.props.navigation.dispatch(action);    
+        
+      }
+    
         
 render() {
     return (
