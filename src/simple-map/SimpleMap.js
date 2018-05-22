@@ -42,6 +42,13 @@ const LONGITUDE_DELTA = 0.00421;
 
 const TRACKER_HOST = 'http://tracker.transistorsoft.com/locations/';
 
+const dummyPoints = [
+  { datetime: "2018-04-23 15:50:00", lat: "-31.868819", lon: "151.209295" },
+  { datetime: "2018-04-23 15:51:00", lat: "-31.868319", lon: "151.209295" },
+  { datetime: "2018-04-23 15:52:00", lat: "-31.868719", lon: "151.209295" },
+  { datetime: "2018-04-23 15:53:00", lat: "-31.868119", lon: "151.209295" }
+];
+
 export default class SimpleMap extends Component<{}> {
   constructor(props) {
     super(props);
@@ -301,9 +308,10 @@ async closeAnonymousTrack() {
       });
 }
 
-async uploadSomePoints() {
+async uploadSomePoints(realPoints) {
   var auth_token = "";
-  await AsyncStorage.getItem('@mmp:auth_token', (err, item) => auth_token = value = item);  
+  await AsyncStorage.getItem('@mmp:auth_token', (err, item) => auth_token = value = item);
+  var pointsToReport =realPoints? this.state.unreportedCoordinates : dummyPoints;
   fetch('https://managemyapi.azurewebsites.net/Mobile.asmx/UploadTrackpoints', {
       method: 'POST',
       headers: {
@@ -314,28 +322,7 @@ async uploadSomePoints() {
       body: JSON.stringify({
           token: auth_token,
           job_id: 0,
-          points: [
-            {
-                datetime: "2018-04-23 15:50:00",
-                lat: "-31.868819",
-                lon: "151.209295"
-            },
-            {
-                datetime: "2018-04-23 15:51:00",
-                lat: "-31.868319",
-                lon: "151.209295"
-            },
-            {
-                datetime: "2018-04-23 15:52:00",
-                lat: "-31.868719",
-                lon: "151.209295"
-            },
-            {
-                datetime: "2018-04-23 15:53:00",
-                lat: "-31.868119",
-                lon: "151.209295"
-            }
-          ]
+          points: pointsToReport
       }),
     })
     .then((response) => {
