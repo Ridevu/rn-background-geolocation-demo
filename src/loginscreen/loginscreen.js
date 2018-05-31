@@ -88,7 +88,8 @@ render() {
     return (
         <ImageBackground source={require('../../images/background-image-for-app.jpg')} style={styles.container}>
             <View style={styles.logocontainer}>
-                <Image source={require('../../images/logo-image-for-app.png')} style={styles.logo} />
+                {/* <Image source={require('../../images/logo-image-for-app.png')} style={styles.logo} /> */}
+                <Image source={require('../../images/S.png')} style={styles.logo} />
             </View>
 
             <View style={styles.loginformcontainer}>
@@ -118,8 +119,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     logo: {
-        width: 140,
-        height: 140,
+        flex: 1,
+        width: 400,
+        height: 200,
+        resizeMode: 'contain'
+        //         width: 500,
+        // height: 140,
     },
     loginformcontainer: {
         alignItems: 'center',

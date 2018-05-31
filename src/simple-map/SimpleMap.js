@@ -1,10 +1,10 @@
-
 import React, { Component } from 'react';
 import {
   Platform,
   StyleSheet,
   View,
-  AsyncStorage
+  AsyncStorage,
+  TouchableHighlight
 } from 'react-native';
 
 // For dispatching back to HomeScreen
@@ -12,6 +12,8 @@ import App from '../App';
 
 // For posting to tracker.transistorsoft.com
 import DeviceInfo from 'react-native-device-info';
+
+import Notification from 'react-native-in-app-notification';
 
 // Import native-base UI components
 import { 
@@ -103,6 +105,9 @@ export default class SimpleMap extends Component<{}> {
         showsUserLocation: state.enabled
       });      
     });
+
+    // let defaultLocation = { coords: { latitude: -33.786933, longitude: 151.120263 } };
+    // this.setCenter(defaultLocation);    
   }
 
   /**
@@ -158,43 +163,59 @@ export default class SimpleMap extends Component<{}> {
       enabled: enabled,
       isMoving: false,
       showsUserLocation: false,
-      coordinates: [],
-      markers: []
+      // coordinates: [],
+      // markers: []
     });
 
     if (enabled) {
-      BackgroundGeolocation.start((state) => {
+      this.setState({
+        coordinates: [],
+        markers: []
+      });
+        BackgroundGeolocation.start((state) => {
         // NOTE:  We tell react-native-maps to show location only AFTER BackgroundGeolocation
         // has requested location authorization.  If react-native-maps requests authorization first,
         // it will request WhenInUse -- "Permissions Tug-of-war"
         this.setState({
           showsUserLocation: true
         });
+        let isMoving = true;
+        this.setState({isMoving: isMoving});
+        BackgroundGeolocation.changePace(isMoving);          
         this.startAnonymousTrack();
         // this.uploadSomePoints(false);
       });
     } else {      
       BackgroundGeolocation.stop();
+      console.log('Closing the track - sending remaining points to server');
+      this.uploadSomePoints();
       this.closeAnonymousTrack();
     }
   }
 
   onClickGetCurrentPosition() {
-    BackgroundGeolocation.getCurrentPosition((location) => {
-      console.log('- getCurrentPosition success: ', location);
-    }, (error) => {
-      console.warn('- getCurrentPosition error: ', error);
-    }, {
-      persist: true,
-      samples: 1
+    this.setState({
+      coordinates: [],
+      markers: []
     });
+    
+    // BackgroundGeolocation.getCurrentPosition((location) => {
+    //   console.log('- getCurrentPosition success: ', location);
+    // }, (error) => {
+    //   console.warn('- getCurrentPosition error: ', error);
+    // }, {
+    //   persist: true,
+    //   samples: 1
+    // });
   }
 
   onClickChangePace() {
     console.log('- onClickChangePace');
-    let isMoving = !this.state.isMoving;
-    this.setState({isMoving: isMoving});
-    BackgroundGeolocation.changePace(isMoving);
+    if (this.state.enabled) {
+      let isMoving = !this.state.isMoving;
+      this.setState({isMoving: isMoving});
+      BackgroundGeolocation.changePace(isMoving);
+    }
   }
 
   padDateTimeElements(input)
@@ -362,15 +383,15 @@ async uploadSomePoints(realPoints=true) {
       <Container style={styles.container}>
         <Header style={styles.header}>
           <Left>
-            <Button transparent onPress={this.onClickHome.bind(this)}>
-              <Icon active name="arrow-back" style={styles.title} />
-            </Button>
+            <Switch onValueChange={() => this.onToggleEnabled()} value={this.state.enabled} />
           </Left>
           <Body>
-            <Title style={styles.title}>Simple Map</Title>
+            <Title style={styles.title}>Start/Stop</Title>
           </Body>
           <Right>
-            <Switch onValueChange={() => this.onToggleEnabled()} value={this.state.enabled} />
+            <Button transparent onPress={this.onClickHome.bind(this)}>
+              <Icon active name="md-exit" style={styles.title} />
+            </Button>
           </Right>
         </Header>
 
@@ -407,7 +428,7 @@ async uploadSomePoints(realPoints=true) {
         <Footer style={styles.footer}>
           <Left style={{flex:0.3}}>
             <Button info>
-              <Icon active name="md-navigate" style={styles.icon} onPress={this.onClickGetCurrentPosition.bind(this)} />
+              <Icon active name="md-done-all" style={styles.icon} onPress={this.onClickGetCurrentPosition.bind(this)} />
             </Button>
           </Left>
           <Body style={styles.footerBody}>
@@ -420,6 +441,7 @@ async uploadSomePoints(realPoints=true) {
             </Button>
           </Right>
         </Footer>
+        <Notification ref={(ref) => { this.notification = ref; }} />
       </Container>
     );
   }
