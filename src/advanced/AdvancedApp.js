@@ -27,7 +27,7 @@ export default AdvancedApp = createStackNavigator({
     screen: AboutView
   }
 }, {
-  initialRouteName: 'Home',
+  initialRouteName: 'Login',
   headerMode: 'none',
   mode: 'modal'  
 });
