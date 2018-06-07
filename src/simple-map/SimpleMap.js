@@ -193,7 +193,7 @@ export default class SimpleMap extends Component<{}> {
     }
   }
 
-  onClickGetCurrentPosition() {
+  onClickResetMarkers() {
     this.setState({
       coordinates: [],
       markers: []
@@ -209,14 +209,14 @@ export default class SimpleMap extends Component<{}> {
     // });
   }
 
-  onClickChangePace() {
-    console.log('- onClickChangePace');
-    if (this.state.enabled) {
-      let isMoving = !this.state.isMoving;
-      this.setState({isMoving: isMoving});
-      BackgroundGeolocation.changePace(isMoving);
-    }
-  }
+  // onClickChangePace() {
+  //   console.log('- onClickChangePace');
+  //   if (this.state.enabled) {
+  //     let isMoving = !this.state.isMoving;
+  //     this.setState({isMoving: isMoving});
+  //     BackgroundGeolocation.changePace(isMoving);
+  //   }
+  // }
 
   padDateTimeElements(input)
   {
@@ -428,18 +428,18 @@ async uploadSomePoints(realPoints=true) {
         <Footer style={styles.footer}>
           <Left style={{flex:0.3}}>
             <Button info>
-              <Icon active name="md-done-all" style={styles.icon} onPress={this.onClickGetCurrentPosition.bind(this)} />
+              <Icon active name="md-done-all" style={styles.icon} onPress={this.onClickResetMarkers.bind(this)} />
             </Button>
           </Left>
           <Body style={styles.footerBody}>
             <Text style={styles.status}>{this.state.motionActivity.activity}:{this.state.motionActivity.confidence}% &middot; {this.state.odometer}km</Text>
           </Body>
 
-          <Right style={{flex: 0.25}}>
+          {/* <Right style={{flex: 0.25}}>
             <Button danger={this.state.isMoving} success={!this.state.isMoving} onPress={this.onClickChangePace.bind(this)}>
               <Icon active name={(this.state.isMoving) ? 'pause' : 'play'} style={styles.icon}/>
             </Button>
-          </Right>
+          </Right> */}
         </Footer>
         <Notification ref={(ref) => { this.notification = ref; }} />
       </Container>
