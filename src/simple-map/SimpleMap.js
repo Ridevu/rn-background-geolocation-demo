@@ -386,7 +386,7 @@ async uploadSomePoints(realPoints=true) {
             <Switch onValueChange={() => this.onToggleEnabled()} value={this.state.enabled} />
           </Left>
           <Body>
-            <Title style={styles.title}>Start/Stop</Title>
+            <Title style={styles.title}>Stop/Start</Title>
           </Body>
           <Right>
             <Button transparent onPress={this.onClickHome.bind(this)}>
