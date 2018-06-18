@@ -198,15 +198,16 @@ export default class SimpleMap extends Component<{}> {
   {
       return ('0' + input.toString()).slice(-2);
   }
-  
+    
   stringifyTime(timeInput)
   {
-    let timeString =	timeInput.getFullYear().toString() + '-' +
-    this.padDateTimeElements(timeInput.getMonth()+1) + '-' +
-    this.padDateTimeElements(timeInput.getDate()) + ' ' +
-    this.padDateTimeElements(timeInput.getHours()) + ':' +
-    this.padDateTimeElements(timeInput.getMinutes()) + ':' +
-    this.padDateTimeElements(timeInput.getSeconds());
+
+    let timeString =	timeInput.getUTCFullYear().toString() + '-' +
+    this.padDateTimeElements(timeInput.getUTCMonth()+1) + '-' +
+    this.padDateTimeElements(timeInput.getUTCDate()) + ' ' +
+    this.padDateTimeElements(timeInput.getUTCHours()) + ':' +
+    this.padDateTimeElements(timeInput.getUTCMinutes()) + ':' +
+    this.padDateTimeElements(timeInput.getUTCSeconds());
     return timeString;
   }
 
