@@ -66,7 +66,6 @@ export default class LoginScreen extends Component {
                 }
             })
             .catch((error) =>{
-
                 console.error(error);
                 this.setState({
                     loggingIn: false
@@ -96,23 +95,17 @@ render() {
     return (
         <ImageBackground source={require('../../images/background-image-for-app.jpg')} style={styles.container}>
             <View style={styles.logocontainer}>
-                {/* <Image source={require('../../images/logo-image-for-app.png')} style={styles.logo} /> */}
                 <Image source={require('../../images/S.png')} style={styles.logo} />
             </View>
 
-            <ScrollView scrollEnabled={false} contentContainerStyle={styles.loginformcontainer}>
+            <View scrollEnabled={false} style={styles.loginformcontainer}>
                 <TextInput underlineColorAndroid='transparent' defaultValue={this.state.usernameValue} placeholder='Username' style={styles.textinput} onChangeText={changeUsername} />
                 <TextInput underlineColorAndroid='transparent' defaultValue={this.state.passwordValue} placeholder='Password' secureTextEntry={true} style={styles.textinput}  onChangeText={changePassword} />
-            </ScrollView>
-
-            <View>
+                <ActivityIndicator size="large" color="#ffff00" style={{opacity: this.state.loggingIn ? 1.0 : 0.0}} animating={true} />
                 <TouchableOpacity style={styles.loginbtn} onPress={onLoginPressButton}>
                     <Text>Login</Text>
                 </ TouchableOpacity>
-                <ActivityIndicator size="large" color="#0000ff" animating={this.state.loggingIn} />
             </View>
-
-
         </ImageBackground>
     );
   }
@@ -125,6 +118,11 @@ const styles = StyleSheet.create({
         alignSelf: 'stretch',
         width: null,
         padding: 20,
+    },
+    horizontal: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        padding: 10
     },
     logocontainer: {
         flex: 1,
