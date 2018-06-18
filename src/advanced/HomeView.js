@@ -162,6 +162,8 @@ export default class HomeView extends Component<{}> {
     // config.stopTimeout = 5;
     //
     BackgroundGeolocation.ready({
+      desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_HIGH,
+      distanceFilter: 5,
       reset: false,
       debug: true,
       logLevel: BackgroundGeolocation.LOG_LEVEL_VERBOSE,

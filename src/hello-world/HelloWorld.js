@@ -61,7 +61,8 @@ export default class HelloWorld extends Component<{}> {
 
     // Step 2:  #configure:
     BackgroundGeolocation.ready({
-      distanceFilter: 10,
+      desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_HIGH,
+      distanceFilter: 5,
       stopOnTerminate: false,
       startOnBoot: true,
       foregroundService: true,
