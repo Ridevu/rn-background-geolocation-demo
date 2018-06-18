@@ -105,9 +105,6 @@ export default class SimpleMap extends Component<{}> {
         showsUserLocation: state.enabled
       });      
     });
-
-    // let defaultLocation = { coords: { latitude: -33.786933, longitude: 151.120263 } };
-    // this.setCenter(defaultLocation);    
   }
 
   /**
@@ -163,8 +160,6 @@ export default class SimpleMap extends Component<{}> {
       enabled: enabled,
       isMoving: false,
       showsUserLocation: false,
-      // coordinates: [],
-      // markers: []
     });
 
     if (enabled) {
@@ -183,7 +178,6 @@ export default class SimpleMap extends Component<{}> {
         this.setState({isMoving: isMoving});
         BackgroundGeolocation.changePace(isMoving);          
         this.startAnonymousTrack();
-        // this.uploadSomePoints(false);
       });
     } else {      
       BackgroundGeolocation.stop();
@@ -198,25 +192,7 @@ export default class SimpleMap extends Component<{}> {
       coordinates: [],
       markers: []
     });
-    
-    // BackgroundGeolocation.getCurrentPosition((location) => {
-    //   console.log('- getCurrentPosition success: ', location);
-    // }, (error) => {
-    //   console.warn('- getCurrentPosition error: ', error);
-    // }, {
-    //   persist: true,
-    //   samples: 1
-    // });
   }
-
-  // onClickChangePace() {
-  //   console.log('- onClickChangePace');
-  //   if (this.state.enabled) {
-  //     let isMoving = !this.state.isMoving;
-  //     this.setState({isMoving: isMoving});
-  //     BackgroundGeolocation.changePace(isMoving);
-  //   }
-  // }
 
   padDateTimeElements(input)
   {
@@ -257,12 +233,14 @@ export default class SimpleMap extends Component<{}> {
         lon: location.coords.longitude
       }]
     });
+    // let markersToAsyncStorage = JSON.stringify(this.state.markers);
+    // AsyncStorage.setItem('@mmp:markers_in_async_storage', markersToAsyncStorage);
+
     console.log('New marker set, unreported points count - ' + this.state.unreportedCoordinates.length.toString());
 
     if (this.state.unreportedCoordinates.length > 5)
     {
       console.log("Points ready to be uploaded - " + this.state.unreportedCoordinates.length.toString() + " points to be sent!");
-      // console.log(JSON.stringify(this.state.unreportedCoordinates));
       this.uploadSomePoints();
     }
   }
@@ -434,12 +412,6 @@ async uploadSomePoints(realPoints=true) {
           <Body style={styles.footerBody}>
             <Text style={styles.status}>{this.state.motionActivity.activity}:{this.state.motionActivity.confidence}% &middot; {this.state.odometer}km</Text>
           </Body>
-
-          {/* <Right style={{flex: 0.25}}>
-            <Button danger={this.state.isMoving} success={!this.state.isMoving} onPress={this.onClickChangePace.bind(this)}>
-              <Icon active name={(this.state.isMoving) ? 'pause' : 'play'} style={styles.icon}/>
-            </Button>
-          </Right> */}
         </Footer>
         <Notification ref={(ref) => { this.notification = ref; }} />
       </Container>
