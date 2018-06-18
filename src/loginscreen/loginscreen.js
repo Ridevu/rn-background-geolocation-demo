@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import {StyleSheet, Text, View, TextInput, TouchableOpacity, Image, ImageBackground, AsyncStorage} from "react-native";
+import {StyleSheet, Text, View, TextInput, TouchableOpacity, Image, ImageBackground, AsyncStorage, ScrollView, ActivityIndicator} from "react-native";
 
 import LoginForm from '../../components/loginform';
 
@@ -19,6 +19,7 @@ export default class LoginScreen extends Component {
             usernameValue: '',
             passwordValue: '',
             token: '',
+            loggingIn: false
         }
 
         AsyncStorage.getItem('mmp_username').then((value) => {this.setState({usernameValue: value})});
@@ -35,6 +36,9 @@ export default class LoginScreen extends Component {
         }
         onLoginPressButton = () => {
             console.log('State is: ' + JSON.stringify(this.state));
+            this.setState({
+                loggingIn: true
+            });                          
 
             fetch('https://managemyapi.azurewebsites.net/Mobile.asmx/AuthRequest', {
                 method: 'POST',
@@ -62,7 +66,11 @@ export default class LoginScreen extends Component {
                 }
             })
             .catch((error) =>{
+
                 console.error(error);
+                this.setState({
+                    loggingIn: false
+                });                          
             });
         }        
     }
@@ -92,13 +100,18 @@ render() {
                 <Image source={require('../../images/S.png')} style={styles.logo} />
             </View>
 
-            <View style={styles.loginformcontainer}>
+            <ScrollView scrollEnabled={false} contentContainerStyle={styles.loginformcontainer}>
                 <TextInput underlineColorAndroid='transparent' defaultValue={this.state.usernameValue} placeholder='Username' style={styles.textinput} onChangeText={changeUsername} />
                 <TextInput underlineColorAndroid='transparent' defaultValue={this.state.passwordValue} placeholder='Password' secureTextEntry={true} style={styles.textinput}  onChangeText={changePassword} />
+            </ScrollView>
+
+            <View>
                 <TouchableOpacity style={styles.loginbtn} onPress={onLoginPressButton}>
                     <Text>Login</Text>
                 </ TouchableOpacity>
+                <ActivityIndicator size="large" color="#0000ff" animating={this.state.loggingIn} />
             </View>
+
 
         </ImageBackground>
     );
