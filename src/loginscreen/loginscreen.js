@@ -19,7 +19,9 @@ export default class LoginScreen extends Component {
             usernameValue: '',
             passwordValue: '',
             token: '',
-            loggingIn: false
+            loggingIn: false,
+            loginError: false,
+            loginErrorMessage: null
         }
 
         AsyncStorage.getItem('mmp_username').then((value) => {this.setState({usernameValue: value})});
@@ -37,7 +39,9 @@ export default class LoginScreen extends Component {
         onLoginPressButton = () => {
             console.log('State is: ' + JSON.stringify(this.state));
             this.setState({
-                loggingIn: true
+                loggingIn: true,
+                loginError: false,
+                loginErrorMessage: null
             });                          
 
             fetch('https://managemyapi.azurewebsites.net/Mobile.asmx/AuthRequest', {
@@ -64,11 +68,20 @@ export default class LoginScreen extends Component {
                     AsyncStorage.getItem('@mmp:auth_token', (err, item) => console.log('Auth token in anymc storage is ' + item));
                     this.onClickNavigate('SimpleMap');    
                 }
+                else {
+                    this.setState({
+                        loggingIn: false,
+                        loginError: true,
+                        loginErrorMessage: 'Login failed'
+                    });                    
+                }
             })
             .catch((error) =>{
                 console.error(error);
                 this.setState({
-                    loggingIn: false
+                    loggingIn: false,
+                    loginError: true,
+                    loginErrorMessage: error
                 });                          
             });
         }        
@@ -101,10 +114,16 @@ render() {
             <View scrollEnabled={false} style={styles.loginformcontainer}>
                 <TextInput underlineColorAndroid='transparent' defaultValue={this.state.usernameValue} placeholder='Username' style={styles.textinput} onChangeText={changeUsername} />
                 <TextInput underlineColorAndroid='transparent' defaultValue={this.state.passwordValue} placeholder='Password' secureTextEntry={true} style={styles.textinput}  onChangeText={changePassword} />
-                <ActivityIndicator size="large" color="#ffff00" style={{opacity: this.state.loggingIn ? 1.0 : 0.0}} animating={true} />
                 <TouchableOpacity style={styles.loginbtn} onPress={onLoginPressButton}>
                     <Text>Login</Text>
                 </ TouchableOpacity>
+                <ActivityIndicator size="large" color="#ffff00" style={{opacity: this.state.loggingIn ? 1.0 : 0.0}} animating={true} />
+                <Text style={{color: 'red', fontWeight: 'bold', opacity: this.state.loginError? 1.0: 0.0}}>
+                    Login error:
+                </Text>
+                <Text style={{color: 'red', opacity: this.state.loginErrorMessage != null? 1.0: 0.0}}>
+                    {this.state.loginErrorMessage}
+                </Text>
             </View>
         </ImageBackground>
     );
