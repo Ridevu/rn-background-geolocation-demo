@@ -234,8 +234,6 @@ export default class SimpleMap extends Component<{}> {
         lon: location.coords.longitude
       }]
     });
-    // let markersToAsyncStorage = JSON.stringify(this.state.markers);
-    // AsyncStorage.setItem('@mmp:markers_in_async_storage', markersToAsyncStorage);
 
     console.log('New marker set, unreported points count - ' + this.state.unreportedCoordinates.length.toString());
 

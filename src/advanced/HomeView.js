@@ -161,9 +161,16 @@ export default class HomeView extends Component<{}> {
     // If you want to override any config options provided by the Settings screen, this is the place to do it, eg:
     // config.stopTimeout = 5;
     //
+    console.log('HomeView: about to configure');
     BackgroundGeolocation.ready({
       desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_HIGH,
-      distanceFilter: 5,
+      notificationPriority: BackgroundGeolocation.NOTIFICATION_PRIORITY_MIN,
+      distanceFilter: 0,
+      locationUpdateInterval: 2000,
+      fastestLocationUpdateInterval: 2000,
+      notificationTitle: "HomeView",
+      notificationText: "HomeView",
+      allowIdenticalLocations: true,
       reset: false,
       debug: true,
       logLevel: BackgroundGeolocation.LOG_LEVEL_VERBOSE,

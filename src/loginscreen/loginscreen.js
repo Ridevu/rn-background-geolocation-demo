@@ -112,8 +112,8 @@ render() {
             </View>
 
             <View scrollEnabled={false} style={styles.loginformcontainer}>
-                <TextInput underlineColorAndroid='transparent' defaultValue={this.state.usernameValue} placeholder='Username' style={styles.textinput} onChangeText={changeUsername} />
-                <TextInput underlineColorAndroid='transparent' defaultValue={this.state.passwordValue} placeholder='Password' secureTextEntry={true} style={styles.textinput}  onChangeText={changePassword} />
+                <TextInput underlineColorAndroid='transparent' defaultValue={this.state.usernameValue} placeholder='Username' style={styles.textinput} autoCapitalize='none' onChangeText={changeUsername} />
+                <TextInput underlineColorAndroid='transparent' defaultValue={this.state.passwordValue} placeholder='Password' secureTextEntry={true} autoCapitalize='none' style={styles.textinput}  onChangeText={changePassword} />
                 <TouchableOpacity style={styles.loginbtn} onPress={onLoginPressButton}>
                     <Text>Login</Text>
                 </ TouchableOpacity>
