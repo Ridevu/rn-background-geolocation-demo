@@ -60,15 +60,12 @@ export default class HelloWorld extends Component<{}> {
     BackgroundGeolocation.on('heartbeat', this.onHeartbeat.bind(this));
 
     // Step 2:  #configure:
-    console.log('HelloWorld: about to configure');
     BackgroundGeolocation.ready({
       desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_HIGH,
       notificationPriority: BackgroundGeolocation.NOTIFICATION_PRIORITY_MIN,
       distanceFilter: 0,
-      locationUpdateInterval: 2000,
-      fastestLocationUpdateInterval: 2000,
-      notificationTitle: "HelloWorld",
-      notificationText: "HelloWorld",
+      locationUpdateInterval: 5000,
+      fastestLocationUpdateInterval: 5000,
       allowIdenticalLocations: true,
       stopOnTerminate: false,
       startOnBoot: true,

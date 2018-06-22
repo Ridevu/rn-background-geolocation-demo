@@ -44,13 +44,6 @@ const LONGITUDE_DELTA = 0.00421;
 
 const TRACKER_HOST = 'http://tracker.transistorsoft.com/locations/';
 
-const dummyPoints = [
-  { datetime: "2018-04-23 15:50:00", lat: "-31.868819", lon: "151.209295" },
-  { datetime: "2018-04-23 15:51:00", lat: "-31.868319", lon: "151.209295" },
-  { datetime: "2018-04-23 15:52:00", lat: "-31.868719", lon: "151.209295" },
-  { datetime: "2018-04-23 15:53:00", lat: "-31.868119", lon: "151.209295" }
-];
-
 export default class SimpleMap extends Component<{}> {
   constructor(props) {
     super(props);
@@ -79,7 +72,13 @@ export default class SimpleMap extends Component<{}> {
 
     // Step 2:  #configure:
     BackgroundGeolocation.configure({
-      distanceFilter: 10,
+      desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_HIGH,
+      notificationPriority: BackgroundGeolocation.NOTIFICATION_PRIORITY_MIN,
+      distanceFilter: 0,
+      locationUpdateInterval: 5000,
+      fastestLocationUpdateInterval: 5000,
+      notificationText: "Tap will reset map markers",
+      allowIdenticalLocations: true,
       url: TRACKER_HOST + this.state.username,
       params: {
         // Required for tracker.transistorsoft.com
@@ -324,9 +323,7 @@ async closeAnonymousTrack() {
 async uploadSomePoints(realPoints=true) {
   var auth_token = "";
   await AsyncStorage.getItem('@mmp:auth_token', (err, item) => auth_token = item);
-  var pointsToReport = dummyPoints;
-  if (realPoints)
-      pointsToReport = this.state.unreportedCoordinates;
+  var pointsToReport = this.state.unreportedCoordinates;
   console.log("pointsToReport = " + pointsToReport.length.toString());
   var body = JSON.stringify({
     token: auth_token,
