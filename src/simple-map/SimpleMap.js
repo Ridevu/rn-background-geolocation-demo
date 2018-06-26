@@ -372,6 +372,12 @@ async uploadSomePoints(realPoints=true) {
         <MapView
           ref="map"
           style={styles.map}
+          initialRegion={{
+            latitude: -33.8688,
+            longitude: 151.2093,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          }}
           showsUserLocation={this.state.showsUserLocation}
           followsUserLocation={false}
           scrollEnabled={true}

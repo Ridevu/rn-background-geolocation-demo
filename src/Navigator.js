@@ -36,7 +36,8 @@ class Root extends Component<{}> {
       if (!page) {
         // Default route:  Home
         page = "LoginScreen";
-        AsyncStorage.setItem("@transistorsoft:initialRouteName", page);
+        // AsyncStorage.setItem("@transistorsoft:initialRouteName", page);
+        AsyncStorage.setItem("@transistorsoft:initialRouteName", "LoginScreen");
       }
       // Append username to route params.
       AsyncStorage.getItem("@transistorsoft:username", (err, username) => {
