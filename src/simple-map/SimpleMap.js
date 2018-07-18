@@ -408,12 +408,20 @@ async uploadSomePoints(realPoints=true) {
         <Footer style={styles.footer}>
           <Left style={{flex:0.3}}>
             <Button info>
-              <Icon active name="md-done-all" style={styles.icon} onPress={this.onClickResetMarkers.bind(this)} />
+              <Icon active name="md-play" style={styles.icon} onPress={this.onClickResetMarkers.bind(this)} />
             </Button>
           </Left>
           <Body style={styles.footerBody}>
-            <Text style={styles.status}>{this.state.motionActivity.activity}:{this.state.motionActivity.confidence}% &middot; {this.state.odometer}km</Text>
+            {/* <Text style={styles.status}>{this.state.motionActivity.activity}:{this.state.motionActivity.confidence}% &middot; {this.state.odometer}km</Text> */}
+            <Button info>
+              <Icon active name="md-pause" style={styles.icon} onPress={this.onClickResetMarkers.bind(this)} />
+            </Button>
           </Body>
+          <Right style={{flex:0.3}}>
+            <Button info>
+              <Icon active name="md-close" style={styles.icon} onPress={this.onClickResetMarkers.bind(this)} />
+            </Button>
+          </Right>
         </Footer>
         <Notification ref={(ref) => { this.notification = ref; }} />
       </Container>
@@ -444,7 +452,7 @@ var styles = StyleSheet.create({
     color: '#000'
   },
   footer: {
-    backgroundColor: '#fedd1e',
+    backgroundColor: '#ffffff',
     paddingLeft: 10, 
     paddingRight: 10
   },
