@@ -1,12 +1,23 @@
 import React, { Component } from 'react';
 
-import {StyleSheet, Text, View, TextInput, TouchableOpacity, Image, ImageBackground, AsyncStorage, ScrollView, ActivityIndicator} from "react-native";
+import {StyleSheet, Text, View, TextInput, TouchableOpacity, TouchableHighlight, Image, ImageBackground, AsyncStorage, ScrollView, ActivityIndicator} from "react-native";
 
 import LoginForm from '../../components/loginform';
 
 import { NavigationActions, StackActions } from 'react-navigation';
 
-import {StyleProvider} from "native-base";
+import { 
+    Container,
+    StyleProvider
+    // Header, Footer, Title,
+    // Content, 
+    // Left, Body, Right,
+    // Switch 
+  } from 'native-base';
+
+import { Button } from 'react-native-elements';
+import Icon from 'react-native-vector-icons/FontAwesome';  
+  
 import Navigator from '../Navigator';
 
 import App from '../App';
@@ -21,7 +32,7 @@ export default class StartPage extends Component {
             token: ''
         }
 
-        AsyncStorage.getItem('mmp_username').then((value) => {this.setState({usernameValue: value})});
+        AsyncStorage.getItem('mmp_username').then((value) => {this.setState({usernameValue: value.toString().toLowerCase()})});
 
 
         onLoginPressButton = () => {
@@ -48,30 +59,41 @@ export default class StartPage extends Component {
         
 render() {
     return (
-        <ImageBackground style={styles.container}>
-        {/* <ImageBackground source={require('../../images/background-image-for-app.jpg')} style={styles.container}> */}
-
-            <View scrollEnabled={false} style={styles.loginformcontainer}>
-                <TouchableOpacity style={styles.loginbtn} onPress={onLoginPressButton}>
-                    {/* <Text>Login</Text> */}
-                    <Icon active name="md-play" style={styles.icon} onPress={this.onClickResetMarkers.bind(this)} />
-                </ TouchableOpacity>
-                <Text style={{color: 'red', fontWeight: 'bold'}}>
-                    Start tracking as {this.state.usernameValue}
-                </Text>
-            </View>
-        </ImageBackground>
+        <View style={styles.container}>
+            <Text style={styles.infotext}>
+                You are logged in as
+            </Text>
+            <Text style={styles.infotextbold}> {this.state.usernameValue}</Text>
+            <Button
+                icon={{
+                    name: 'play-arrow',
+                    size: 30,
+                    color: 'white'
+                }}
+                buttonStyle={{backgroundColor: 'orange', borderRadius: 10}}
+                title='Start tracking' onPress={() => this.onClickNavigate('SimpleMap')}
+            >
+            </ Button>
+        </ View>
     );
   }
 }
 
 const styles = StyleSheet.create({
+    infotext: {
+        color: 'orange'
+    },
+    infotextbold: {
+        color: 'orange',
+        fontWeight: 'bold'
+    },
     container: {
         flex: 1,
         justifyContent: 'center',
         alignSelf: 'stretch',
         width: null,
         padding: 20,
+        margin: '20%'
     },
     horizontal: {
         flexDirection: 'row',
@@ -113,10 +135,11 @@ const styles = StyleSheet.create({
         fontSize: 20,
     },
     loginbtn: {
-        backgroundColor: '#ecf0f1',
-        alignSelf: 'stretch',
         alignItems: 'center',
         padding: 14,
         marginTop: 10,
     },
+    icon: {
+        color: '#fff'
+    }
 });
