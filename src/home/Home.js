@@ -6,7 +6,10 @@ import {
   AsyncStorage,
   Alert,
   Linking,
-  View
+  Image,
+  ImageBackground,
+  View,
+  ActivityIndicator
 } from 'react-native';
 import { NavigationActions, StackActions } from 'react-navigation';
 import {
@@ -53,6 +56,24 @@ export default class Home extends Component<{}> {
         this.onClickEditUsername();
       });
     }
+
+    
+
+    this.timeoutHandle = setTimeout(()=>{
+      AsyncStorage.getItem('@mmp:auth_token', (err, item) =>
+      {
+        console.log('Auth token in anymc storage is ' + item);
+        if(item) {
+          this.onClickNavigate('SimpleMap');
+        }
+        else{
+          this.onClickNavigate('LoginScreen');
+        }
+      });
+    }, 1000);
+
+
+
   }
   onClickNavigate(routeName) {
     App.setRootRoute(routeName);
@@ -143,82 +164,73 @@ export default class Home extends Component<{}> {
 
   render() {
     return (
-      <Container>
-        <Header style={styles.header}>
-          <Body>
-            <Title style={styles.title}>BG Geolocation</Title>
-          </Body>
-        </Header>
-        <Body style={styles.body}>
-            <H1 style={styles.h1}>Example Applications</H1>
-            <Button full style={styles.button} onPress={() => this.onClickNavigate('HelloWorld')}><Text>Hello World</Text></Button>
-            <Button full style={styles.button} onPress={() => this.onClickNavigate('SimpleMap')}><Text>Simple Map</Text></Button>
-            <Button full style={styles.button} onPress={() => this.onClickNavigate('Advanced')}><Text>Advanced</Text></Button>
-            <Button full style={styles.button} onPress={() => this.onClickNavigate('LoginScreen')}><Text>Login</Text></Button>
-        </Body>
 
-        <Footer style={styles.footer}>
-            <Card style={styles.userInfo}>
-              <Text style={styles.p}>These apps will post locations to Transistor Software's demo server.  You can view your tracking in the browser by visiting:</Text>
-              <Text style={styles.url}>{this.state.url}</Text>
+    <ImageBackground style={styles.container}>
+    {/* <ImageBackground source={require('../../images/background-image-for-app.jpg')} style={styles.container}> */}
+      <View style={styles.logocontainer}>
+          <Image source={require('../../images/S.png')} style={styles.logo} />
+      </View>
 
-              <Item inlineLabel disabled>
-                <Label>Username</Label>
-                <Input value={this.state.username} />
-              </Item>
-              <CardItem style={{margin: 0}}>
-                <Left>
-                  <Button danger small full onPress={this.onClickEditUsername.bind(this)}><Text>Edit username</Text></Button>
-                </Left>
-                <Right>
-                  <Button small full onPress={this.onClickViewServer.bind(this)}><Text>View server</Text></Button>
-                </Right>
-              </CardItem>
-            </Card>
-        </Footer>
-      </Container>
+    <ActivityIndicator size="large" color="#ffff00" animating={true} />
+    <Text style={{color: 'red', fontWeight: 'bold'}}>
+      Loading...
+    </Text>
+
+    </ImageBackground>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  header: {
-    backgroundColor: '#fedd1e'
-  },
-  title: {
-    color: '#000'
-  },
-  body: {
-    width: '100%',
-    justifyContent: 'center',
-    backgroundColor:'#272727'
-  },
-  h1: {
-    color: '#fff',
-    marginBottom: 20
-  },
-  p: {
-    fontSize: 12,
-    marginBottom: 5
-  },
-  url: {
-    fontSize: 12,
-    textAlign: 'center'
-  },
-  button: {
-    marginBottom: 10
-  },
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+      flex: 1,
+      justifyContent: 'center',
+      alignSelf: 'stretch',
+      width: null,
+      padding: 20,
   },
-  footer: {
-    backgroundColor:"transparent",
-    height: 215
+  horizontal: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      padding: 10
   },
-  userInfo: {
-    padding: 10
-  }
+  logocontainer: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+  },
+  logo: {
+      flex: 1,
+      width: 400,
+      height: 200,
+      resizeMode: 'contain'
+  },
+  loginformcontainer: {
+      alignItems: 'center',
+  },
+  textinput: {
+      color: '#fff',
+      alignSelf: 'stretch',
+      padding: 12,
+      marginBottom: 10,
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+      borderColor: '#fff',
+      borderWidth: 0.6,
+  },
+  switch: {
+      padding: 12,
+      marginBottom: 30,
+      borderColor: '#fff',
+      borderWidth: 0.6,
+  },
+  text: {
+      fontSize: 20,
+  },
+  loginbtn: {
+      backgroundColor: '#ecf0f1',
+      alignSelf: 'stretch',
+      alignItems: 'center',
+      padding: 14,
+      marginTop: 10,
+  },
 });
