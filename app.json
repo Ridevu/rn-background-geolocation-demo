@@ -1,4 +1,17 @@
 {
-  "name": "BGGeolocation",
-  "displayName": "BG Geolocation"
+  "name": "ManageMyPost",
+  "displayName": "ManageMyPost - Tracker",
+  "expo": {
+    "name": "ManageMyPost - Tracker",
+    "icon": "./images/logo-image-for-app.png",
+    "version": "0.4.0",
+    "slug": "mmp-tracker",
+    "sdkVersion": "26.0.0",
+    "ios": {
+      "bundleIdentifier": "com.managemypost.geolocationtracker"
+    },
+    "android": {
+      "package": "com.managemypost.geolocationtracker"
+    }
+   }  
 }
