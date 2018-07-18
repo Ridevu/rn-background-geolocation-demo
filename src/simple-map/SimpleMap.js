@@ -407,18 +407,18 @@ async uploadSomePoints(realPoints=true) {
 
         <Footer style={styles.footer}>
           <Left style={{flex:0.3}}>
-            <Button info>
+            <Button style={styles.btn}>
               <Icon active name="md-play" style={styles.icon} onPress={this.onClickResetMarkers.bind(this)} />
             </Button>
           </Left>
           <Body style={styles.footerBody}>
             {/* <Text style={styles.status}>{this.state.motionActivity.activity}:{this.state.motionActivity.confidence}% &middot; {this.state.odometer}km</Text> */}
-            <Button info>
+            <Button style={styles.btn}>
               <Icon active name="md-pause" style={styles.icon} onPress={this.onClickResetMarkers.bind(this)} />
             </Button>
           </Body>
           <Right style={{flex:0.3}}>
-            <Button info>
+            <Button style={styles.btn}>
               <Icon active name="md-close" style={styles.icon} onPress={this.onClickResetMarkers.bind(this)} />
             </Button>
           </Right>
@@ -442,17 +442,21 @@ async uploadSomePoints(realPoints=true) {
 }
 
 var styles = StyleSheet.create({
+  btn: {
+    backgroundColor: '#ffffff',
+    borderRadius: 5
+  },
   container: {
     backgroundColor: '#272727'
   },
   header: {
-    backgroundColor: '#fedd1e'
+    backgroundColor: 'orange'
   },
   title: {
     color: '#000'
   },
   footer: {
-    backgroundColor: '#ffffff',
+    backgroundColor: 'orange',
     paddingLeft: 10, 
     paddingRight: 10
   },
@@ -462,7 +466,7 @@ var styles = StyleSheet.create({
     flex: 1
   },
   icon: {
-    color: '#fff'
+    color: 'orange'
   },
   map: {
     flex: 1
