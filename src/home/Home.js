@@ -64,7 +64,7 @@ export default class Home extends Component<{}> {
       {
         console.log('Auth token in anymc storage is ' + item);
         if(item) {
-          this.onClickNavigate('SimpleMap');
+          this.onClickNavigate('StartPage');
         }
         else{
           this.onClickNavigate('LoginScreen');
@@ -171,10 +171,10 @@ export default class Home extends Component<{}> {
           <Image source={require('../../images/S.png')} style={styles.logo} />
       </View>
 
-    <ActivityIndicator size="large" color="#ffff00" animating={true} />
+    {/* <ActivityIndicator size="large" color="#ffff00" animating={true} />
     <Text style={{color: 'red', fontWeight: 'bold'}}>
       Loading...
-    </Text>
+    </Text> */}
 
     </ImageBackground>
     );
@@ -188,6 +188,7 @@ const styles = StyleSheet.create({
       alignSelf: 'stretch',
       width: null,
       padding: 20,
+      backgroundColor: 'orange',
   },
   horizontal: {
       flexDirection: 'row',

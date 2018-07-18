@@ -66,7 +66,7 @@ export default class LoginScreen extends Component {
                     AsyncStorage.setItem('mmp_username', this.state.usernameValue);
                     AsyncStorage.setItem('mmp_password', this.state.passwordValue);
                     AsyncStorage.getItem('@mmp:auth_token', (err, item) => console.log('Auth token in anymc storage is ' + item));
-                    this.onClickNavigate('SimpleMap');    
+                    this.onClickNavigate('StartPage');    
                 }
                 else {
                     this.setState({
@@ -106,7 +106,8 @@ export default class LoginScreen extends Component {
         
 render() {
     return (
-        <ImageBackground source={require('../../images/background-image-for-app.jpg')} style={styles.container}>
+        <ImageBackground style={styles.container}>
+        {/* <ImageBackground source={require('../../images/background-image-for-app.jpg')} style={styles.container}> */}
             <View style={styles.logocontainer}>
                 <Image source={require('../../images/S.png')} style={styles.logo} />
             </View>
