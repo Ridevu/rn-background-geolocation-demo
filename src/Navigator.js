@@ -35,11 +35,12 @@ class Root extends Component<{}> {
       let params = {username: undefined};
       if (!page) {
         // Default route:  Home
-        page = "LoginScreen";
+        page = "Home";
         // AsyncStorage.setItem("@transistorsoft:initialRouteName", page);
-        AsyncStorage.setItem("@transistorsoft:initialRouteName", "LoginScreen");
+        AsyncStorage.setItem("@transistorsoft:initialRouteName", "Home");
       }
       // Append username to route params.
+      page = "Home";
       AsyncStorage.getItem("@transistorsoft:username", (err, username) => {
         // Append username to route-params
         if (username) { params.username = username; }
