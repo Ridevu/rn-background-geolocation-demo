@@ -75,6 +75,7 @@ export default class Home extends Component<{}> {
 
 
   }
+
   onClickNavigate(routeName) {
     App.setRootRoute(routeName);
     let action = StackActions.reset({
@@ -89,6 +90,7 @@ export default class Home extends Component<{}> {
     this.props.navigation.dispatch(action);    
     
   }
+
 
   onClickEditUsername() {
     AsyncStorage.getItem(USERNAME_KEY, (err, username) => {

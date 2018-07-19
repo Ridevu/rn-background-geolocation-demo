@@ -42,36 +42,29 @@ export default class StartPage extends Component {
 
 
     onClickNavigate(routeName) {
-        App.setRootRoute(routeName);
-        let action = StackActions.reset({
-          index: 0,
-          actions: [
-            NavigationActions.navigate({routeName: routeName, params: {
-              username: this.state.username
-            }})
-          ],
-          key: null
-        });
-        this.props.navigation.dispatch(action);    
-        
-      }
+        navigateAction = NavigationActions.navigate({
+            routeName: routeName,
+            params: { username: this.state.username },
+        });  
+        this.props.navigation.dispatch(navigateAction);        
+    }
     
         
 render() {
     return (
         <View style={styles.container}>
-            <Text style={styles.infotext}>
+            {/* <Text style={styles.infotext}>
                 You are logged in as
             </Text>
-            <Text style={styles.infotextbold}> {this.state.usernameValue}</Text>
+            <Text style={styles.infotextbold}> {this.state.usernameValue}</Text> */}
             <Button
-                icon={{
-                    name: 'play-arrow',
-                    size: 30,
-                    color: 'white'
-                }}
-                buttonStyle={{backgroundColor: 'orange', borderRadius: 10}}
+                buttonStyle={{backgroundColor: 'orange', borderRadius: 10, margin: 10}}
                 title='Start tracking' onPress={() => this.onClickNavigate('SimpleMap')}
+            >
+            </ Button>
+            <Button
+                buttonStyle={{backgroundColor: 'orange', borderRadius: 10, margin: 10}}
+                title='Log out' onPress={() => this.onClickNavigate('LoginScreen')}
             >
             </ Button>
         </ View>

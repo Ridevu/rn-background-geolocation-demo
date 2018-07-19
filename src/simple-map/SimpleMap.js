@@ -20,7 +20,7 @@ import {
   Container,
   Button, Icon,
   Text,
-  Header, Footer, Title,
+  Header, Footer, Title, FooterTab,
   Content, 
   Left, Body, Right,
   Switch 
@@ -50,6 +50,7 @@ export default class SimpleMap extends Component<{}> {
 
     this.state = {
       enabled: false,
+      paused: false,
       isMoving: false,
       motionActivity: {activity: 'unknown', confidence: 100},
       odometer: 0,
@@ -58,7 +59,8 @@ export default class SimpleMap extends Component<{}> {
       markers: [],
       coordinates: [],
       unreportedCoordinates: [],
-      showsUserLocation: false
+      showsUserLocation: false,
+      statusMessage: 'Waiting to start tracking',
     };
   }
 
@@ -101,7 +103,8 @@ export default class SimpleMap extends Component<{}> {
       this.setState({
         enabled: state.enabled,
         isMoving: state.isMoving,
-        showsUserLocation: state.enabled
+        showsUserLocation: state.enabled,
+        paused: state.paused
       });      
     });
   }
@@ -152,6 +155,61 @@ export default class SimpleMap extends Component<{}> {
     console.log('[event] powersavechange', isPowerSaveMode);
   }
 
+  onStartTracking(value) {
+    this.setState({
+      enabled: true,
+      paused: false,
+      statusMessage: 'Now tracking...',
+      // isMoving: false,
+      // showsUserLocation: false,
+      // coordinates: [],
+      // markers: []
+    });
+
+    // BackgroundGeolocation.start((state) => {
+    //   this.setState({
+    //     showsUserLocation: true
+    //   });
+    //   let isMoving = true;
+    //   this.setState({isMoving: isMoving});
+    //   BackgroundGeolocation.changePace(isMoving);          
+    //   this.startAnonymousTrack();
+    // });
+  }
+
+  onPauseTracking(value) {
+    this.setState({
+      enabled: false,
+      paused: true,
+      statusMessage: 'Tracking paused, but track still open',
+      // isMoving: false,
+      // showsUserLocation: false,
+    });
+
+    // BackgroundGeolocation.stop();
+    // console.log('Pausing the track - we may continue later...');
+  }
+
+  onStopTracking(value) {
+    this.setState({
+      enabled: false,
+      paused: false,
+      statusMessage: 'Sending last location points to server',
+      // isMoving: false,
+      // showsUserLocation: false,
+    });
+
+    // BackgroundGeolocation.stop();
+    // console.log('Closing the track - sending remaining points to server');
+    // this.uploadSomePoints();
+    // this.closeAnonymousTrack();
+    this.setState({
+      statusMessage: 'Track uploaded and closed',
+      // isMoving: false,
+      // showsUserLocation: false,
+    });
+  }
+  
   onToggleEnabled(value) {
     let enabled = !this.state.enabled;
 
@@ -186,7 +244,7 @@ export default class SimpleMap extends Component<{}> {
     }
   }
 
-  onClickResetMarkers() {
+  onResetMarkers() {
     this.setState({
       coordinates: [],
       markers: []
@@ -355,20 +413,6 @@ async uploadSomePoints(realPoints=true) {
   render() {
     return (
       <Container style={styles.container}>
-        <Header style={styles.header}>
-          <Left>
-            <Switch onValueChange={() => this.onToggleEnabled()} value={this.state.enabled} />
-          </Left>
-          <Body>
-            <Title style={styles.title}>Stop/Start</Title>
-          </Body>
-          <Right>
-            <Button transparent onPress={this.onClickHome.bind(this)}>
-              <Icon active name="md-exit" style={styles.title} />
-            </Button>
-          </Right>
-        </Header>
-
         <MapView
           ref="map"
           style={styles.map}
@@ -405,46 +449,50 @@ async uploadSomePoints(realPoints=true) {
           }
         </MapView>        
 
-        <Footer style={styles.footer}>
-          <Left style={{flex:0.3}}>
-            <Button style={styles.btn}>
-              <Icon active name="md-play" style={styles.icon} onPress={this.onClickResetMarkers.bind(this)} />
-            </Button>
-          </Left>
-          <Body style={styles.footerBody}>
-            {/* <Text style={styles.status}>{this.state.motionActivity.activity}:{this.state.motionActivity.confidence}% &middot; {this.state.odometer}km</Text> */}
-            <Button style={styles.btn}>
-              <Icon active name="md-pause" style={styles.icon} onPress={this.onClickResetMarkers.bind(this)} />
-            </Button>
-          </Body>
-          <Right style={{flex:0.3}}>
-            <Button style={styles.btn}>
-              <Icon active name="md-close" style={styles.icon} onPress={this.onClickResetMarkers.bind(this)} />
-            </Button>
-          </Right>
+        <Footer style={styles.btnbackground}>
+            <FooterTab>
+                <Button onPress={this.onStartTracking.bind(this)} disabled={this.state.enabled} style={styles.btn}>
+                  <Icon name='md-play' style={this.state.enabled ? styles.btnicondisabled: styles.btnicon}/>
+                </Button>
+                <Button onPress={this.onPauseTracking.bind(this)} disabled={!this.state.enabled || this.state.paused} style={styles.btn}>
+                  <Icon name='md-pause' style={!this.state.enabled || this.state.paused ? styles.btnicondisabled: styles.btnicon}/>
+                </Button>
+                <Button onPress={this.onStopTracking.bind(this)} disabled={!this.state.enabled && !this.state.paused} style={styles.btn}>
+                  <Icon name='md-cloud-upload' style={!this.state.enabled && !this.state.paused ? styles.btnicondisabled: styles.btnicon}/>
+                </Button>
+                <Button onPress={this.onResetMarkers.bind(this)} disabled={this.state.enabled || this.state.markers.length == 0} style={styles.btn}>
+                  <Icon name='md-refresh' style={this.state.enabled || this.state.markers.length == 0 ? styles.btnicondisabled: styles.btnicon}/>
+                </Button>
+            </FooterTab>
         </Footer>
+        <Footer style={styles.footer}>
+          <Text style={styles.footertext}>{this.state.statusMessage}</Text>
+        </Footer>
+
         <Notification ref={(ref) => { this.notification = ref; }} />
       </Container>
     );
   }
-
-  /**
-  * Dispatch back to HomeScreen Application-switcher
-  */
-  onClickHome() {
-    // Tell MapView to stop updating location
-    this.setState({
-      showsUserLocation: false
-    });
-    
-    App.goHome(this.props.navigation);
-  }  
 }
 
 var styles = StyleSheet.create({
+  btnbackground: {
+    backgroundColor: 'orange',
+  },
   btn: {
-    backgroundColor: '#ffffff',
-    borderRadius: 5
+    backgroundColor: 'white',
+    borderRadius: 0,
+    borderWidth: 0.2,
+  },
+  btnicon: {
+    color: 'orange',
+    fontSize: 40,
+    borderRadius: 0,
+  },
+  btnicondisabled: {
+    color: 'grey',
+    fontSize: 40,
+    borderRadius: 0,
   },
   container: {
     backgroundColor: '#272727'
@@ -456,7 +504,7 @@ var styles = StyleSheet.create({
     color: '#000'
   },
   footer: {
-    backgroundColor: 'orange',
+    backgroundColor: 'white',
     paddingLeft: 10, 
     paddingRight: 10
   },
@@ -464,6 +512,10 @@ var styles = StyleSheet.create({
     justifyContent: 'center',
     width: 200,
     flex: 1
+  },
+  footertext: {
+    color: 'orange',
+    margin: 13
   },
   icon: {
     color: 'orange'

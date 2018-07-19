@@ -89,19 +89,12 @@ export default class LoginScreen extends Component {
 
 
     onClickNavigate(routeName) {
-        App.setRootRoute(routeName);
-        let action = StackActions.reset({
-          index: 0,
-          actions: [
-            NavigationActions.navigate({routeName: routeName, params: {
-              username: this.state.username
-            }})
-          ],
-          key: null
-        });
-        this.props.navigation.dispatch(action);    
-        
-      }
+        navigateAction = NavigationActions.navigate({
+            routeName: routeName,
+            params: { username: this.state.username },
+        });  
+        this.props.navigation.dispatch(navigateAction);        
+    }
     
         
 render() {
@@ -113,10 +106,10 @@ render() {
             </View>
 
             <View scrollEnabled={false} style={styles.loginformcontainer}>
-                <TextInput underlineColorAndroid='transparent' defaultValue={this.state.usernameValue} placeholder='Username' style={styles.textinput} autoCapitalize='none' onChangeText={changeUsername} />
+                <TextInput underlineColorAndroid='transparent' defaultValue={this.state.usernameValue.toString().toLocaleLowerCase()} placeholder='Username' style={styles.textinput} autoCapitalize='none' onChangeText={changeUsername} />
                 <TextInput underlineColorAndroid='transparent' defaultValue={this.state.passwordValue} placeholder='Password' secureTextEntry={true} autoCapitalize='none' style={styles.textinput}  onChangeText={changePassword} />
                 <TouchableOpacity style={styles.loginbtn} onPress={onLoginPressButton}>
-                    <Text>Login</Text>
+                    <Text style={styles.infotext}>Login</Text>
                 </ TouchableOpacity>
                 <ActivityIndicator size="large" color="#ffff00" style={{opacity: this.state.loggingIn ? 1.0 : 0.0}} animating={true} />
                 <Text style={{color: 'red', fontWeight: 'bold', opacity: this.state.loginError? 1.0: 0.0}}>
@@ -132,12 +125,16 @@ render() {
 }
 
 const styles = StyleSheet.create({
+    infotext: {
+        color: 'orange'
+    },
     container: {
         flex: 1,
         justifyContent: 'center',
         alignSelf: 'stretch',
         width: null,
         padding: 20,
+        backgroundColor: 'orange',
     },
     horizontal: {
         flexDirection: 'row',

@@ -5,7 +5,9 @@
 
 import React, { Component } from 'react';
 import {
-  AsyncStorage
+  View,
+  AsyncStorage,
+  StatusBar
 } from 'react-native';
 
 import { NavigationActions, StackActions } from 'react-navigation';
@@ -35,7 +37,20 @@ export default class App extends Component<{}> {
 
   render() {
     return (
-      <Navigator />
-    );
+<View style={{flex: 1}}>
+   <StatusBar
+     backgroundColor="orange"
+     barStyle="light-content"
+   />
+   <Navigator
+     initialRoute={{statusBarHidden: true}}
+     renderScene={(route, navigator) =>
+       <View>
+         <StatusBar hidden={route.statusBarHidden} />
+       </View>
+     }
+   />
+ </View>
+     );
   }
 }
