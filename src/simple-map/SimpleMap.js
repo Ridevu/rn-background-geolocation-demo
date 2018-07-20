@@ -62,6 +62,7 @@ export default class SimpleMap extends Component<{}> {
       showsUserLocation: false,
       statusMessage: 'Waiting to start tracking',
     };
+    AsyncStorage.setItem("@mmp:next_page", 'SimpleMap');
   }
 
   componentDidMount() {

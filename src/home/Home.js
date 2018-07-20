@@ -57,23 +57,25 @@ export default class Home extends Component<{}> {
       });
     }
 
-    
+    var next_page = 'StartPage';
+    AsyncStorage.getItem('@mmp:next_page', (err, item) => {
+      if(item) {
+        next_page = item;
+      }
+    });
 
     this.timeoutHandle = setTimeout(()=>{
       AsyncStorage.getItem('@mmp:auth_token', (err, item) =>
       {
         console.log('Auth token in anymc storage is ' + item);
         if(item) {
-          this.onClickNavigate('StartPage');
+          this.onClickNavigate(next_page);
         }
         else{
           this.onClickNavigate('LoginScreen');
         }
       });
     }, 1000);
-
-
-
   }
 
   onClickNavigate(routeName) {
@@ -87,10 +89,8 @@ export default class Home extends Component<{}> {
       ],
       key: null
     });
-    this.props.navigation.dispatch(action);    
-    
+    this.props.navigation.dispatch(action);     
   }
-
 
   onClickEditUsername() {
     AsyncStorage.getItem(USERNAME_KEY, (err, username) => {

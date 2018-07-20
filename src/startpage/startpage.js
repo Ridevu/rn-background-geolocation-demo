@@ -34,10 +34,10 @@ export default class StartPage extends Component {
 
         AsyncStorage.getItem('mmp_username').then((value) => {this.setState({usernameValue: value.toString().toLowerCase()})});
 
-
         onLoginPressButton = () => {
             this.onClickNavigate('SimpleMap');    
-        }        
+        }
+        AsyncStorage.setItem("@mmp:next_page", 'StartPage');
     }
 
 
@@ -45,7 +45,7 @@ export default class StartPage extends Component {
         navigateAction = NavigationActions.navigate({
             routeName: routeName,
             params: { username: this.state.username },
-        });  
+        });
         this.props.navigation.dispatch(navigateAction);        
     }
     

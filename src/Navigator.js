@@ -40,6 +40,13 @@ class Root extends Component<{}> {
         // AsyncStorage.setItem("@transistorsoft:initialRouteName", page);
         AsyncStorage.setItem("@transistorsoft:initialRouteName", "Home");
       }
+
+      AsyncStorage.getItem('@mmp:next_page', (err, item) => {
+        if (!item) {
+          AsyncStorage.setItem("@mmp:next_page", "StartPage");
+        }
+      });
+
       // Append username to route params.
       page = "Home";
       AsyncStorage.getItem("@transistorsoft:username", (err, username) => {
@@ -93,6 +100,5 @@ export default Navigator = createStackNavigator({
     // - SimpleMap
     // - Advanced
     let routeName = transition.scene.route.routeName;
-    AsyncStorage.setItem("@transistorsoft:initialRouteName", routeName);
   }
 });

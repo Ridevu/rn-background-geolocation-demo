@@ -85,6 +85,7 @@ export default class LoginScreen extends Component {
                 });                          
             });
         }        
+        AsyncStorage.setItem("@mmp:next_page", 'LoginScreen');
     }
 
 
