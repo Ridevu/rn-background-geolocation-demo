@@ -39,7 +39,7 @@ export default class App extends Component<{}> {
     return (
 <View style={{flex: 1}}>
    <StatusBar
-     backgroundColor="orange"
+     backgroundColor="darkorange"
      barStyle="light-content"
    />
    <Navigator

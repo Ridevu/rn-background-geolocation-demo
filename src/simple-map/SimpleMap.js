@@ -63,7 +63,7 @@ export default class SimpleMap extends Component<{}> {
       statusMessage: 'Waiting to start tracking',
     };
     AsyncStorage.setItem("@mmp:next_page", 'SimpleMap');
-  }
+}
 
   componentDidMount() {
     // Step 1:  Listen to events:
@@ -106,8 +106,11 @@ export default class SimpleMap extends Component<{}> {
         isMoving: state.isMoving,
         showsUserLocation: state.enabled,
         paused: state.paused
-      });      
+      });
     });
+
+    AsyncStorage.getItem('@mmp:enabled', (err, item) => this.setState({enabled: (item == 'true')}));
+    AsyncStorage.getItem('@mmp:paused', (err, item) => this.setState({paused: (item == 'true')}));    
   }
 
   /**
@@ -161,21 +164,24 @@ export default class SimpleMap extends Component<{}> {
       enabled: true,
       paused: false,
       statusMessage: 'Now tracking...',
-      // isMoving: false,
-      // showsUserLocation: false,
+      isMoving: false,
+      showsUserLocation: false,
       // coordinates: [],
       // markers: []
     });
 
-    // BackgroundGeolocation.start((state) => {
-    //   this.setState({
-    //     showsUserLocation: true
-    //   });
-    //   let isMoving = true;
-    //   this.setState({isMoving: isMoving});
-    //   BackgroundGeolocation.changePace(isMoving);          
-    //   this.startAnonymousTrack();
-    // });
+    AsyncStorage.setItem("@mmp:enabled", 'true');
+    AsyncStorage.setItem("@mmp:paused", 'false');
+
+    BackgroundGeolocation.start((state) => {
+      this.setState({
+        showsUserLocation: true
+      });
+      let isMoving = true;
+      this.setState({isMoving: isMoving});
+      BackgroundGeolocation.changePace(isMoving);          
+      this.startAnonymousTrack();
+    });
   }
 
   onPauseTracking(value) {
@@ -183,12 +189,15 @@ export default class SimpleMap extends Component<{}> {
       enabled: false,
       paused: true,
       statusMessage: 'Tracking paused, but track still open',
-      // isMoving: false,
-      // showsUserLocation: false,
+      isMoving: false,
+      showsUserLocation: false,
     });
 
-    // BackgroundGeolocation.stop();
-    // console.log('Pausing the track - we may continue later...');
+    AsyncStorage.setItem("@mmp:enabled", 'false');
+    AsyncStorage.setItem("@mmp:paused", 'true');    
+
+    BackgroundGeolocation.stop();
+    console.log('Pausing the track - we may continue later...');
   }
 
   onStopTracking(value) {
@@ -196,18 +205,21 @@ export default class SimpleMap extends Component<{}> {
       enabled: false,
       paused: false,
       statusMessage: 'Sending last location points to server',
-      // isMoving: false,
-      // showsUserLocation: false,
+      isMoving: false,
+      showsUserLocation: false,
     });
 
-    // BackgroundGeolocation.stop();
-    // console.log('Closing the track - sending remaining points to server');
-    // this.uploadSomePoints();
-    // this.closeAnonymousTrack();
+    AsyncStorage.setItem("@mmp:enabled", 'false');
+    AsyncStorage.setItem("@mmp:paused", 'false');
+    
+    BackgroundGeolocation.stop();
+    console.log('Closing the track - sending remaining points to server');
+    this.uploadSomePoints();
+    this.closeAnonymousTrack();
     this.setState({
       statusMessage: 'Track uploaded and closed',
-      // isMoving: false,
-      // showsUserLocation: false,
+      isMoving: false,
+      showsUserLocation: false,
     });
   }
   
@@ -484,6 +496,7 @@ var styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 0,
     borderWidth: 0.2,
+    borderColor: 'orange',
   },
   btnicon: {
     color: 'orange',

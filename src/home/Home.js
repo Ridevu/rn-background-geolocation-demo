@@ -51,11 +51,11 @@ export default class Home extends Component<{}> {
     BackgroundGeolocation.stop();
     BackgroundGeolocation.removeListeners();
 
-    if (!this.state.username) {
-      this.getUsername().then(this.doGetUsername.bind(this)).catch(() => {
-        this.onClickEditUsername();
-      });
-    }
+    // if (!this.state.username) {
+    //   this.getUsername().then(this.doGetUsername.bind(this)).catch(() => {
+    //     this.onClickEditUsername();
+    //   });
+    // }
 
     var next_page = 'StartPage';
     AsyncStorage.getItem('@mmp:next_page', (err, item) => {
@@ -75,7 +75,7 @@ export default class Home extends Component<{}> {
           this.onClickNavigate('LoginScreen');
         }
       });
-    }, 1000);
+    }, 3000);
   }
 
   onClickNavigate(routeName) {
