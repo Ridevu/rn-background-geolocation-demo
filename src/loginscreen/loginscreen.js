@@ -6,6 +6,9 @@ import LoginForm from '../../components/loginform';
 
 import { NavigationActions, StackActions } from 'react-navigation';
 
+// For posting to tracker.transistorsoft.com
+import DeviceInfo from 'react-native-device-info';
+
 import {StyleProvider} from "native-base";
 import Navigator from '../Navigator';
 
@@ -24,8 +27,8 @@ export default class LoginScreen extends Component {
             loginErrorMessage: null
         }
 
-        AsyncStorage.getItem('mmp_username').then((value) => {this.setState({usernameValue: value})});
-        AsyncStorage.getItem('mmp_password').then((value) => {this.setState({passwordValue: value})});
+        AsyncStorage.getItem('mmp_username').then((value) => {this.setState({usernameValue: value || ''})});
+        AsyncStorage.getItem('mmp_password').then((value) => {this.setState({passwordValue: value || ''})});
         changeUsername = (text) => {
             this.state.usernameValue = text;
             console.log('Username is: ' + text);
@@ -54,7 +57,7 @@ export default class LoginScreen extends Component {
                 body: JSON.stringify({
                   username: this.state.usernameValue,
                   password: this.state.passwordValue,
-                  device_id: 1024
+                  device_id: DeviceInfo.getUniqueID()
                 }),
             })
             .then((response) => response.json())
