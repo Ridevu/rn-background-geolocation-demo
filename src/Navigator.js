@@ -94,11 +94,6 @@ export default Navigator = createStackNavigator({
   initialRouteName: 'Root',
   headerMode: 'none',
   onTransitionStart: (transition) => {
-    // Store the current page route as the initialRouteName so that app boots immediately
-    // into the currently selected SampleApp
-    // - HelloWorld
-    // - SimpleMap
-    // - Advanced
     let routeName = transition.scene.route.routeName;
   }
 });

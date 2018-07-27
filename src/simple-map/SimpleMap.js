@@ -13,8 +13,6 @@ import App from '../App';
 // For posting to tracker.transistorsoft.com
 import DeviceInfo from 'react-native-device-info';
 
-import Notification from 'react-native-in-app-notification';
-
 import { NavigationActions, StackActions } from 'react-navigation';
 
 // Import native-base UI components
@@ -489,6 +487,9 @@ onClickNavigate(routeName) {
                 <Button onPress={this.onResetMarkers.bind(this)} disabled={this.state.enabled || this.state.markers.length == 0} style={styles.btn}>
                   <Icon name='md-refresh' style={this.state.enabled || this.state.markers.length == 0 ? styles.btnicondisabled: styles.btnicon}/>
                 </Button>
+                <Button onPress={() => this.setState({isFollowingUser:true})} disabled={this.state.isFollowingUser} style={styles.btn}>
+                  <Icon name='md-locate' style={this.state.isFollowingUser ? styles.btnicondisabled: styles.btnicon}/>
+                </Button>
                 <Button onPress={() => this.onClickNavigate('LoginScreen')} style={styles.btn}>
                   <Icon name='md-exit' style={styles.logoutbtnicon}/>
                 </Button>
@@ -497,8 +498,6 @@ onClickNavigate(routeName) {
         <Footer style={styles.footer}>
           <Text style={styles.footertext}>{this.state.statusMessage}</Text>
         </Footer>
-
-        <Notification ref={(ref) => { this.notification = ref; }} />
       </Container>
     );
   }
