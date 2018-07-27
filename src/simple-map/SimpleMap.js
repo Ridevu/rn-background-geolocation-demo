@@ -15,6 +15,8 @@ import DeviceInfo from 'react-native-device-info';
 
 import Notification from 'react-native-in-app-notification';
 
+import { NavigationActions, StackActions } from 'react-navigation';
+
 // Import native-base UI components
 import { 
   Container,
@@ -61,6 +63,7 @@ export default class SimpleMap extends Component<{}> {
       unreportedCoordinates: [],
       showsUserLocation: false,
       statusMessage: 'Waiting to start tracking',
+      isFollowingUser: true
     };
     AsyncStorage.setItem("@mmp:next_page", 'SimpleMap');
 }
@@ -125,7 +128,8 @@ export default class SimpleMap extends Component<{}> {
         odometer: (location.odometer/1000).toFixed(1)
       });
     }
-    this.setCenter(location);
+    if(this.state.isFollowingUser)
+      this.setCenter(location);
   }
   /**
   * @event motionchange
@@ -423,6 +427,14 @@ async uploadSomePoints(realPoints=true) {
   );
 }
 
+onClickNavigate(routeName) {
+  navigateAction = NavigationActions.navigate({
+      routeName: routeName,
+      params: { username: this.state.username },
+  });
+  this.props.navigation.dispatch(navigateAction);        
+}
+
   render() {
     return (
       <Container style={styles.container}>
@@ -435,6 +447,7 @@ async uploadSomePoints(realPoints=true) {
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421,
           }}
+          onPanDrag={(e) => { this.setState({isFollowingUser:false}) }}
           showsUserLocation={this.state.showsUserLocation}
           followsUserLocation={false}
           scrollEnabled={true}
@@ -476,6 +489,9 @@ async uploadSomePoints(realPoints=true) {
                 <Button onPress={this.onResetMarkers.bind(this)} disabled={this.state.enabled || this.state.markers.length == 0} style={styles.btn}>
                   <Icon name='md-refresh' style={this.state.enabled || this.state.markers.length == 0 ? styles.btnicondisabled: styles.btnicon}/>
                 </Button>
+                <Button onPress={() => this.onClickNavigate('LoginScreen')} style={styles.btn}>
+                  <Icon name='md-exit' style={styles.logoutbtnicon}/>
+                </Button>
             </FooterTab>
         </Footer>
         <Footer style={styles.footer}>
@@ -505,6 +521,11 @@ var styles = StyleSheet.create({
   },
   btnicondisabled: {
     color: 'grey',
+    fontSize: 40,
+    borderRadius: 0,
+  },
+  logoutbtnicon: {
+    color: 'red',
     fontSize: 40,
     borderRadius: 0,
   },
