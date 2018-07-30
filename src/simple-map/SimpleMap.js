@@ -26,6 +26,9 @@ import {
   Switch 
 } from 'native-base';
 
+// react-native-maps
+import MapView from 'react-native-maps';
+
 ////
 // Import BackgroundGeolocation plugin
 // Note: normally you will not specify a relative url ../ here.  I do this in the sample app
@@ -37,8 +40,6 @@ import {
 // This simply allows one to change the import in a single file.
 import BackgroundGeolocation from '../react-native-background-geolocation';
 
-// react-native-maps
-import MapView from 'react-native-maps';
 const LATITUDE_DELTA = 0.00922;
 const LONGITUDE_DELTA = 0.00421;
 
@@ -435,7 +436,7 @@ onClickNavigate(routeName) {
 
   render() {
     return (
-      <Container style={styles.container}>
+      <View style={styles.container}>
         <MapView
           ref="map"
           style={styles.map}
@@ -498,7 +499,7 @@ onClickNavigate(routeName) {
         <Footer style={styles.footer}>
           <Text style={styles.footertext}>{this.state.statusMessage}</Text>
         </Footer>
-      </Container>
+      </View>
     );
   }
 }
