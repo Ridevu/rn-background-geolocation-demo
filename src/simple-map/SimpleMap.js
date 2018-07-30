@@ -436,7 +436,7 @@ onClickNavigate(routeName) {
 
   render() {
     return (
-      <View style={styles.container}>
+      <Container style={styles.container}>
         <MapView
           ref="map"
           style={styles.map}
@@ -499,7 +499,7 @@ onClickNavigate(routeName) {
         <Footer style={styles.footer}>
           <Text style={styles.footertext}>{this.state.statusMessage}</Text>
         </Footer>
-      </View>
+      </Container>
     );
   }
 }
