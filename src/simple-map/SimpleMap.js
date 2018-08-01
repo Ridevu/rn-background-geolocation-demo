@@ -27,7 +27,7 @@ import {
 } from 'native-base';
 
 // react-native-maps
-import MapView from 'react-native-maps';
+import MapView, {Polyline} from 'react-native-maps';
 
 ////
 // Import BackgroundGeolocation plugin
@@ -58,7 +58,8 @@ export default class SimpleMap extends Component<{}> {
       username: props.navigation.state.params.username,
       // MapView
       markers: [],
-      coordinates: [],
+      coordinates: 
+      [],
       unreportedCoordinates: [],
       showsUserLocation: false,
       statusMessage: 'Waiting to start tracking',
@@ -296,7 +297,7 @@ export default class SimpleMap extends Component<{}> {
     };
 
     this.setState({
-      markers: [...this.state.markers, marker],
+      // markers: [...this.state.markers, marker],
       coordinates: [...this.state.coordinates, {
         latitude: location.coords.latitude,
         longitude: location.coords.longitude
@@ -455,14 +456,16 @@ onClickNavigate(routeName) {
           showsScale={false}
           showsTraffic={false}
           toolbarEnabled={false}>
-          <MapView.Polyline
+
+          <Polyline
             key="polyline"
             coordinates={this.state.coordinates}
             geodesic={true}
-            strokeColor='rgba(0,179,253, 0.6)'
-            strokeWidth={6}
+            strokeColor='rgba(255, 127, 0, 0.6)'
+            strokeWidth={2}
             zIndex={0}
           />        
+
           {this.state.markers.map((marker) => (
             <MapView.Marker
               key={marker.key}
