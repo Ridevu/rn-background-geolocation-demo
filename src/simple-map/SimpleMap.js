@@ -112,8 +112,20 @@ export default class SimpleMap extends Component<{}> {
       });
     });
 
-    AsyncStorage.getItem('@mmp:enabled', (err, item) => this.setState({enabled: (item == 'true')}));
-    AsyncStorage.getItem('@mmp:paused', (err, item) => this.setState({paused: (item == 'true')}));    
+    AsyncStorage.getItem('@mmp:enabled', (err, item) => { 
+      this.setState({enabled: (item == 'true')});
+      if(this.state.enabled && !this.state.paused && !this.state.componentStarted)
+        this.onStartTracking(null);
+    });
+
+    AsyncStorage.getItem('@mmp:paused', (err, item) => { 
+      this.setState({paused: (item == 'true')});
+      if(this.state.enabled && !this.state.paused && !this.state.componentStarted)
+        this.onStartTracking(null);
+    });
+
+    AsyncStorage.getItem('@mmp:locations', (err, item) => this.loadLocationsFromStorage(item));
+    // AsyncStorage.getItem('@mmp:locations', (err, item) => console.log('Locations loaded from storage: ', item));
   }
 
   /**
@@ -170,8 +182,7 @@ export default class SimpleMap extends Component<{}> {
       statusMessage: 'Now tracking...',
       isMoving: false,
       showsUserLocation: false,
-      // coordinates: [],
-      // markers: []
+      componentStarted: true
     });
 
     AsyncStorage.setItem("@mmp:enabled", 'true');
@@ -266,6 +277,7 @@ export default class SimpleMap extends Component<{}> {
       coordinates: [],
       markers: []
     });
+    AsyncStorage.setItem("@mmp:locations", '{"locations": []}');
   }
 
   padDateTimeElements(input)
@@ -315,7 +327,23 @@ export default class SimpleMap extends Component<{}> {
     {
       console.log("Points ready to be uploaded - " + this.state.unreportedCoordinates.length.toString() + " points to be sent!");
       this.uploadSomePoints();
+
+      this.saveLocationsToStorage();
     }
+  }
+
+  saveLocationsToStorage() {
+    let locationsJson = JSON.stringify({
+      locations: this.state.coordinates
+    });
+    console.log("Locations - " + locationsJson);
+    AsyncStorage.setItem("@mmp:locations", locationsJson);
+  }
+
+  loadLocationsFromStorage(locationsJson) {
+    let locations = JSON.parse(locationsJson).locations;    
+    if(locations)
+      this.setState({ coordinates: locations });
   }
 
   setCenter(location) {
@@ -488,8 +516,8 @@ onClickNavigate(routeName) {
                 <Button onPress={this.onStopTracking.bind(this)} disabled={!this.state.enabled && !this.state.paused} style={styles.btn}>
                   <Icon name='md-cloud-upload' style={!this.state.enabled && !this.state.paused ? styles.btnicondisabled: styles.btnicon}/>
                 </Button>
-                <Button onPress={this.onResetMarkers.bind(this)} disabled={this.state.enabled || this.state.markers.length == 0} style={styles.btn}>
-                  <Icon name='md-refresh' style={this.state.enabled || this.state.markers.length == 0 ? styles.btnicondisabled: styles.btnicon}/>
+                <Button onPress={this.onResetMarkers.bind(this)} disabled={this.state.enabled || this.state.coordinates.length == 0} style={styles.btn}>
+                  <Icon name='md-refresh' style={this.state.enabled || this.state.coordinates.length == 0 ? styles.btnicondisabled: styles.btnicon}/>
                 </Button>
                 <Button onPress={() => this.setState({isFollowingUser:true})} disabled={this.state.isFollowingUser} style={styles.btn}>
                   <Icon name='md-locate' style={this.state.isFollowingUser ? styles.btnicondisabled: styles.btnicon}/>
