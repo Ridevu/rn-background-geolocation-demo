@@ -29,21 +29,15 @@ import {
 // react-native-maps
 import MapView, {Polyline} from 'react-native-maps';
 
-////
-// Import BackgroundGeolocation plugin
-// Note: normally you will not specify a relative url ../ here.  I do this in the sample app
-// because the plugin can be installed from 2 sources:
-//
-// 1.  npm:  react-native-background-geolocation
-// 2.  private github repo (customers only):  react-native-background-geolocation-android
-//
-// This simply allows one to change the import in a single file.
 import BackgroundGeolocation from '../react-native-background-geolocation';
 
 const LATITUDE_DELTA = 0.00922;
 const LONGITUDE_DELTA = 0.00421;
 
 const TRACKER_HOST = 'http://tracker.transistorsoft.com/locations/';
+
+const MMP_URL_SET_JOB_STATUS = 'https://managemyapi.azurewebsites.net/Mobile.asmx/SetJobStatus';
+const MMP_URL_UPLOAD_TRACK_POINTS = 'https://managemyapi.azurewebsites.net/Mobile.asmx/UploadTrackpoints';
 
 export default class SimpleMap extends Component<{}> {
   constructor(props) {
@@ -83,7 +77,7 @@ export default class SimpleMap extends Component<{}> {
       distanceFilter: 0,
       locationUpdateInterval: 5000,
       fastestLocationUpdateInterval: 5000,
-      notificationText: "Tap will reset map markers",
+      notificationText: "",
       allowIdenticalLocations: true,
       url: TRACKER_HOST + this.state.username,
       params: {
@@ -125,7 +119,6 @@ export default class SimpleMap extends Component<{}> {
     });
 
     AsyncStorage.getItem('@mmp:locations', (err, item) => this.loadLocationsFromStorage(item));
-    // AsyncStorage.getItem('@mmp:locations', (err, item) => console.log('Locations loaded from storage: ', item));
   }
 
   /**
@@ -228,7 +221,7 @@ export default class SimpleMap extends Component<{}> {
     AsyncStorage.setItem("@mmp:paused", 'false');
     
     BackgroundGeolocation.stop();
-    console.log('Closing the track - sending remaining points to server');
+    console.log('Closing the track - sending remaining points to server...');
     this.uploadSomePoints();
     this.closeAnonymousTrack();
     this.setState({
@@ -309,7 +302,6 @@ export default class SimpleMap extends Component<{}> {
     };
 
     this.setState({
-      // markers: [...this.state.markers, marker],
       coordinates: [...this.state.coordinates, {
         latitude: location.coords.latitude,
         longitude: location.coords.longitude
@@ -321,13 +313,9 @@ export default class SimpleMap extends Component<{}> {
       }]
     });
 
-    console.log('New marker set, unreported points count - ' + this.state.unreportedCoordinates.length.toString());
-
     if (this.state.unreportedCoordinates.length > 5)
     {
-      console.log("Points ready to be uploaded - " + this.state.unreportedCoordinates.length.toString() + " points to be sent!");
       this.uploadSomePoints();
-
       this.saveLocationsToStorage();
     }
   }
@@ -336,7 +324,6 @@ export default class SimpleMap extends Component<{}> {
     let locationsJson = JSON.stringify({
       locations: this.state.coordinates
     });
-    console.log("Locations - " + locationsJson);
     AsyncStorage.setItem("@mmp:locations", locationsJson);
   }
 
@@ -381,7 +368,7 @@ export default class SimpleMap extends Component<{}> {
       job_id: 0,
       job_new_status: 1
     });
-    fetch('https://managemyapi.azurewebsites.net/Mobile.asmx/SetJobStatus', {
+    fetch(MMP_URL_SET_JOB_STATUS, {
         method: 'POST',
         headers: {
         Accept: 'application/json',
@@ -406,7 +393,7 @@ async closeAnonymousTrack() {
       job_id: 0,
       job_new_status: 3
     });
-    fetch('https://managemyapi.azurewebsites.net/Mobile.asmx/SetJobStatus', {
+    fetch(MMP_URL_SET_JOB_STATUS, {
         method: 'POST',
         headers: {
             Accept: 'application/json',
@@ -427,14 +414,12 @@ async uploadSomePoints(realPoints=true) {
   var auth_token = "";
   await AsyncStorage.getItem('@mmp:auth_token', (err, item) => auth_token = item);
   var pointsToReport = this.state.unreportedCoordinates;
-  console.log("pointsToReport = " + pointsToReport.length.toString());
   var body = JSON.stringify({
     token: auth_token,
     job_id: 0,
     points: pointsToReport
   });
-  console.log("Uploading points - body = " + body);
-  fetch('https://managemyapi.azurewebsites.net/Mobile.asmx/UploadTrackpoints', {
+  fetch(MMP_URL_UPLOAD_TRACK_POINTS, {
       method: 'POST',
       headers: {
           Accept: 'application/json',
@@ -514,7 +499,7 @@ onClickNavigate(routeName) {
                   <Icon name='md-pause' style={!this.state.enabled || this.state.paused ? styles.btnicondisabled: styles.btnicon}/>
                 </Button>
                 <Button onPress={this.onStopTracking.bind(this)} disabled={!this.state.enabled && !this.state.paused} style={styles.btn}>
-                  <Icon name='md-cloud-upload' style={!this.state.enabled && !this.state.paused ? styles.btnicondisabled: styles.btnicon}/>
+                  <Icon type='MaterialIcons' name='stop' style={!this.state.enabled && !this.state.paused ? styles.btnicondisabled: styles.btnicon}/>
                 </Button>
                 <Button onPress={this.onResetMarkers.bind(this)} disabled={this.state.enabled || this.state.coordinates.length == 0} style={styles.btn}>
                   <Icon name='md-refresh' style={this.state.enabled || this.state.coordinates.length == 0 ? styles.btnicondisabled: styles.btnicon}/>
