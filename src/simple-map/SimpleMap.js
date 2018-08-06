@@ -38,6 +38,7 @@ const TRACKER_HOST = 'http://tracker.transistorsoft.com/locations/';
 
 const MMP_URL_SET_JOB_STATUS = 'https://managemyapi.azurewebsites.net/Mobile.asmx/SetJobStatus';
 const MMP_URL_UPLOAD_TRACK_POINTS = 'https://managemyapi.azurewebsites.net/Mobile.asmx/UploadTrackpoints';
+const COORDINATES_BUFFER_LENGTH = 12  ;
 
 export default class SimpleMap extends Component<{}> {
   constructor(props) {
@@ -231,40 +232,6 @@ export default class SimpleMap extends Component<{}> {
     });
   }
   
-  onToggleEnabled(value) {
-    let enabled = !this.state.enabled;
-
-    this.setState({
-      enabled: enabled,
-      isMoving: false,
-      showsUserLocation: false,
-    });
-
-    if (enabled) {
-      this.setState({
-        coordinates: [],
-        markers: []
-      });
-        BackgroundGeolocation.start((state) => {
-        // NOTE:  We tell react-native-maps to show location only AFTER BackgroundGeolocation
-        // has requested location authorization.  If react-native-maps requests authorization first,
-        // it will request WhenInUse -- "Permissions Tug-of-war"
-        this.setState({
-          showsUserLocation: true
-        });
-        let isMoving = true;
-        this.setState({isMoving: isMoving});
-        BackgroundGeolocation.changePace(isMoving);          
-        this.startAnonymousTrack();
-      });
-    } else {      
-      BackgroundGeolocation.stop();
-      console.log('Closing the track - sending remaining points to server');
-      this.uploadSomePoints();
-      this.closeAnonymousTrack();
-    }
-  }
-
   onResetMarkers() {
     this.setState({
       coordinates: [],
@@ -313,10 +280,10 @@ export default class SimpleMap extends Component<{}> {
       }]
     });
 
-    if (this.state.unreportedCoordinates.length > 5)
+    if (this.state.unreportedCoordinates.length > COORDINATES_BUFFER_LENGTH)
     {
-      this.uploadSomePoints();
       this.saveLocationsToStorage();
+      this.uploadSomePoints();
     }
   }
 
