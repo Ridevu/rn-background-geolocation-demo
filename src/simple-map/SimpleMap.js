@@ -295,9 +295,13 @@ export default class SimpleMap extends Component<{}> {
   }
 
   loadLocationsFromStorage(locationsJson) {
-    let locations = JSON.parse(locationsJson).locations;    
-    if(locations)
-      this.setState({ coordinates: locations });
+    if(locationsJson) {
+      let locations = JSON.parse(locationsJson).locations;    
+      if(locations)
+        this.setState({ coordinates: locations });
+    }
+    else
+      this.setState({ coordinates: [] });
   }
 
   setCenter(location) {
