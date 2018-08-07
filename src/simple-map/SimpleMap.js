@@ -478,9 +478,9 @@ onClickNavigate(routeName) {
                 <Button onPress={() => this.setState({isFollowingUser:true})} disabled={this.state.isFollowingUser} style={styles.btn}>
                   <Icon name='md-locate' style={this.state.isFollowingUser ? styles.btnicondisabled: styles.btnicon}/>
                 </Button>
-                <Button onPress={() => this.onClickNavigate('LoginScreen')} style={styles.btn}>
+                {/* <Button onPress={() => this.onClickNavigate('LoginScreen')} style={styles.btn}>
                   <Icon name='md-exit' style={styles.logoutbtnicon}/>
-                </Button>
+                </Button> */}
             </FooterTab>
         </Footer>
         <Footer style={styles.footer}>
