@@ -74,8 +74,8 @@ export default class SimpleMap extends Component<{}> {
     // Step 2:  #configure:
     BackgroundGeolocation.configure({
       desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_HIGH,
-      notificationPriority: BackgroundGeolocation.NOTIFICATION_PRIORITY_MIN,
-      distanceFilter: 0,
+      notificationPriority: BackgroundGeolocation.NOTIFICATION_PRIORITY_DEFAULT,
+      distanceFilter: 5,
       locationUpdateInterval: 5000,
       fastestLocationUpdateInterval: 5000,
       notificationText: "",
@@ -312,6 +312,7 @@ export default class SimpleMap extends Component<{}> {
       }
     }
     else
+    {
       this.setState({ coordinates: [] });
       this.setState({ savedCoordinates: [] });
     }
