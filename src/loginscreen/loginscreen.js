@@ -106,7 +106,7 @@ render() {
         <ImageBackground style={styles.container}>
         {/* <ImageBackground source={require('../../images/background-image-for-app.jpg')} style={styles.container}> */}
             <View style={styles.logocontainer}>
-                <Image source={require('../../images/S.png')} style={styles.logo} />
+                <Image source={require('../../images/MMP.png')} style={styles.logo} />
             </View>
 
             <View scrollEnabled={false} style={styles.loginformcontainer}>
@@ -130,7 +130,8 @@ render() {
 
 const styles = StyleSheet.create({
     infotext: {
-        color: 'orange'
+        fontSize: 20,
+        color: 'white'
     },
     container: {
         flex: 1,
@@ -138,7 +139,7 @@ const styles = StyleSheet.create({
         alignSelf: 'stretch',
         width: null,
         padding: 20,
-        backgroundColor: 'orange',
+        backgroundColor: 'white',
     },
     horizontal: {
         flexDirection: 'row',
@@ -162,13 +163,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     textinput: {
-        color: '#fff',
+        color: 'white',
         alignSelf: 'stretch',
         padding: 12,
         marginBottom: 10,
-        backgroundColor: 'rgba(255, 255, 255, 0.2)',
-        borderColor: '#fff',
-        borderWidth: 0.6,
+        backgroundColor: 'orange',
+        borderColor: 'grey',
+        borderWidth: 0.8,
+        fontSize: 20,
+        borderRadius: 3,
     },
     switch: {
         padding: 12,
@@ -180,10 +183,13 @@ const styles = StyleSheet.create({
         fontSize: 20,
     },
     loginbtn: {
-        backgroundColor: '#ecf0f1',
+        backgroundColor: 'darkorange',
         alignSelf: 'stretch',
         alignItems: 'center',
         padding: 14,
         marginTop: 10,
+        borderColor: 'grey',
+        borderWidth: 0.8,
+        borderRadius: 10,
     },
 });

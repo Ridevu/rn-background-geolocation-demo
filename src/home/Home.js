@@ -170,7 +170,7 @@ export default class Home extends Component<{}> {
     <ImageBackground style={styles.container}>
     {/* <ImageBackground source={require('../../images/background-image-for-app.jpg')} style={styles.container}> */}
       <View style={styles.logocontainer}>
-          <Image source={require('../../images/S.png')} style={styles.logo} />
+          <Image source={require('../../images/MMP.png')} style={styles.logo} />
       </View>
 
     {/* <ActivityIndicator size="large" color="#ffff00" animating={true} />
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
       alignSelf: 'stretch',
       width: null,
       padding: 20,
-      backgroundColor: 'orange',
+      backgroundColor: 'white',
   },
   horizontal: {
       flexDirection: 'row',
