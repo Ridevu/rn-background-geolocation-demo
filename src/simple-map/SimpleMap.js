@@ -54,7 +54,6 @@ export default class SimpleMap extends Component<{}> {
       // MapView
       markers: [],
       coordinates: [],
-      savedCoordinates: [],
       unreportedCoordinates: [],
       showsUserLocation: true,
       statusMessage: 'Waiting to start tracking',
@@ -235,7 +234,6 @@ export default class SimpleMap extends Component<{}> {
   onResetMarkers() {
     this.setState({
       coordinates: [],
-      savedCoordinates: [],
       markers: []
     });
     AsyncStorage.setItem("@mmp:locations", '{"locations": []}');
@@ -283,13 +281,6 @@ export default class SimpleMap extends Component<{}> {
 
     if (this.state.unreportedCoordinates.length > COORDINATES_BUFFER_LENGTH)
     {
-      this.setState({
-        savedCoordinates: [...this.state.savedCoordinates, {
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude
-        }]
-      });
-
       this.saveLocationsToStorage();
       this.uploadSomePoints();
     }
@@ -297,7 +288,7 @@ export default class SimpleMap extends Component<{}> {
 
   saveLocationsToStorage() {
     let locationsJson = JSON.stringify({
-      locations: this.state.savedCoordinates
+      locations: this.state.coordinates
     });
     AsyncStorage.setItem("@mmp:locations", locationsJson);
   }
@@ -306,16 +297,10 @@ export default class SimpleMap extends Component<{}> {
     if(locationsJson) {
       let locations = JSON.parse(locationsJson).locations;    
       if(locations)
-      {
         this.setState({ coordinates: locations });
-        this.setState({ savedCoordinates: locations });
-      }
     }
     else
-    {
       this.setState({ coordinates: [] });
-      this.setState({ savedCoordinates: [] });
-    }
   }
 
   setCenter(location) {
