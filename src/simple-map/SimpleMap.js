@@ -38,6 +38,7 @@ const TRACKER_HOST = 'http://tracker.transistorsoft.com/locations/';
 
 const MMP_URL_SET_JOB_STATUS = 'https://managemyapi.azurewebsites.net/Mobile.asmx/SetJobStatus';
 const MMP_URL_UPLOAD_TRACK_POINTS = 'https://managemyapi.azurewebsites.net/Mobile.asmx/UploadTrackpoints';
+const MMP_URL_UPLOAD_TRACK_POINTS_PROXY = 'https://ln2w5ozvo2.execute-api.ap-southeast-2.amazonaws.com/proxyPostAPI/';
 const COORDINATES_BUFFER_LENGTH = 12  ;
 
 export default class SimpleMap extends Component<{}> {
@@ -72,11 +73,13 @@ export default class SimpleMap extends Component<{}> {
 
     // Step 2:  #configure:
     BackgroundGeolocation.configure({
+      url: MMP_URL_UPLOAD_TRACK_POINTS_PROXY,
+      locationTemplate: '{ "timestamp":"<%= timestamp %>", "latitude":"<%= latitude %>", "longitude":"<%= longitude %>" }',
       desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_HIGH,
       notificationPriority: BackgroundGeolocation.NOTIFICATION_PRIORITY_DEFAULT,
-      distanceFilter: 5,
+      distanceFilter: 3,
       locationUpdateInterval: 5000,
-      fastestLocationUpdateInterval: 5000,
+      fastestLocationUpdateInterval: 2000,
       notificationText: "",
       allowIdenticalLocations: true,
       url: TRACKER_HOST + this.state.username,
@@ -91,12 +94,16 @@ export default class SimpleMap extends Component<{}> {
           framework: 'ReactNative'
         }
       },
+      batchSync: true,
+      maxBatchSize: COORDINATES_BUFFER_LENGTH,
       autoSync: true,
+      autoSyncThreshold: COORDINATES_BUFFER_LENGTH,
       stopOnTerminate: false,
       startOnBoot: true,
       foregroundService: true,
       debug: true,
       logLevel: BackgroundGeolocation.LOG_LEVEL_WARNING,
+      heartbeatInterval: 60,
     }, (state) => {
       this.setState({
         enabled: state.enabled,
@@ -106,10 +113,19 @@ export default class SimpleMap extends Component<{}> {
       });
     });
 
+    AsyncStorage.getItem('@mmp:auth_token', (err, item) => auth_token = item);
+
     AsyncStorage.getItem('@mmp:enabled', (err, item) => { 
       this.setState({enabled: (item == 'true')});
       if(this.state.enabled && !this.state.paused && !this.state.componentStarted)
         this.onStartTracking(null);
+    });
+
+    AsyncStorage.getItem('@mmp:auth_token', (err, item) => { 
+      this.setState({auth_token: item});
+      BackgroundGeolocation.configure({
+        params: { extras: { "token": auth_token }}
+      });
     });
 
     AsyncStorage.getItem('@mmp:paused', (err, item) => { 
@@ -222,7 +238,7 @@ export default class SimpleMap extends Component<{}> {
     
     BackgroundGeolocation.stop();
     console.log('Closing the track - sending remaining points to server...');
-    this.uploadSomePoints();
+    // this.uploadSomePoints();
     this.closeAnonymousTrack();
     this.setState({
       statusMessage: 'Track uploaded and closed',
@@ -271,19 +287,8 @@ export default class SimpleMap extends Component<{}> {
       coordinates: [...this.state.coordinates, {
         latitude: location.coords.latitude,
         longitude: location.coords.longitude
-      }],
-      unreportedCoordinates: [...this.state.unreportedCoordinates, {
-        "datetime": this.stringifyTime(new Date()),
-        lat: location.coords.latitude,
-        lon: location.coords.longitude
       }]
     });
-
-    if (this.state.unreportedCoordinates.length > COORDINATES_BUFFER_LENGTH)
-    {
-      this.saveLocationsToStorage();
-      this.uploadSomePoints();
-    }
   }
 
   saveLocationsToStorage() {
@@ -378,36 +383,6 @@ async closeAnonymousTrack() {
       .catch((error) =>{
             console.error(error);
       });
-}
-
-async uploadSomePoints(realPoints=true) {
-  var auth_token = "";
-  await AsyncStorage.getItem('@mmp:auth_token', (err, item) => auth_token = item);
-  var pointsToReport = this.state.unreportedCoordinates;
-  var body = JSON.stringify({
-    token: auth_token,
-    job_id: 0,
-    points: pointsToReport
-  });
-  fetch(MMP_URL_UPLOAD_TRACK_POINTS, {
-      method: 'POST',
-      headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json; charset=utf-8;',
-          'Data-Type': 'json'
-      },
-      body: body,
-    })
-    .then((response) => {
-          console.log("Uploaded some points to track");
-          this.setState({
-            unreportedCoordinates: []
-          });
-    })
-    .catch((error) =>{
-          console.error(error);
-    }
-  );
 }
 
 onClickNavigate(routeName) {
