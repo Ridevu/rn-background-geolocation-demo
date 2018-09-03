@@ -293,7 +293,7 @@ export default class SimpleMap extends Component<{}> {
       }]
     });
 
-    if (this.state.unreportedCoordinates.length > COORDINATES_BUFFER_LENGTH)
+    if (this.state.unreportedCoordinates.length == 1 || this.state.unreportedCoordinates.length > COORDINATES_BUFFER_LENGTH)
     {
       this.saveLocationsToStorage();
       // this.uploadSomePoints();
@@ -308,6 +308,7 @@ export default class SimpleMap extends Component<{}> {
   }
 
   loadLocationsFromStorage(locationsJson) {
+    console.log("Loading locations from storage!!!")
     if(locationsJson) {
       let locations = JSON.parse(locationsJson).locations;    
       if(locations)
