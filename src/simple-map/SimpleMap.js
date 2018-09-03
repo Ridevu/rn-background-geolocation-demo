@@ -38,7 +38,8 @@ const TRACKER_HOST = 'http://tracker.transistorsoft.com/locations/';
 
 const MMP_URL_SET_JOB_STATUS = 'https://managemyapi.azurewebsites.net/Mobile.asmx/SetJobStatus';
 const MMP_URL_UPLOAD_TRACK_POINTS = 'https://managemyapi.azurewebsites.net/Mobile.asmx/UploadTrackpoints';
-const COORDINATES_BUFFER_LENGTH = 12  ;
+const MMP_URL_UPLOAD_TRACK_POINTS_PROXY = 'https://ln2w5ozvo2.execute-api.ap-southeast-2.amazonaws.com/proxyPostAPI/';
+const COORDINATES_BUFFER_LENGTH = 2  ;
 
 export default class SimpleMap extends Component<{}> {
   constructor(props) {
@@ -91,7 +92,11 @@ export default class SimpleMap extends Component<{}> {
           framework: 'ReactNative'
         }
       },
+      // batchSync: true,
+      // maxBatchSize: 2,
       autoSync: true,
+      // autoSyncThreshold: 2,
+
       stopOnTerminate: false,
       startOnBoot: true,
       foregroundService: true,
@@ -119,6 +124,15 @@ export default class SimpleMap extends Component<{}> {
     });
 
     AsyncStorage.getItem('@mmp:locations', (err, item) => this.loadLocationsFromStorage(item));
+
+    AsyncStorage.getItem('@mmp:auth_token', (err, item) => { 
+      this.setState({auth_token: item});
+      BackgroundGeolocation.configure({
+        url: MMP_URL_UPLOAD_TRACK_POINTS_PROXY,
+        locationTemplate: '{ "timestamp":"<%= timestamp %>", "latitude":"<%= latitude %>", "longitude":"<%= longitude %>" }',
+        params: { extras: { "token": item }}
+      });
+    });
   }
 
   /**
@@ -222,7 +236,7 @@ export default class SimpleMap extends Component<{}> {
     
     BackgroundGeolocation.stop();
     console.log('Closing the track - sending remaining points to server...');
-    this.uploadSomePoints();
+    // this.uploadSomePoints();
     this.closeAnonymousTrack();
     this.setState({
       statusMessage: 'Track uploaded and closed',
@@ -282,7 +296,7 @@ export default class SimpleMap extends Component<{}> {
     if (this.state.unreportedCoordinates.length > COORDINATES_BUFFER_LENGTH)
     {
       this.saveLocationsToStorage();
-      this.uploadSomePoints();
+      // this.uploadSomePoints();
     }
   }
 
