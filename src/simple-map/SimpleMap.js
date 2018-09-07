@@ -75,9 +75,9 @@ export default class SimpleMap extends Component<{}> {
     BackgroundGeolocation.configure({
       desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_HIGH,
       notificationPriority: BackgroundGeolocation.NOTIFICATION_PRIORITY_DEFAULT,
-      distanceFilter: 5,
-      locationUpdateInterval: 5000,
-      fastestLocationUpdateInterval: 5000,
+      distanceFilter: 0,
+      locationUpdateInterval: 3000,
+      fastestLocationUpdateInterval: 3000,
       notificationText: "",
       allowIdenticalLocations: true,
       url: TRACKER_HOST + this.state.username,
@@ -95,7 +95,7 @@ export default class SimpleMap extends Component<{}> {
       // batchSync: true,
       // maxBatchSize: 2,
       autoSync: true,
-      // autoSyncThreshold: 2,
+      autoSyncThreshold: 12,
 
       stopOnTerminate: false,
       startOnBoot: true,
@@ -128,6 +128,25 @@ export default class SimpleMap extends Component<{}> {
     AsyncStorage.getItem('@mmp:auth_token', (err, item) => { 
       this.setState({auth_token: item});
       BackgroundGeolocation.configure({
+
+        desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_HIGH,
+        notificationPriority: BackgroundGeolocation.NOTIFICATION_PRIORITY_DEFAULT,
+        distanceFilter: 0,
+        locationUpdateInterval: 3000,
+        fastestLocationUpdateInterval: 3000,
+        notificationText: "",
+        allowIdenticalLocations: true,
+        // batchSync: true,
+        // maxBatchSize: 2,
+        autoSync: true,
+        autoSyncThreshold: 12,
+  
+        stopOnTerminate: false,
+        startOnBoot: true,
+        foregroundService: true,
+        debug: true,
+        logLevel: BackgroundGeolocation.LOG_LEVEL_WARNING,
+
         url: MMP_URL_UPLOAD_TRACK_POINTS_PROXY,
         locationTemplate: '{ "timestamp":"<%= timestamp %>", "latitude":"<%= latitude %>", "longitude":"<%= longitude %>" }',
         params: { extras: { "token": item }}
@@ -498,7 +517,7 @@ onClickNavigate(routeName) {
             </FooterTab>
         </Footer>
         <Footer style={styles.footer}>
-          <Text style={styles.footertext}>{this.state.statusMessage}</Text>
+          <Text style={styles.footertext}>{this.state.statusMessage} (v0.13)</Text>
         </Footer>
       </Container>
     );
@@ -517,17 +536,17 @@ var styles = StyleSheet.create({
   },
   btnicon: {
     color: 'orange',
-    fontSize: 40,
+    fontSize: 30,
     borderRadius: 0,
   },
   btnicondisabled: {
     color: 'grey',
-    fontSize: 40,
+    fontSize: 30,
     borderRadius: 0,
   },
   logoutbtnicon: {
     color: 'red',
-    fontSize: 40,
+    fontSize: 30,
     borderRadius: 0,
   },
   container: {
