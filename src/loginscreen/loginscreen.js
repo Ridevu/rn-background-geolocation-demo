@@ -115,7 +115,7 @@ render() {
                 <TouchableOpacity style={styles.loginbtn} onPress={onLoginPressButton}>
                     <Text style={styles.infotext}>Login</Text>
                 </ TouchableOpacity>
-                <ActivityIndicator size="large" color="#ffff00" style={{opacity: this.state.loggingIn ? 1.0 : 0.0}} animating={true} />
+                <ActivityIndicator size="large" color="darkorange" style={{opacity: this.state.loggingIn ? 1.0 : 0.0, marginTop: 10}}  animating={true} />
                 <Text style={{color: 'red', fontWeight: 'bold', opacity: this.state.loginError? 1.0: 0.0}}>
                     Login error:
                 </Text>
@@ -153,11 +153,9 @@ const styles = StyleSheet.create({
     },
     logo: {
         flex: 1,
-        width: 400,
-        height: 200,
+        width: 300,
+        height: 150,
         resizeMode: 'contain'
-        //         width: 500,
-        // height: 140,
     },
     loginformcontainer: {
         alignItems: 'center',

@@ -52,11 +52,13 @@ export default class StartPage extends Component {
         
 render() {
     return (
-        <View style={styles.container}>
-            {/* <Text style={styles.infotext}>
-                You are logged in as
-            </Text>
-            <Text style={styles.infotextbold}> {this.state.usernameValue}</Text> */}
+        <ImageBackground style={styles.container}>
+        {/* <ImageBackground source={require('../../images/background-image-for-app.jpg')} style={styles.container}> */}
+            <View style={styles.logocontainer}>
+                <Image source={require('../../images/MMP.png')} style={styles.logo} />
+            </View>
+
+
             <Button
                 buttonStyle={{backgroundColor: 'orange', borderRadius: 10, margin: 10}}
                 title='Start tracking' onPress={() => this.onClickNavigate('SimpleMap')}
@@ -67,7 +69,7 @@ render() {
                 title='Log out' onPress={() => this.onClickNavigate('LoginScreen')}
             >
             </ Button>
-        </ View>
+        </ ImageBackground>
     );
   }
 }
@@ -86,7 +88,7 @@ const styles = StyleSheet.create({
         alignSelf: 'stretch',
         width: null,
         padding: 20,
-        margin: '20%'
+        backgroundColor: 'white',
     },
     horizontal: {
         flexDirection: 'row',
@@ -100,11 +102,9 @@ const styles = StyleSheet.create({
     },
     logo: {
         flex: 1,
-        width: 400,
-        height: 200,
+        width: 300,
+        height: 150,
         resizeMode: 'contain'
-        //         width: 500,
-        // height: 140,
     },
     loginformcontainer: {
         alignItems: 'center',
