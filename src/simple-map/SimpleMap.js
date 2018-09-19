@@ -92,14 +92,18 @@ export default class SimpleMap extends Component<{}> {
           framework: 'ReactNative'
         }
       },
-      // batchSync: true,
-      // maxBatchSize: 2,
       autoSync: true,
       autoSyncThreshold: 12,
+      stopTimeout: 30,
 
       stopOnTerminate: false,
       startOnBoot: true,
       foregroundService: true,
+      preventSuspend: true,
+      heartbeatInterval: 60,
+      forceReloadOnHeartbeat: true,
+      minimumActivityRecognitionConfidence: 50,
+
       debug: true,
       logLevel: BackgroundGeolocation.LOG_LEVEL_WARNING,
     }, (state) => {
@@ -136,14 +140,16 @@ export default class SimpleMap extends Component<{}> {
         fastestLocationUpdateInterval: 3000,
         notificationText: "",
         allowIdenticalLocations: true,
-        // batchSync: true,
-        // maxBatchSize: 2,
         autoSync: true,
-        autoSyncThreshold: 12,
-  
+        autoSyncThreshold: 12,          
+
         stopOnTerminate: false,
         startOnBoot: true,
         foregroundService: true,
+        preventSuspend: true,
+        heartbeatInterval: 60,
+        forceReloadOnHeartbeat: true,
+        minimumActivityRecognitionConfidence: 50,
         debug: true,
         logLevel: BackgroundGeolocation.LOG_LEVEL_WARNING,
 
@@ -152,6 +158,8 @@ export default class SimpleMap extends Component<{}> {
         params: { extras: { "token": item }}
       });
     });
+
+    this.onGoToLocation();
   }
 
   /**
@@ -199,6 +207,25 @@ export default class SimpleMap extends Component<{}> {
   */
   onPowerSaveChange(isPowerSaveMode) {
     console.log('[event] powersavechange', isPowerSaveMode);
+  }
+
+  onGoToLocation() {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        let curr_latitude = position.coords.latitude;
+        let curr_longitude = position.coords.longitude;
+        console.log("CURRENT LOCATION OBTAINED - " + curr_longitude.toString());
+        var curr_location = {lat: curr_latitude, lng: curr_longitude};
+
+        this.refs.map.animateToRegion({
+          latitude: curr_latitude,
+          longitude: curr_longitude,
+          latitudeDelta: LATITUDE_DELTA,
+          longitudeDelta: LONGITUDE_DELTA
+        });
+        this.setState({isFollowingUser:true});
+      }
+    );    
   }
 
   onStartTracking(value) {
@@ -255,12 +282,15 @@ export default class SimpleMap extends Component<{}> {
     
     BackgroundGeolocation.stop();
     console.log('Closing the track - sending remaining points to server...');
-    // this.uploadSomePoints();
     this.closeAnonymousTrack();
     this.setState({
       statusMessage: 'Track uploaded and closed',
       isMoving: false,
       showsUserLocation: false,
+    });
+
+    BackgroundGeolocation.destroyLocations(function() {
+      console.log('- cleared database'); 
     });
   }
   
@@ -279,7 +309,6 @@ export default class SimpleMap extends Component<{}> {
     
   stringifyTime(timeInput)
   {
-
     let timeString =	timeInput.getUTCFullYear().toString() + '-' +
     this.padDateTimeElements(timeInput.getUTCMonth()+1) + '-' +
     this.padDateTimeElements(timeInput.getUTCDate()) + ' ' +
@@ -315,7 +344,6 @@ export default class SimpleMap extends Component<{}> {
     if (this.state.unreportedCoordinates.length == 1 || this.state.unreportedCoordinates.length > COORDINATES_BUFFER_LENGTH)
     {
       this.saveLocationsToStorage();
-      // this.uploadSomePoints();
     }
   }
 
@@ -387,9 +415,9 @@ export default class SimpleMap extends Component<{}> {
     .catch((error) =>{
         console.error(error);
     });
-}
+  }
 
-async closeAnonymousTrack() {
+  async closeAnonymousTrack() {
     var auth_token = "";
     await AsyncStorage.getItem('@mmp:auth_token', (err, item) => auth_token = item);
     body = JSON.stringify({
@@ -398,32 +426,6 @@ async closeAnonymousTrack() {
       job_new_status: 3
     });
     fetch(MMP_URL_SET_JOB_STATUS, {
-        method: 'POST',
-        headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json; charset=utf-8;',
-            'Data-Type': 'json'
-        },
-        body: body,
-      })
-      .then((response) => {
-            console.log("Closed the anonymous track");
-      })
-      .catch((error) =>{
-            console.error(error);
-      });
-}
-
-async uploadSomePoints(realPoints=true) {
-  var auth_token = "";
-  await AsyncStorage.getItem('@mmp:auth_token', (err, item) => auth_token = item);
-  var pointsToReport = this.state.unreportedCoordinates;
-  var body = JSON.stringify({
-    token: auth_token,
-    job_id: 0,
-    points: pointsToReport
-  });
-  fetch(MMP_URL_UPLOAD_TRACK_POINTS, {
       method: 'POST',
       headers: {
           Accept: 'application/json',
@@ -431,26 +433,23 @@ async uploadSomePoints(realPoints=true) {
           'Data-Type': 'json'
       },
       body: body,
-    })
-    .then((response) => {
-          console.log("Uploaded some points to track");
-          this.setState({
-            unreportedCoordinates: []
-          });
-    })
-    .catch((error) =>{
-          console.error(error);
-    }
-  );
-}
+      })
+      .then((response) => {
+            console.log("Closed the anonymous track");
+      })
+      .catch((error) =>{
+            console.error(error);
+      }
+    );
+  }
 
-onClickNavigate(routeName) {
-  navigateAction = NavigationActions.navigate({
-      routeName: routeName,
-      params: { username: this.state.username },
-  });
-  this.props.navigation.dispatch(navigateAction);        
-}
+  onClickNavigate(routeName) {
+    navigateAction = NavigationActions.navigate({
+        routeName: routeName,
+        params: { username: this.state.username },
+    });
+    this.props.navigation.dispatch(navigateAction);        
+  }
 
   render() {
     return (
@@ -508,7 +507,7 @@ onClickNavigate(routeName) {
                 <Button onPress={this.onResetMarkers.bind(this)} disabled={this.state.enabled || this.state.coordinates.length == 0} style={styles.btn}>
                   <Icon name='md-refresh' style={this.state.enabled || this.state.coordinates.length == 0 ? styles.btnicondisabled: styles.btnicon}/>
                 </Button>
-                <Button onPress={() => this.setState({isFollowingUser:true})} disabled={this.state.isFollowingUser} style={styles.btn}>
+                <Button onPress={this.onGoToLocation.bind(this)} style={styles.btn}>
                   <Icon name='md-locate' style={this.state.isFollowingUser ? styles.btnicondisabled: styles.btnicon}/>
                 </Button>
                 <Button onPress={() => this.onClickNavigate('LoginScreen')} style={styles.btn}>
@@ -517,7 +516,7 @@ onClickNavigate(routeName) {
             </FooterTab>
         </Footer>
         <Footer style={styles.footer}>
-          <Text style={styles.footertext}>{this.state.statusMessage} (v0.13)</Text>
+          <Text style={styles.footertext}>{this.state.statusMessage} (v0.15)</Text>
         </Footer>
       </Container>
     );
