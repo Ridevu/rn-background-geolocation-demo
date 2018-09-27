@@ -30,7 +30,7 @@ export default class StartPage extends Component {
             usernameValue: '',
             passwordValue: '',
             token: '',
-            jobList: [{job_id: 7}, {job_id: 500}, {job_id: 600}, {job_id: 700}, {job_id: 800}], 
+            jobList: [],
             jobListLoaded: false
         }
 
@@ -96,11 +96,17 @@ render() {
 
             <ScrollView style={styles.scrollview}>
     
+                <Button
+                    buttonStyle={{backgroundColor: 'orange', borderRadius: 10, margin: 10}}
+                    title='Choose a job' onPress={this.LoadJobs.bind(this)} disabled={this.state.jobList.length !== 0}
+                >
+                </ Button>
+            
                 {this.state.jobList.map((job) => (
                     <Button
                     key={job.job_id}
                     buttonStyle={{backgroundColor: 'orange', borderRadius: 10, margin: 10}}
-                    title={job.job_id.toString()} onPress={() => this.props.navigation.navigate('SimpleMap', {
+                    title={"Load job #" + job.job_id.toString()} onPress={() => this.props.navigation.navigate('SimpleMap', {
                         username: this.state.username,
                         jobId: job.job_id
                     })
@@ -111,21 +117,15 @@ render() {
     
                 <Button
                     buttonStyle={{backgroundColor: 'orange', borderRadius: 10, margin: 10}}
-                    title='Choose a job' onPress={this.LoadJobs.bind(this)}
-                >
-                </ Button>
-            
-                <Button
-                    buttonStyle={{backgroundColor: 'orange', borderRadius: 10, margin: 10}}
-                    title='Start tracking' onPress={() => this.props.navigation.navigate('SimpleMap', {
+                    title='Load empty map' onPress={() => this.props.navigation.navigate('SimpleMap', {
                         username: this.state.username,
-                        jobId: 4
+                        jobId: 0
                     })
                     }
                 >
                 </ Button>
                 <Button
-                    buttonStyle={{backgroundColor: 'orange', borderRadius: 10, margin: 10}}
+                    buttonStyle={{backgroundColor: 'red', borderRadius: 10, margin: 10}}
                     title='Log out' onPress={() => this.onClickNavigate('LoginScreen')}
                 >
                 </ Button>

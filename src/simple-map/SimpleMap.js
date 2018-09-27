@@ -494,6 +494,33 @@ export default class SimpleMap extends Component<{}> {
               <View style={[styles.markerIcon]}></View>
             </MapView.Marker>))
           }
+
+          <MapView.Polygon
+              strokeColor={"grey"}
+              strokeWidth={2}
+              fillColor={"rgba(100,100,150,0.1)"}
+              coordinates={[
+                {
+                    latitude: -33.814761,
+                    longitude: 151.16181800000004
+                },
+                {
+                    latitude: -33.817863,
+                    longitude: 151.16087400000004
+                },
+                {
+                    latitude: -33.817703,
+                    longitude: 151.164672
+                },
+                {
+                    latitude: -33.815064,
+                    longitude: 151.16482199999996
+                },
+                {
+                    latitude: -33.814761,
+                    longitude: 151.16181800000004
+                }
+              ]} />
         </MapView>        
 
         <Footer style={styles.btnbackground}>
