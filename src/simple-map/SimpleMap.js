@@ -56,6 +56,7 @@ export default class SimpleMap extends Component<{}> {
       markers: [],
       coordinates: [],
       unreportedCoordinates: [],
+      jobPolygons: [],
       showsUserLocation: true,
       statusMessage: 'Waiting to start tracking',
       isFollowingUser: true
@@ -157,6 +158,11 @@ export default class SimpleMap extends Component<{}> {
         locationTemplate: '{ "timestamp":"<%= timestamp %>", "latitude":"<%= latitude %>", "longitude":"<%= longitude %>" }',
         params: { extras: { "token": item }}
       });
+    });
+
+    AsyncStorage.getItem('@mmp:job_id', (err, item) => { 
+      this.setState({jobPolygons: []});
+      this.LoadJobData(parseInt(item));
     });
 
     this.onGoToLocation();
@@ -297,9 +303,11 @@ export default class SimpleMap extends Component<{}> {
   onResetMarkers() {
     this.setState({
       coordinates: [],
-      markers: []
+      markers: [],
+      jobPolygons: [],
     });
     AsyncStorage.setItem("@mmp:locations", '{"locations": []}');
+    AsyncStorage.setItem("@mmp:job_id", "0");
   }
 
   padDateTimeElements(input)
@@ -443,6 +451,43 @@ export default class SimpleMap extends Component<{}> {
     );
   }
 
+  async LoadJobData(jobId) {
+    if(jobId == 0)
+      return;
+    var auth_token = "";
+    await AsyncStorage.getItem('@mmp:auth_token', (err, item) => auth_token = item);
+        
+    fetch('https://managemyapi.azurewebsites.net/Mobile.asmx/GetJob', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json; charset=utf-8;',
+          'Data-Type': 'json'
+        },
+        body: JSON.stringify({
+          token: auth_token,
+          job_id: jobId,
+          get_job_detail: 1
+        }),
+    })
+    .then((response) => response.json())
+    .then((responseJson) => {
+        var polygons = [];
+        for(var i = 0; i < responseJson.d.areas.length; i++) {
+          var points = [];
+          var currentPolygon = responseJson.d.areas[i];
+          for(var j = 0; j < currentPolygon.positions.length; j++)
+            points.push({ latitude: currentPolygon.positions[j].lat, longitude: currentPolygon.positions[j].lon });
+          polygons.push(points);
+        }
+        this.setState({jobPolygons: polygons});
+    })
+    .catch((error) =>{
+        console.log("Error loading job polygons");
+        console.error(error);
+    });
+}
+
   onClickNavigate(routeName) {
     navigateAction = NavigationActions.navigate({
         routeName: routeName,
@@ -452,9 +497,6 @@ export default class SimpleMap extends Component<{}> {
   }
 
   render() {
-    const { navigation } = this.props;
-    const jobId = navigation.getParam('jobId', 0);
-    console.log("Job ID is " + jobId.toString());
     return (
       <Container style={styles.container}>
         <MapView
@@ -495,33 +537,14 @@ export default class SimpleMap extends Component<{}> {
             </MapView.Marker>))
           }
 
-          <MapView.Polygon
+          {this.state.jobPolygons.map((polygon) => (
+            <MapView.Polygon
               strokeColor={"grey"}
               strokeWidth={2}
               fillColor={"rgba(100,100,150,0.1)"}
-              coordinates={[
-                {
-                    latitude: -33.814761,
-                    longitude: 151.16181800000004
-                },
-                {
-                    latitude: -33.817863,
-                    longitude: 151.16087400000004
-                },
-                {
-                    latitude: -33.817703,
-                    longitude: 151.164672
-                },
-                {
-                    latitude: -33.815064,
-                    longitude: 151.16482199999996
-                },
-                {
-                    latitude: -33.814761,
-                    longitude: 151.16181800000004
-                }
-              ]} />
-        </MapView>        
+              coordinates={polygon.points} />))
+            }
+          </MapView>
 
         <Footer style={styles.btnbackground}>
             <FooterTab>

@@ -42,6 +42,10 @@ export default class StartPage extends Component {
         AsyncStorage.setItem("@mmp:next_page", 'StartPage');
     }
 
+    async onClickGoToJob(jobId) {
+        await AsyncStorage.setItem("@mmp:job_id", jobId.toString());
+        this.onClickNavigate('SimpleMap')
+    }
 
     onClickNavigate(routeName) {
         navigateAction = NavigationActions.navigate({
@@ -106,22 +110,14 @@ render() {
                     <Button
                     key={job.job_id}
                     buttonStyle={{backgroundColor: 'orange', borderRadius: 10, margin: 10}}
-                    title={"Load job #" + job.job_id.toString()} onPress={() => this.props.navigation.navigate('SimpleMap', {
-                        username: this.state.username,
-                        jobId: job.job_id
-                    })
-                    }
+                    title={"Load job #" + job.job_id.toString()} onPress={() => this.onClickGoToJob(job.job_id)}
                     >
                     </ Button>))
                 }
     
                 <Button
                     buttonStyle={{backgroundColor: 'orange', borderRadius: 10, margin: 10}}
-                    title='Load empty map' onPress={() => this.props.navigation.navigate('SimpleMap', {
-                        username: this.state.username,
-                        jobId: 0
-                    })
-                    }
+                    title='Load empty map' onPress={() => this.onClickGoToJob(0)}
                 >
                 </ Button>
                 <Button
