@@ -65,7 +65,7 @@ export default class LoginScreen extends Component {
                 if(responseJson.d.auth_result == 0) {
                     AsyncStorage.setItem('@mmp:auth_token', responseJson.d.token);
                     console.log("Auth token is " + responseJson.d.token);
-                    AsyncStorage.setItem('mmp_user_id', responseJson.d.user.user_id.toString());
+                    AsyncStorage.setItem('@mmp:user_id', responseJson.d.user.user_id.toString());
                     AsyncStorage.setItem('mmp_username', this.state.usernameValue);
                     AsyncStorage.setItem('mmp_password', this.state.passwordValue);
                     AsyncStorage.getItem('@mmp:auth_token', (err, item) => console.log('Auth token in anymc storage is ' + item));
@@ -109,7 +109,7 @@ render() {
                 <Image source={require('../../images/MMP.png')} style={styles.logo} />
             </View>
 
-            <View scrollEnabled={false} style={styles.loginformcontainer}>
+            <View scrollEnabled={true} style={styles.loginformcontainer}>
                 <TextInput underlineColorAndroid='transparent' defaultValue={this.state.usernameValue.toString().toLocaleLowerCase()} placeholder='Username' style={styles.textinput} autoCapitalize='none' onChangeText={changeUsername} />
                 <TextInput underlineColorAndroid='transparent' defaultValue={this.state.passwordValue} placeholder='Password' secureTextEntry={true} autoCapitalize='none' style={styles.textinput}  onChangeText={changePassword} />
                 <TouchableOpacity style={styles.loginbtn} onPress={onLoginPressButton}>

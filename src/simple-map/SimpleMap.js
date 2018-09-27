@@ -452,6 +452,9 @@ export default class SimpleMap extends Component<{}> {
   }
 
   render() {
+    const { navigation } = this.props;
+    const jobId = navigation.getParam('jobId', 0);
+    console.log("Job ID is " + jobId.toString());
     return (
       <Container style={styles.container}>
         <MapView
