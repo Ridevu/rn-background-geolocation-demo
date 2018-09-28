@@ -56,7 +56,10 @@ export default class SimpleMap extends Component<{}> {
       markers: [],
       coordinates: [],
       unreportedCoordinates: [],
-      jobPolygons: [],
+      jobPolygons: [
+
+      ],
+      jobPolygonsCoordinates: [],
       showsUserLocation: true,
       statusMessage: 'Waiting to start tracking',
       isFollowingUser: true
@@ -161,11 +164,12 @@ export default class SimpleMap extends Component<{}> {
     });
 
     AsyncStorage.getItem('@mmp:job_id', (err, item) => { 
-      this.setState({jobPolygons: []});
+      this.setState({
+        jobPolygons: [],
+        jobPolygonsCoordinates: []
+      });
       this.LoadJobData(parseInt(item));
     });
-
-    this.onGoToLocation();
   }
 
   /**
@@ -305,6 +309,7 @@ export default class SimpleMap extends Component<{}> {
       coordinates: [],
       markers: [],
       jobPolygons: [],
+      jobPolygonsCoordinates: [],
     });
     AsyncStorage.setItem("@mmp:locations", '{"locations": []}');
     AsyncStorage.setItem("@mmp:job_id", "0");
@@ -453,7 +458,11 @@ export default class SimpleMap extends Component<{}> {
 
   async LoadJobData(jobId) {
     if(jobId == 0)
+    {
+      this.onGoToLocation();
       return;
+    }
+
     var auth_token = "";
     await AsyncStorage.getItem('@mmp:auth_token', (err, item) => auth_token = item);
         
@@ -466,21 +475,42 @@ export default class SimpleMap extends Component<{}> {
         },
         body: JSON.stringify({
           token: auth_token,
-          job_id: jobId,
+          // job_id: jobId,
+          job_id: 35000,
           get_job_detail: 1
         }),
     })
     .then((response) => response.json())
     .then((responseJson) => {
         var polygons = [];
+        var jobPolygonsCoordinates = [];
         for(var i = 0; i < responseJson.d.areas.length; i++) {
           var points = [];
           var currentPolygon = responseJson.d.areas[i];
           for(var j = 0; j < currentPolygon.positions.length; j++)
+          {
             points.push({ latitude: currentPolygon.positions[j].lat, longitude: currentPolygon.positions[j].lon });
-          polygons.push(points);
+            jobPolygonsCoordinates.push({ latitude: currentPolygon.positions[j].lat, longitude: currentPolygon.positions[j].lon });
+          }
+          if(points.length > 3)
+          {
+            console.log("Today - pushing a polygon of length " + points.length);
+            polygons.push({points});
+          }
+          points = [];
         }
-        this.setState({jobPolygons: polygons});
+        console.log("Today, number of polygons - " + polygons.length)
+        // console.log("Today, polygon 1 size - " + polygons[0].length)
+        // console.log("Today, polygon 2 size - " + polygons[1].length)
+        // console.log("Today, polygon 3 size - " + polygons[2].length)
+        console.log("Today, number of points - " + jobPolygonsCoordinates.length)
+        this.setState({
+          jobPolygons: polygons,
+          jobPolygonsCoordinates: jobPolygonsCoordinates
+        });
+        console.log("TODAY\n" + polygons.toString());
+        if(this.state.jobPolygonsCoordinates.length > 1)
+          this.refs.map.fitToCoordinates(this.state.jobPolygonsCoordinates, { edgePadding: { top: 10, right: 10, bottom: 10, left: 10 }, animated: true });
     })
     .catch((error) =>{
         console.log("Error loading job polygons");
@@ -537,8 +567,9 @@ export default class SimpleMap extends Component<{}> {
             </MapView.Marker>))
           }
 
-          {this.state.jobPolygons.map((polygon) => (
+          {this.state.jobPolygons.map((polygon, index) => (
             <MapView.Polygon
+              key={"polygon" + index.toString()}
               strokeColor={"grey"}
               strokeWidth={2}
               fillColor={"rgba(100,100,150,0.1)"}
