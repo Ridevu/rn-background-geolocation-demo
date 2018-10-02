@@ -91,8 +91,11 @@ export default class StartPage extends Component {
     }
 
     async onJobIdChanged (text) {
-        console.log("Today - job ID input changed - " + text);
+        // console.log("Today - job ID input changed - " + text);
         await AsyncStorage.setItem("@mmp:job_id", text.replace(/[^0-9]/g, ''));
+        AsyncStorage.getItem('@mmp:job_id', (err, item) => { 
+            console.log("Today - job ID input changed - " + item);
+        });
     }    
         
 render() {
