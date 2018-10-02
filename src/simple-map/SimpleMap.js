@@ -168,6 +168,7 @@ export default class SimpleMap extends Component<{}> {
         jobPolygons: [],
         jobPolygonsCoordinates: []
       });
+      console.log("Today - job ID = " + item);
       this.LoadJobData(parseInt(item));
     });
   }
@@ -475,8 +476,8 @@ export default class SimpleMap extends Component<{}> {
         },
         body: JSON.stringify({
           token: auth_token,
-          // job_id: jobId,
-          job_id: 35000,
+          job_id: jobId,
+          // job_id: 35000,
           get_job_detail: 1
         }),
     })
@@ -494,21 +495,14 @@ export default class SimpleMap extends Component<{}> {
           }
           if(points.length > 3)
           {
-            console.log("Today - pushing a polygon of length " + points.length);
             polygons.push({points});
           }
           points = [];
         }
-        console.log("Today, number of polygons - " + polygons.length)
-        // console.log("Today, polygon 1 size - " + polygons[0].length)
-        // console.log("Today, polygon 2 size - " + polygons[1].length)
-        // console.log("Today, polygon 3 size - " + polygons[2].length)
-        console.log("Today, number of points - " + jobPolygonsCoordinates.length)
         this.setState({
           jobPolygons: polygons,
           jobPolygonsCoordinates: jobPolygonsCoordinates
         });
-        console.log("TODAY\n" + polygons.toString());
         if(this.state.jobPolygonsCoordinates.length > 1)
           this.refs.map.fitToCoordinates(this.state.jobPolygonsCoordinates, { edgePadding: { top: 10, right: 10, bottom: 10, left: 10 }, animated: true });
     })
@@ -594,7 +588,7 @@ export default class SimpleMap extends Component<{}> {
                 <Button onPress={this.onGoToLocation.bind(this)} style={styles.btn}>
                   <Icon name='md-locate' style={this.state.isFollowingUser ? styles.btnicondisabled: styles.btnicon}/>
                 </Button>
-                <Button onPress={() => this.onClickNavigate('LoginScreen')} style={styles.btn}>
+                <Button onPress={() => this.onClickNavigate('StartPage')} style={styles.btn}>
                   <Icon name='md-exit' style={styles.logoutbtnicon}/>
                 </Button>
             </FooterTab>
