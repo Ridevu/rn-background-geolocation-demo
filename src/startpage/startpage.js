@@ -43,7 +43,8 @@ export default class StartPage extends Component {
     }
 
     async onClickGoToJob(jobId) {
-        await AsyncStorage.setItem("@mmp:job_id", jobId.toString());
+        if(jobId != 0)
+            await AsyncStorage.setItem("@mmp:job_id", jobId.toString());
         this.onClickNavigate('SimpleMap')
     }
 
@@ -88,6 +89,11 @@ export default class StartPage extends Component {
             console.error(error);
         });
     }
+
+    async onJobIdChanged (text) {
+        console.log("Today - job ID input changed - " + text);
+        await AsyncStorage.setItem("@mmp:job_id", text.replace(/[^0-9]/g, ''));
+    }    
         
 render() {
     return (
@@ -102,7 +108,7 @@ render() {
     
                 <Button
                     buttonStyle={{backgroundColor: 'orange', borderRadius: 10, margin: 10}}
-                    title='Choose a job' onPress={this.LoadJobs.bind(this)} disabled={this.state.jobList.length !== 0}
+                    title='Search jobs...' onPress={this.LoadJobs.bind(this)} disabled={this.state.jobList.length !== 0}
                 >
                 </ Button>
             
@@ -115,6 +121,25 @@ render() {
                     </ Button>))
                 }
     
+                <View style={{flexDirection:"row"}}>
+                    <View style={{flex:1}}>
+                        <TextInput 
+                        style={styles.textinput}
+                        keyboardType = 'numeric'
+                        onChangeText = {(text)=> this.onJobIdChanged(text)}
+                        placeholder = '...or enter a job ID'
+                        /> 
+                    </View>
+                    <View style={{flex:1}}>
+                        <Button
+                        key={0}
+                        buttonStyle={{backgroundColor: 'orange', borderRadius: 10, margin: 10}}
+                        title={"Load"} onPress={() => this.onClickGoToJob(0)}
+                        >
+                        </ Button>
+                    </View>
+                </View>
+
                 <Button
                     buttonStyle={{backgroundColor: 'orange', borderRadius: 10, margin: 10}}
                     title='Load empty map' onPress={() => this.onClickGoToJob(0)}
@@ -171,13 +196,19 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     textinput: {
-        color: '#fff',
+        height: 50,
+        color: 'white',
         alignSelf: 'stretch',
-        padding: 12,
-        marginBottom: 10,
-        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+        alignItems: 'center',
+        padding: 14,
+        marginTop: 8,
+        marginBottom: 8,
+        marginLeft: 25,
+        backgroundColor: 'rgba(255, 165, 00, 0.4)',
         borderColor: '#fff',
         borderWidth: 0.6,
+        borderRadius: 10,
+        justifyContent: 'flex-start',
     },
     switch: {
         padding: 12,
