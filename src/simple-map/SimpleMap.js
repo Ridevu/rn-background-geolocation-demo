@@ -68,6 +68,8 @@ export default class SimpleMap extends Component<{}> {
 }
 
   componentDidMount() {
+    console.log("TODAY - SimpleMap component mounting");
+
     // Step 1:  Listen to events:
     BackgroundGeolocation.on('location', this.onLocation.bind(this));
     BackgroundGeolocation.on('motionchange', this.onMotionChange.bind(this));
@@ -163,14 +165,25 @@ export default class SimpleMap extends Component<{}> {
       });
     });
 
-    AsyncStorage.getItem('@mmp:job_id', (err, item) => { 
-      this.setState({
-        jobPolygons: [],
-        jobPolygonsCoordinates: []
+    try {
+      AsyncStorage.getItem('@mmp:job_id', (err, item) => { 
+        console.log("TODAY - job ID received - " + item);
+        this.setState({
+          jobPolygons: [],
+          jobPolygonsCoordinates: []
+        });
+        if(item !== null && item !== undefined && item !== "0") {
+          this.LoadJobData(parseInt(item));
+        }
+        else {
+          this.onGoToLocation();
+          console.log("TODAY - going to current position");
+        }
       });
-      console.log("Today - job ID = " + item);
-      this.LoadJobData(parseInt(item));
-    });
+    }
+    catch(exception) {
+      console.log("TODAY - exception caught - " + exception.toString());
+    }
   }
 
   /**
@@ -458,12 +471,11 @@ export default class SimpleMap extends Component<{}> {
   }
 
   async LoadJobData(jobId) {
-    if(jobId == 0)
-    {
+    if(jobId == 0) {
       this.onGoToLocation();
+      console.log("TODAY - going to current position");  
       return;
     }
-
     var auth_token = "";
     await AsyncStorage.getItem('@mmp:auth_token', (err, item) => auth_token = item);
         
@@ -503,8 +515,16 @@ export default class SimpleMap extends Component<{}> {
           jobPolygons: polygons,
           jobPolygonsCoordinates: jobPolygonsCoordinates
         });
-        if(this.state.jobPolygonsCoordinates.length > 1)
+
+        console.log("TODAY - coordinates we have - " + this.state.jobPolygonsCoordinates.length.toString());
+        if(this.state.jobPolygonsCoordinates.length > 1) {
           this.refs.map.fitToCoordinates(this.state.jobPolygonsCoordinates, { edgePadding: { top: 10, right: 10, bottom: 10, left: 10 }, animated: true });
+          console.log("TODAY - going to polygons");
+        }
+        else {
+          this.onGoToLocation();
+          console.log("TODAY - going to current position");
+        }        
     })
     .catch((error) =>{
         console.log("Error loading job polygons");

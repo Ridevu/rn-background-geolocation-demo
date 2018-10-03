@@ -42,10 +42,26 @@ export default class StartPage extends Component {
         AsyncStorage.setItem("@mmp:next_page", 'StartPage');
     }
 
+    parseJobId(jobIdText) {
+        if(this.state.jobIdText != null && this.state.jobIdText.length > 0)
+            return parseInt(this.state.jobIdText.replace(/[^0-9]/g, ''));
+        else
+            return 0;
+    }
+
     async onClickGoToJob(jobId) {
-        if(jobId != 0)
-            await AsyncStorage.setItem("@mmp:job_id", jobId.toString());
-        this.onClickNavigate('SimpleMap')
+        console.log("TODAY - jobId = " + jobId.toString())
+        await AsyncStorage.setItem("@mmp:job_id", jobId.toString());
+        this.onClickNavigate('SimpleMap');
+    }
+
+    async onClickGoToEmptyMap() {
+        try {
+            await AsyncStorage.removeItem("@mmp:job_id");
+        }
+        catch(exception) {
+        }        
+        this.onClickNavigate('SimpleMap');
     }
 
     onClickNavigate(routeName) {
@@ -90,14 +106,6 @@ export default class StartPage extends Component {
         });
     }
 
-    async onJobIdChanged (text) {
-        // console.log("Today - job ID input changed - " + text);
-        await AsyncStorage.setItem("@mmp:job_id", text.replace(/[^0-9]/g, ''));
-        AsyncStorage.getItem('@mmp:job_id', (err, item) => { 
-            console.log("Today - job ID input changed - " + item);
-        });
-    }    
-        
 render() {
     return (
         <ImageBackground style={styles.container}>
@@ -129,7 +137,10 @@ render() {
                         <TextInput 
                         style={styles.textinput}
                         keyboardType = 'numeric'
-                        onChangeText = {(text)=> this.onJobIdChanged(text)}
+                        onChangeText={(text) => this.setState({jobIdText: text})}
+                        value={this.state.jobIdText}
+                                        
+                        // onChangeText = {(text)=> this.onJobIdChanged(text)}
                         placeholder = '...or enter a job ID'
                         /> 
                     </View>
@@ -137,7 +148,7 @@ render() {
                         <Button
                         key={0}
                         buttonStyle={{backgroundColor: 'orange', borderRadius: 10, margin: 10}}
-                        title={"Load"} onPress={() => this.onClickGoToJob(0)}
+                        title={"Load"} onPress={() => this.onClickGoToJob(this.parseJobId(this.state.jobIdText))}
                         >
                         </ Button>
                     </View>
@@ -145,7 +156,7 @@ render() {
 
                 <Button
                     buttonStyle={{backgroundColor: 'orange', borderRadius: 10, margin: 10}}
-                    title='Load empty map' onPress={() => this.onClickGoToJob(0)}
+                    title='Load empty map' onPress={() => this.onClickGoToEmptyMap()}
                 >
                 </ Button>
                 <Button
