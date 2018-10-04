@@ -50,7 +50,7 @@ export default class StartPage extends Component {
     }
 
     async onClickGoToJob(jobId) {
-        console.log("TODAY - jobId = " + jobId.toString())
+        // console.log("TODAY - jobId = " + jobId.toString())
         await AsyncStorage.setItem("@mmp:job_id", jobId.toString());
         this.onClickNavigate('SimpleMap');
     }
@@ -119,7 +119,7 @@ render() {
     
                 <Button
                     buttonStyle={{backgroundColor: 'orange', borderRadius: 10, margin: 10}}
-                    title='Search jobs...' onPress={this.LoadJobs.bind(this)} disabled={this.state.jobList.length !== 0}
+                    title='Select a job from list' onPress={this.LoadJobs.bind(this)} disabled={this.state.jobList.length !== 0}
                 >
                 </ Button>
             
@@ -136,12 +136,14 @@ render() {
                     <View style={{flex:1}}>
                         <TextInput 
                         style={styles.textinput}
-                        keyboardType = 'numeric'
+                        keyboardType='numeric'
+                        multiline={false}
+                        underlineColorAndroid="transparent"
                         onChangeText={(text) => this.setState({jobIdText: text})}
                         value={this.state.jobIdText}
                                         
                         // onChangeText = {(text)=> this.onJobIdChanged(text)}
-                        placeholder = '...or enter a job ID'
+                        placeholder = 'Enter a job ID'
                         /> 
                     </View>
                     <View style={{flex:1}}>
@@ -210,6 +212,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     textinput: {
+        fontSize: 18,
+        fontWeight: "600",
         height: 50,
         color: 'white',
         alignSelf: 'stretch',

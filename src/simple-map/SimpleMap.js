@@ -68,7 +68,7 @@ export default class SimpleMap extends Component<{}> {
 }
 
   componentDidMount() {
-    console.log("TODAY - SimpleMap component mounting");
+    // console.log("TODAY - SimpleMap component mounting");
 
     // Step 1:  Listen to events:
     BackgroundGeolocation.on('location', this.onLocation.bind(this));
@@ -167,7 +167,7 @@ export default class SimpleMap extends Component<{}> {
 
     try {
       AsyncStorage.getItem('@mmp:job_id', (err, item) => { 
-        console.log("TODAY - job ID received - " + item);
+        // console.log("TODAY - job ID received - " + item);
         this.setState({
           jobPolygons: [],
           jobPolygonsCoordinates: []
@@ -177,12 +177,12 @@ export default class SimpleMap extends Component<{}> {
         }
         else {
           this.onGoToLocation();
-          console.log("TODAY - going to current position");
+          // console.log("TODAY - going to current position");
         }
       });
     }
     catch(exception) {
-      console.log("TODAY - exception caught - " + exception.toString());
+      // console.log("TODAY - exception caught - " + exception.toString());
     }
   }
 
@@ -190,7 +190,7 @@ export default class SimpleMap extends Component<{}> {
   * @event location
   */
   onLocation(location) {
-    console.log('[event] location: ', location);
+    // console.log('[event] location: ', location);
 
     if (!location.sample) {
       this.addMarker(location);
@@ -238,7 +238,7 @@ export default class SimpleMap extends Component<{}> {
       (position) => {
         let curr_latitude = position.coords.latitude;
         let curr_longitude = position.coords.longitude;
-        console.log("CURRENT LOCATION OBTAINED - " + curr_longitude.toString());
+        // console.log("CURRENT LOCATION OBTAINED - " + curr_longitude.toString());
         var curr_location = {lat: curr_latitude, lng: curr_longitude};
 
         this.refs.map.animateToRegion({
@@ -473,7 +473,7 @@ export default class SimpleMap extends Component<{}> {
   async LoadJobData(jobId) {
     if(jobId == 0) {
       this.onGoToLocation();
-      console.log("TODAY - going to current position");  
+      // console.log("TODAY - going to current position");  
       return;
     }
     var auth_token = "";
@@ -516,15 +516,19 @@ export default class SimpleMap extends Component<{}> {
           jobPolygonsCoordinates: jobPolygonsCoordinates
         });
 
-        console.log("TODAY - coordinates we have - " + this.state.jobPolygonsCoordinates.length.toString());
+        // console.log("TODAY - coordinates we have - " + this.state.jobPolygonsCoordinates.length.toString());
         if(this.state.jobPolygonsCoordinates.length > 1) {
           this.refs.map.fitToCoordinates(this.state.jobPolygonsCoordinates, { edgePadding: { top: 10, right: 10, bottom: 10, left: 10 }, animated: true });
-          console.log("TODAY - going to polygons");
+          // console.log("TODAY - going to polygons");
         }
         else {
           this.onGoToLocation();
-          console.log("TODAY - going to current position");
-        }        
+          // console.log("TODAY - going to current position");
+        }
+
+        this.setState({
+          statusMessage: 'Job ' + jobId.toString() + ' loaded with ' + this.state.jobPolygonsCoordinates.length.toString() + ' polygons',
+        });        
     })
     .catch((error) =>{
         console.log("Error loading job polygons");
