@@ -527,7 +527,7 @@ export default class SimpleMap extends Component<{}> {
         }
 
         this.setState({
-          statusMessage: 'Job ' + jobId.toString() + ' loaded with ' + this.state.jobPolygonsCoordinates.length.toString() + ' polygons',
+          statusMessage: 'Job ' + jobId.toString() + ' loaded with ' + this.state.jobPolygons.length.toString() + ' polygons',
         });        
     })
     .catch((error) =>{
