@@ -57,7 +57,7 @@ export default class StartPage extends Component {
 
     async onClickGoToEmptyMap() {
         try {
-            await AsyncStorage.removeItem("@mmp:job_id");
+            await AsyncStorage.setItem("@mmp:job_id", "0");
         }
         catch(exception) {
         }        

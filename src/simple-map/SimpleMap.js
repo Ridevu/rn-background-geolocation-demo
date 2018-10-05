@@ -322,11 +322,11 @@ export default class SimpleMap extends Component<{}> {
     this.setState({
       coordinates: [],
       markers: [],
-      jobPolygons: [],
-      jobPolygonsCoordinates: [],
+      // jobPolygons: [],
+      // jobPolygonsCoordinates: [],
     });
     AsyncStorage.setItem("@mmp:locations", '{"locations": []}');
-    AsyncStorage.setItem("@mmp:job_id", "0");
+    // AsyncStorage.setItem("@mmp:job_id", "0");
   }
 
   padDateTimeElements(input)
@@ -544,6 +544,13 @@ export default class SimpleMap extends Component<{}> {
     this.props.navigation.dispatch(navigateAction);        
   }
 
+  goToStartPage() {
+    this.setState({
+      jobPolygons: [],
+    });
+    this.onClickNavigate("StartPage");
+  }
+
   render() {
     return (
       <Container style={styles.container}>
@@ -612,13 +619,13 @@ export default class SimpleMap extends Component<{}> {
                 <Button onPress={this.onGoToLocation.bind(this)} style={styles.btn}>
                   <Icon name='md-locate' style={this.state.isFollowingUser ? styles.btnicondisabled: styles.btnicon}/>
                 </Button>
-                <Button onPress={() => this.onClickNavigate('StartPage')} style={styles.btn}>
+                <Button onPress={() => this.goToStartPage()} style={styles.btn}>
                   <Icon name='md-exit' style={styles.logoutbtnicon}/>
                 </Button>
             </FooterTab>
         </Footer>
         <Footer style={styles.footer}>
-          <Text style={styles.footertext}>{this.state.statusMessage} (v0.15)</Text>
+          <Text style={styles.footertext}>{this.state.statusMessage} (v0.16)</Text>
         </Footer>
       </Container>
     );
