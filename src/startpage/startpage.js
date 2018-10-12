@@ -109,11 +109,6 @@ export default class StartPage extends Component {
 render() {
     return (
         <ImageBackground style={styles.container}>
-        {/* <ImageBackground source={require('../../images/background-image-for-app.jpg')} style={styles.container}> */}
-            <View scrollEnabled={true} style={styles.logocontainer}>
-                <Image source={require('../../images/MMP.png')} style={styles.logo} />
-            </View>
-
 
             <ScrollView style={styles.scrollview}>
     

@@ -36,6 +36,7 @@ const LONGITUDE_DELTA = 0.00421;
 
 const TRACKER_HOST = 'http://tracker.transistorsoft.com/locations/';
 
+const MMP_UPLOAD_TRACK = 'https://managemyapistaging.azurewebsites.net/Mobile.asmx/UploadCompleteTrackToJob';
 const MMP_URL_SET_JOB_STATUS = 'https://managemyapi.azurewebsites.net/Mobile.asmx/SetJobStatus';
 const MMP_URL_UPLOAD_TRACK_POINTS = 'https://managemyapi.azurewebsites.net/Mobile.asmx/UploadTrackpoints';
 const MMP_URL_UPLOAD_TRACK_POINTS_PROXY = 'https://ln2w5ozvo2.execute-api.ap-southeast-2.amazonaws.com/proxyPostAPI/';
@@ -56,9 +57,7 @@ export default class SimpleMap extends Component<{}> {
       markers: [],
       coordinates: [],
       unreportedCoordinates: [],
-      jobPolygons: [
-
-      ],
+      jobPolygons: [],
       jobPolygonsCoordinates: [],
       showsUserLocation: true,
       statusMessage: 'Waiting to start tracking',
@@ -86,7 +85,7 @@ export default class SimpleMap extends Component<{}> {
       fastestLocationUpdateInterval: 3000,
       notificationText: "",
       allowIdenticalLocations: true,
-      url: TRACKER_HOST + this.state.username,
+      // url: TRACKER_HOST + this.state.username,
       params: {
         // Required for tracker.transistorsoft.com
         device: {
@@ -98,8 +97,8 @@ export default class SimpleMap extends Component<{}> {
           framework: 'ReactNative'
         }
       },
-      autoSync: true,
-      autoSyncThreshold: 12,
+      // autoSync: true,
+      // autoSyncThreshold: 12,
       stopTimeout: 30,
 
       stopOnTerminate: false,
@@ -146,8 +145,8 @@ export default class SimpleMap extends Component<{}> {
         fastestLocationUpdateInterval: 3000,
         notificationText: "",
         allowIdenticalLocations: true,
-        autoSync: true,
-        autoSyncThreshold: 12,          
+        // autoSync: true,
+        // autoSyncThreshold: 12,          
 
         stopOnTerminate: false,
         startOnBoot: true,
@@ -159,7 +158,7 @@ export default class SimpleMap extends Component<{}> {
         debug: true,
         logLevel: BackgroundGeolocation.LOG_LEVEL_WARNING,
 
-        url: MMP_URL_UPLOAD_TRACK_POINTS_PROXY,
+        // url: MMP_URL_UPLOAD_TRACK_POINTS_PROXY,
         locationTemplate: '{ "timestamp":"<%= timestamp %>", "latitude":"<%= latitude %>", "longitude":"<%= longitude %>" }',
         params: { extras: { "token": item }}
       });
@@ -292,7 +291,7 @@ export default class SimpleMap extends Component<{}> {
     console.log('Pausing the track - we may continue later...');
   }
 
-  onStopTracking(value) {
+  async onStopTracking(value) {
     this.setState({
       enabled: false,
       paused: false,
@@ -304,6 +303,31 @@ export default class SimpleMap extends Component<{}> {
     AsyncStorage.setItem("@mmp:enabled", 'false');
     AsyncStorage.setItem("@mmp:paused", 'false');
     
+    BackgroundGeolocation.getLocations(async function(locations) {
+
+      var auth_token = "";
+      await AsyncStorage.getItem('@mmp:auth_token', (err, item) => auth_token = item);
+  
+      var jobId = "";
+      await AsyncStorage.getItem('@mmp:job_id', (err, item) => jobId = item);
+  
+      var locationsFormatted = [];
+      console.log("TODAY: locations are - " + JSON.stringify(locations));
+      for(var i = 0; i < locations.length; i++)
+      {
+        var timestampFormatted = locations[i].timestamp.replace('T', ' ').replace('Z', '').substring(0, 19);
+        locationsFormatted.push({ latitude: locations[i].latitude, longitude: locations[i].longitude, datetime: timestampFormatted });
+      }
+
+      var requestPayload = JSON.stringify({
+        token: auth_token,
+        job_id: jobId,
+        points: locationsFormatted
+      });
+
+      console.log("TODAY: complete track upload request payload - " + requestPayload);
+    });
+
     BackgroundGeolocation.stop();
     console.log('Closing the track - sending remaining points to server...');
     this.closeAnonymousTrack();
@@ -477,6 +501,11 @@ export default class SimpleMap extends Component<{}> {
       return;
     }
     var auth_token = "";
+
+    this.setState({
+      jobId: jobId
+    });        
+
     await AsyncStorage.getItem('@mmp:auth_token', (err, item) => auth_token = item);
         
     fetch('https://managemyapi.azurewebsites.net/Mobile.asmx/GetJob', {
