@@ -36,6 +36,7 @@ const LONGITUDE_DELTA = 0.00421;
 
 const TRACKER_HOST = 'http://tracker.transistorsoft.com/locations/';
 
+const MMP_URL_UPLOAD_COMPLETE_TRACK = 'https://managemyapiclone.azurewebsites.net/Mobile.asmx/UploadCompleteTrackToJob'
 const MMP_UPLOAD_TRACK = 'https://managemyapistaging.azurewebsites.net/Mobile.asmx/UploadCompleteTrackToJob';
 const MMP_URL_SET_JOB_STATUS = 'https://managemyapi.azurewebsites.net/Mobile.asmx/SetJobStatus';
 const MMP_URL_UPLOAD_TRACK_POINTS = 'https://managemyapi.azurewebsites.net/Mobile.asmx/UploadTrackpoints';
@@ -303,42 +304,66 @@ export default class SimpleMap extends Component<{}> {
     AsyncStorage.setItem("@mmp:enabled", 'false');
     AsyncStorage.setItem("@mmp:paused", 'false');
     
+    var locationsFormatted = [];
     BackgroundGeolocation.getLocations(async function(locations) {
 
-      var auth_token = "";
-      await AsyncStorage.getItem('@mmp:auth_token', (err, item) => auth_token = item);
-  
-      var jobId = "";
-      await AsyncStorage.getItem('@mmp:job_id', (err, item) => jobId = item);
-  
-      var locationsFormatted = [];
       console.log("TODAY: locations are - " + JSON.stringify(locations));
       for(var i = 0; i < locations.length; i++)
       {
         var timestampFormatted = locations[i].timestamp.replace('T', ' ').replace('Z', '').substring(0, 19);
-        locationsFormatted.push({ latitude: locations[i].latitude, longitude: locations[i].longitude, datetime: timestampFormatted });
+        locationsFormatted.push({ lat: locations[i].latitude, lon: locations[i].longitude, datetime: timestampFormatted });
       }
-
-      var requestPayload = JSON.stringify({
-        token: auth_token,
-        job_id: jobId,
-        points: locationsFormatted
-      });
-
-      console.log("TODAY: complete track upload request payload - " + requestPayload);
     });
 
     BackgroundGeolocation.stop();
-    console.log('Closing the track - sending remaining points to server...');
-    this.closeAnonymousTrack();
     this.setState({
-      statusMessage: 'Track uploaded and closed',
       isMoving: false,
       showsUserLocation: false,
     });
 
-    BackgroundGeolocation.destroyLocations(function() {
-      console.log('- cleared database'); 
+    this.setState({
+      statusMessage: 'Track being uploaded...',
+    });
+
+    var auth_token = "";
+    await AsyncStorage.getItem('@mmp:auth_token', (err, item) => auth_token = item);
+
+    var jobId = "";
+    await AsyncStorage.getItem('@mmp:job_id', (err, item) => jobId = item);
+
+    var requestPayload = JSON.stringify({
+      token: auth_token,
+      job_id: jobId,
+      points: locationsFormatted
+    });
+
+    fetch(MMP_URL_UPLOAD_COMPLETE_TRACK, {
+      method: 'POST',
+      headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json; charset=utf-8;',
+      'Data-Type': 'json'
+      },
+      body: requestPayload,
+    })
+    .then((response) => response.json())
+    .then((responseJson) => {
+        if(responseJson.d.result == 0) {
+          BackgroundGeolocation.destroyLocations(function() {
+            console.log('- cleared database'); 
+          });
+          this.setState({
+            statusMessage: 'Track uploaded to job #' + jobId.toString(),
+          });  
+        }
+        else {
+          this.setState({
+            statusMessage: 'Error uploading track - ' + responseJson.d.message,
+          });  
+        }
+    })
+    .catch((error) =>{
+        console.error(error);
     });
   }
   
@@ -444,54 +469,54 @@ export default class SimpleMap extends Component<{}> {
   }
 
   async startAnonymousTrack() {
-    var auth_token = "";
-    await AsyncStorage.getItem('@mmp:auth_token', (err, item) => auth_token = item);
-    body = JSON.stringify({
-      token: auth_token,
-      job_id: 0,
-      job_new_status: 1
-    });
-    fetch(MMP_URL_SET_JOB_STATUS, {
-        method: 'POST',
-        headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json; charset=utf-8;',
-        'Data-Type': 'json'
-        },
-        body: body,
-    })
-    .then((response) => {
-        console.log("Started an anonymous track");
-    })
-    .catch((error) =>{
-        console.error(error);
-    });
+    // var auth_token = "";
+    // await AsyncStorage.getItem('@mmp:auth_token', (err, item) => auth_token = item);
+    // body = JSON.stringify({
+    //   token: auth_token,
+    //   job_id: 0,
+    //   job_new_status: 1
+    // });
+    // fetch(MMP_URL_SET_JOB_STATUS, {
+    //     method: 'POST',
+    //     headers: {
+    //     Accept: 'application/json',
+    //     'Content-Type': 'application/json; charset=utf-8;',
+    //     'Data-Type': 'json'
+    //     },
+    //     body: body,
+    // })
+    // .then((response) => {
+    //     console.log("Started an anonymous track");
+    // })
+    // .catch((error) =>{
+    //     console.error(error);
+    // });
   }
 
   async closeAnonymousTrack() {
-    var auth_token = "";
-    await AsyncStorage.getItem('@mmp:auth_token', (err, item) => auth_token = item);
-    body = JSON.stringify({
-      token: auth_token,
-      job_id: 0,
-      job_new_status: 3
-    });
-    fetch(MMP_URL_SET_JOB_STATUS, {
-      method: 'POST',
-      headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json; charset=utf-8;',
-          'Data-Type': 'json'
-      },
-      body: body,
-      })
-      .then((response) => {
-            console.log("Closed the anonymous track");
-      })
-      .catch((error) =>{
-            console.error(error);
-      }
-    );
+    // var auth_token = "";
+    // await AsyncStorage.getItem('@mmp:auth_token', (err, item) => auth_token = item);
+    // body = JSON.stringify({
+    //   token: auth_token,
+    //   job_id: 0,
+    //   job_new_status: 3
+    // });
+    // fetch(MMP_URL_SET_JOB_STATUS, {
+    //   method: 'POST',
+    //   headers: {
+    //       Accept: 'application/json',
+    //       'Content-Type': 'application/json; charset=utf-8;',
+    //       'Data-Type': 'json'
+    //   },
+    //   body: body,
+    //   })
+    //   .then((response) => {
+    //         console.log("Closed the anonymous track");
+    //   })
+    //   .catch((error) =>{
+    //         console.error(error);
+    //   }
+    // );
   }
 
   async LoadJobData(jobId) {
@@ -518,7 +543,6 @@ export default class SimpleMap extends Component<{}> {
         body: JSON.stringify({
           token: auth_token,
           job_id: jobId,
-          // job_id: 35000,
           get_job_detail: 1
         }),
     })
@@ -654,7 +678,7 @@ export default class SimpleMap extends Component<{}> {
             </FooterTab>
         </Footer>
         <Footer style={styles.footer}>
-          <Text style={styles.footertext}>{this.state.statusMessage} (v0.16)</Text>
+          <Text style={styles.footertext}>{this.state.statusMessage} (v0.17)</Text>
         </Footer>
       </Container>
     );

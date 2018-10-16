@@ -67,7 +67,7 @@ export default class Home extends Component<{}> {
     this.timeoutHandle = setTimeout(()=>{
       AsyncStorage.getItem('@mmp:auth_token', (err, item) =>
       {
-        console.log('Auth token in anymc storage is ' + item);
+        console.log('Auth token in async storage is ' + item);
         if(item) {
           this.onClickNavigate(next_page);
         }
