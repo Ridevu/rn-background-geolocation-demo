@@ -37,10 +37,9 @@ const LONGITUDE_DELTA = 0.00421;
 const TRACKER_HOST = 'http://tracker.transistorsoft.com/locations/';
 
 const MMP_URL_UPLOAD_COMPLETE_TRACK = 'https://managemyapiclone.azurewebsites.net/Mobile.asmx/UploadCompleteTrackToJob'
-const MMP_UPLOAD_TRACK = 'https://managemyapistaging.azurewebsites.net/Mobile.asmx/UploadCompleteTrackToJob';
-const MMP_URL_SET_JOB_STATUS = 'https://managemyapi.azurewebsites.net/Mobile.asmx/SetJobStatus';
-const MMP_URL_UPLOAD_TRACK_POINTS = 'https://managemyapi.azurewebsites.net/Mobile.asmx/UploadTrackpoints';
-const MMP_URL_UPLOAD_TRACK_POINTS_PROXY = 'https://ln2w5ozvo2.execute-api.ap-southeast-2.amazonaws.com/proxyPostAPI/';
+// const MMP_URL_SET_JOB_STATUS = 'https://managemyapi.azurewebsites.net/Mobile.asmx/SetJobStatus';
+// const MMP_URL_UPLOAD_TRACK_POINTS = 'https://managemyapi.azurewebsites.net/Mobile.asmx/UploadTrackpoints';
+// const MMP_URL_UPLOAD_TRACK_POINTS_PROXY = 'https://ln2w5ozvo2.execute-api.ap-southeast-2.amazonaws.com/proxyPostAPI/';
 const COORDINATES_BUFFER_LENGTH = 2  ;
 
 export default class SimpleMap extends Component<{}> {
@@ -67,7 +66,7 @@ export default class SimpleMap extends Component<{}> {
     AsyncStorage.setItem("@mmp:next_page", 'SimpleMap');
 }
 
-  componentDidMount() {
+  async componentDidMount() {
     // console.log("TODAY - SimpleMap component mounting");
 
     // Step 1:  Listen to events:
@@ -166,7 +165,7 @@ export default class SimpleMap extends Component<{}> {
     });
 
     try {
-      AsyncStorage.getItem('@mmp:job_id', (err, item) => { 
+      await AsyncStorage.getItem('@mmp:job_id', (err, item) => { 
         // console.log("TODAY - job ID received - " + item);
         this.setState({
           jobPolygons: [],
@@ -353,7 +352,7 @@ export default class SimpleMap extends Component<{}> {
             console.log('- cleared database'); 
           });
           this.setState({
-            statusMessage: 'Track uploaded to job #' + jobId.toString(),
+            statusMessage: locationsFormatted.length.toString() + ' points uploaded to job #' + jobId.toString(),
           });  
         }
         else {
@@ -601,7 +600,12 @@ export default class SimpleMap extends Component<{}> {
     this.setState({
       jobPolygons: [],
     });
-    this.onClickNavigate("StartPage");
+    const resetAction = StackActions.reset({
+      index: 0,
+      actions: [NavigationActions.navigate({ routeName: 'StartPage' })],
+    });
+    this.props.navigation.dispatch(resetAction);
+    // this.onClickNavigate("StartPage");
   }
 
   render() {
@@ -678,7 +682,7 @@ export default class SimpleMap extends Component<{}> {
             </FooterTab>
         </Footer>
         <Footer style={styles.footer}>
-          <Text style={styles.footertext}>{this.state.statusMessage} (v0.17)</Text>
+          <Text style={styles.footertext}>{this.state.statusMessage} (v0.18)</Text>
         </Footer>
       </Container>
     );
