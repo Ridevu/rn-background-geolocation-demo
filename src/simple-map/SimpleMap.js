@@ -291,6 +291,21 @@ export default class SimpleMap extends Component<{}> {
     console.log('Pausing the track - we may continue later...');
   }
 
+  async uploadMockTrack(numOfPoints) {
+    for(var i = 0; i < numOfPoints; i++) {
+      if(i%10 == 0)
+        console.log('Today - i = ' + i.toString());
+      let location = await BackgroundGeolocation.getCurrentPosition({
+        timeout: 30,          // 30 second timeout to fetch location
+        persist: true,
+        maximumAge: 50,     // Accept the last-known-location if not older than 5000 ms.
+        desiredAccuracy: 10,  // Try to fetch a location with an accuracy of `10` meters.
+        samples: 1
+      });
+    }
+    this.onStopTracking();
+  }
+
   async onStopTracking(value) {
     this.setState({
       enabled: false,
@@ -304,15 +319,15 @@ export default class SimpleMap extends Component<{}> {
     AsyncStorage.setItem("@mmp:paused", 'false');
     
     var locationsFormatted = [];
-    BackgroundGeolocation.getLocations(async function(locations) {
+    let locations = await BackgroundGeolocation.getLocations();
+    console.log("TODAY: locations are - " + JSON.stringify(locations));
+    for(var i = 0; i < locations.length; i++)
+    {
+      var timestampFormatted = locations[i].timestamp.replace('T', ' ').replace('Z', '').substring(0, 19);
+      locationsFormatted.push({ lat: locations[i].latitude, lon: locations[i].longitude, datetime: timestampFormatted });
+    }
 
-      console.log("TODAY: locations are - " + JSON.stringify(locations));
-      for(var i = 0; i < locations.length; i++)
-      {
-        var timestampFormatted = locations[i].timestamp.replace('T', ' ').replace('Z', '').substring(0, 19);
-        locationsFormatted.push({ lat: locations[i].latitude, lon: locations[i].longitude, datetime: timestampFormatted });
-      }
-    });
+    console.log('Today - locationsFormatted.length = ' + locationsFormatted.toString());
 
     BackgroundGeolocation.stop();
     this.setState({
@@ -335,6 +350,7 @@ export default class SimpleMap extends Component<{}> {
       job_id: jobId,
       points: locationsFormatted
     });
+    console.log('Today - payload is ' + requestPayload);
 
     fetch(MMP_URL_UPLOAD_COMPLETE_TRACK, {
       method: 'POST',
@@ -347,6 +363,7 @@ export default class SimpleMap extends Component<{}> {
     })
     .then((response) => response.json())
     .then((responseJson) => {
+        console.log('Today - response is ' + responseJson.toString());
         if(responseJson.d.result == 0) {
           BackgroundGeolocation.destroyLocations(function() {
             console.log('- cleared database'); 
@@ -682,7 +699,7 @@ export default class SimpleMap extends Component<{}> {
             </FooterTab>
         </Footer>
         <Footer style={styles.footer}>
-          <Text style={styles.footertext}>{this.state.statusMessage} (v0.18)</Text>
+          <Text style={styles.footertext}>{this.state.statusMessage} (v0.19)</Text>
         </Footer>
       </Container>
     );
