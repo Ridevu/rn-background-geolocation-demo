@@ -327,7 +327,7 @@ export default class SimpleMap extends Component<{}> {
       locationsFormatted.push({ lat: locations[i].latitude, lon: locations[i].longitude, datetime: timestampFormatted });
     }
 
-    console.log('Today - locationsFormatted.length = ' + locationsFormatted.toString());
+    console.log('Today - locationsFormatted.length = ' + locationsFormatted.length.toString());
 
     BackgroundGeolocation.stop();
     this.setState({
@@ -363,8 +363,8 @@ export default class SimpleMap extends Component<{}> {
     })
     .then((response) => response.json())
     .then((responseJson) => {
-        console.log('Today - response is ' + responseJson.toString());
-        if(responseJson.d.result == 0) {
+        console.log('Today - response is ' + JSON.stringify(responseJson));
+        if('d' in responseJson && responseJson.d.result == 0) {
           BackgroundGeolocation.destroyLocations(function() {
             console.log('- cleared database'); 
           });
