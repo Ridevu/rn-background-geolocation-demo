@@ -374,13 +374,54 @@ export default class SimpleMap extends Component<{}> {
         }
         else {
           this.setState({
-            statusMessage: 'Error uploading track - ' + responseJson.d.message,
-          });  
+            statusMessage: 'Error (will save to GPX file) - \n' + responseJson.d.message,
+          });
+          await this.saveTrackToGPX(locations);
+          BackgroundGeolocation.destroyLocations();
         }
     })
     .catch((error) =>{
         console.error(error);
     });
+  }
+
+  async saveTrackToGPX(locations) {
+    if(locations.length <= 0)
+      return;
+    var headerText = ```<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+    <gpx xmlns="http://www.topografix.com/GPX/1/1"
+     creator="Ynamics LoggerLib" version="1.1"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+     ```;
+    var gpxName = locations[0].timestamp;
+    var filename = gpxName + '.gpx';
+    var metadata = '<metadata><name>' + gpxName + '</name></metadata>\n'
+    var body = '';
+    for(var i = 0; i < locations.length; i++)
+    {
+      body += '<wpt lat="' + locations[i].latitude + '" lon="' + locations[i].longitude + '" >\n';
+      body += '<ele>' + locations[i].altitude + '</ele>\n';
+      body += '<time>' + locations[i].timestamp + '</time>\n';
+      body += '<name>wpt-' + locations[i].timestamp + '</name>\n';
+      body += ```<type></type>
+      </wpt>
+      ```;
+    }
+    body += '<trk><trkseg>\n';
+    for(var i = 0; i < locations.length; i++)
+    {
+      body += '<trkpt lat="' + locations[i].latitude + '" lon="' + locations[i].longitude + '" >\n';
+      body += '<ele>' + locations[i].altitude + '</ele>\n';
+      body += '<time>' + locations[i].timestamp + '</time>\n';
+      body += '<name>wpt-' + locations[i].timestamp + '</name>\n';
+      body += ```<type></type>
+      </trkpt>
+      ```;
+    }
+    body += '</trkseg></trk>\n';
+    body += '</gpx>';
+
+    var fileContent = headerText + metadata + body;
   }
   
   onResetMarkers() {
