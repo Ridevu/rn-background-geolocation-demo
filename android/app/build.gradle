@@ -169,7 +169,6 @@ dependencies {
 
     implementation project(':react-native-background-geolocation')
     implementation project(':react-native-background-fetch')
-    implementation project(':react-native-prompt-android')
     implementation project(':react-native-maps')
 }
 

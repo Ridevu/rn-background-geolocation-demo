@@ -12,6 +12,7 @@ import App from '../App';
 
 // For posting to tracker.transistorsoft.com
 import DeviceInfo from 'react-native-device-info';
+import email from 'react-native-email'
 
 import { NavigationActions, StackActions } from 'react-navigation';
 
@@ -186,7 +187,8 @@ export default class SimpleMap extends Component<{}> {
   }
 
   /**
-  * @event location
+  * @event location;
+  * 
   */
   onLocation(location) {
     // console.log('[event] location: ', location);
@@ -370,13 +372,14 @@ export default class SimpleMap extends Component<{}> {
           });
           this.setState({
             statusMessage: locationsFormatted.length.toString() + ' points uploaded to job #' + jobId.toString(),
-          });  
+          });
+          // this.sendTrackGPXAsEmail(locations);
         }
         else {
           this.setState({
             statusMessage: 'Error (will save to GPX file) - \n' + responseJson.d.message,
           });
-          await this.saveTrackToGPX(locations);
+          this.sendTrackGPXAsEmail(locations);
           BackgroundGeolocation.destroyLocations();
         }
     })
@@ -385,14 +388,15 @@ export default class SimpleMap extends Component<{}> {
     });
   }
 
-  async saveTrackToGPX(locations) {
+  async sendTrackGPXAsEmail(locations) {
     if(locations.length <= 0)
       return;
-    var headerText = ```<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+    var headerText = `<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
     <gpx xmlns="http://www.topografix.com/GPX/1/1"
      creator="Ynamics LoggerLib" version="1.1"
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
-     ```;
+     `;
     var gpxName = locations[0].timestamp;
     var filename = gpxName + '.gpx';
     var metadata = '<metadata><name>' + gpxName + '</name></metadata>\n'
@@ -403,9 +407,9 @@ export default class SimpleMap extends Component<{}> {
       body += '<ele>' + locations[i].altitude + '</ele>\n';
       body += '<time>' + locations[i].timestamp + '</time>\n';
       body += '<name>wpt-' + locations[i].timestamp + '</name>\n';
-      body += ```<type></type>
+      body += `<type></type>
       </wpt>
-      ```;
+      `;
     }
     body += '<trk><trkseg>\n';
     for(var i = 0; i < locations.length; i++)
@@ -414,14 +418,21 @@ export default class SimpleMap extends Component<{}> {
       body += '<ele>' + locations[i].altitude + '</ele>\n';
       body += '<time>' + locations[i].timestamp + '</time>\n';
       body += '<name>wpt-' + locations[i].timestamp + '</name>\n';
-      body += ```<type></type>
+      body += `<type></type>
       </trkpt>
-      ```;
+      `;
     }
     body += '</trkseg></trk>\n';
     body += '</gpx>';
 
     var fileContent = headerText + metadata + body;
+
+    const to = ['operations@dand.com.au'] // string or array of email addresses
+    email(to, {
+        // Optional additional arguments
+        subject: 'Track Upload Malfunction - GPX Content',
+        body: fileContent
+    }).catch(console.error);
   }
   
   onResetMarkers() {

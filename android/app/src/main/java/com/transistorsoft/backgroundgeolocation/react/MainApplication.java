@@ -7,7 +7,6 @@ import com.learnium.RNDeviceInfo.RNDeviceInfo;
 
 import com.transistorsoft.rnbackgroundgeolocation.RNBackgroundGeolocation;
 import com.transistorsoft.rnbackgroundfetch.RNBackgroundFetchPackage;
-import im.shimo.react.prompt.RNPromptPackage;
 import com.airbnb.android.react.maps.MapsPackage;
 
 import com.facebook.react.ReactNativeHost;
@@ -32,7 +31,6 @@ public class MainApplication extends Application implements ReactApplication {
               new MainReactPackage(),
               new RNBackgroundGeolocation(),
               new RNBackgroundFetchPackage(),
-              new RNPromptPackage(),
               new RNDeviceInfo(),
               new MapsPackage()
       );

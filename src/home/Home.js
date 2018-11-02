@@ -24,7 +24,7 @@ import {
 
 import BackgroundGeolocation from "../react-native-background-geolocation";
 
-import prompt from 'react-native-prompt-android';
+// import prompt from 'react-native-prompt-android';
 
 import App from '../App';
 
@@ -92,16 +92,16 @@ export default class Home extends Component<{}> {
     this.props.navigation.dispatch(action);     
   }
 
-  onClickEditUsername() {
-    AsyncStorage.getItem(USERNAME_KEY, (err, username) => {
-      AsyncStorage.removeItem(USERNAME_KEY);
-      this.getUsername(username).then(this.doGetUsername.bind(this)).catch(() => {
-        // Revert to current username on [Cancel]
-        AsyncStorage.setItem(USERNAME_KEY, username);
-        this.onClickEditUsername();
-      });
-    });
-  }
+  // onClickEditUsername() {
+  //   AsyncStorage.getItem(USERNAME_KEY, (err, username) => {
+  //     AsyncStorage.removeItem(USERNAME_KEY);
+  //     this.getUsername(username).then(this.doGetUsername.bind(this)).catch(() => {
+  //       // Revert to current username on [Cancel]
+  //       AsyncStorage.setItem(USERNAME_KEY, username);
+  //       this.onClickEditUsername();
+  //     });
+  //   });
+  // }
 
   onClickViewServer() {
      Linking.canOpenURL(this.state.url).then(supported => {
@@ -113,56 +113,56 @@ export default class Home extends Component<{}> {
     });
   }
 
-  getUsername(defaultValue) {
-    return new Promise((resolve, reject) => {
-      AsyncStorage.getItem(USERNAME_KEY, (err, username) => {
-        if (username) {
-          resolve(username);
-        } else {
-          prompt('Tracking Server Username', 'Please enter a unique identifier (eg: Github username) so the plugin can post loctions to tracker.transistorsoft.com/{identifier}', [{
-            text: 'OK',
-            onPress: (username) => {
-              username = username.replace(/\s+/, "");
-              console.log('OK Pressed, username: ', username, username.length);
-              if (!username.length) {
-                Alert.alert('Username required','You must enter a username.  It can be any unique alpha-numeric identifier.', [{
-                  text: 'OK', onPress: () => {
-                    reject();
-                  }
-                }],{
-                  cancelable: false
-                });
-              } else if (!USERNAME_VALIDATOR.test(username)) {
-                Alert.alert("Invalid Username", "Username must be alpha-numeric\n('-' and '_' are allowed)", [{
-                  text: 'OK', onPress: () => {
-                    reject();
-                  }
-                }],{
-                  cancelable: false
-                });
-              } else {
-                resolve(username);
-              }
-            }
-          }],{
-            type: 'plain-text',
-            defaultValue: defaultValue || ''
-          });
-        }
-      });
-    });
-  }  
+  // getUsername(defaultValue) {
+  //   return new Promise((resolve, reject) => {
+  //     AsyncStorage.getItem(USERNAME_KEY, (err, username) => {
+  //       if (username) {
+  //         resolve(username);
+  //       } else {
+  //         prompt('Tracking Server Username', 'Please enter a unique identifier (eg: Github username) so the plugin can post loctions to tracker.transistorsoft.com/{identifier}', [{
+  //           text: 'OK',
+  //           onPress: (username) => {
+  //             username = username.replace(/\s+/, "");
+  //             console.log('OK Pressed, username: ', username, username.length);
+  //             if (!username.length) {
+  //               Alert.alert('Username required','You must enter a username.  It can be any unique alpha-numeric identifier.', [{
+  //                 text: 'OK', onPress: () => {
+  //                   reject();
+  //                 }
+  //               }],{
+  //                 cancelable: false
+  //               });
+  //             } else if (!USERNAME_VALIDATOR.test(username)) {
+  //               Alert.alert("Invalid Username", "Username must be alpha-numeric\n('-' and '_' are allowed)", [{
+  //                 text: 'OK', onPress: () => {
+  //                   reject();
+  //                 }
+  //               }],{
+  //                 cancelable: false
+  //               });
+  //             } else {
+  //               resolve(username);
+  //             }
+  //           }
+  //         }],{
+  //           type: 'plain-text',
+  //           defaultValue: defaultValue || ''
+  //         });
+  //       }
+  //     });
+  //   });
+  // }  
 
-  doGetUsername(username) {
-    AsyncStorage.setItem(USERNAME_KEY, username);
+  // doGetUsername(username) {
+  //   AsyncStorage.setItem(USERNAME_KEY, username);
 
-    this.setState({
-      username: username,
-      url: TRACKER_HOST + username
-    });
+  //   this.setState({
+  //     username: username,
+  //     url: TRACKER_HOST + username
+  //   });
 
-    BackgroundGeolocation.setConfig({url: TRACKER_HOST + 'locations/' + username});
-  }
+  //   BackgroundGeolocation.setConfig({url: TRACKER_HOST + 'locations/' + username});
+  // }
 
   render() {
     return (

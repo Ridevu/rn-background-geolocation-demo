@@ -19,6 +19,7 @@
 		"react-native-device-info": "^0.21.2",
 		"react-native-easy-grid": "^0.1.15",
 		"react-native-elements": "^0.19.1",
+		"react-native-email": "^1.0.2",
 		"react-native-maps": "^0.21.0",
 		"react-native-prompt-android": "git+https://github.com/transistorsoft/react-native-prompt-android.git",
 		"react-native-root-toast": "^2.2.0",
