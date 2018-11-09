@@ -38,9 +38,6 @@ const LONGITUDE_DELTA = 0.00421;
 const TRACKER_HOST = 'http://tracker.transistorsoft.com/locations/';
 
 const MMP_URL_UPLOAD_COMPLETE_TRACK = 'https://managemyapiclone.azurewebsites.net/Mobile.asmx/UploadCompleteTrackToJob'
-// const MMP_URL_SET_JOB_STATUS = 'https://managemyapi.azurewebsites.net/Mobile.asmx/SetJobStatus';
-// const MMP_URL_UPLOAD_TRACK_POINTS = 'https://managemyapi.azurewebsites.net/Mobile.asmx/UploadTrackpoints';
-// const MMP_URL_UPLOAD_TRACK_POINTS_PROXY = 'https://ln2w5ozvo2.execute-api.ap-southeast-2.amazonaws.com/proxyPostAPI/';
 const COORDINATES_BUFFER_LENGTH = 2  ;
 
 export default class SimpleMap extends Component<{}> {
@@ -68,8 +65,6 @@ export default class SimpleMap extends Component<{}> {
 }
 
   async componentDidMount() {
-    // console.log("TODAY - SimpleMap component mounting");
-
     // Step 1:  Listen to events:
     BackgroundGeolocation.on('location', this.onLocation.bind(this));
     BackgroundGeolocation.on('motionchange', this.onMotionChange.bind(this));
@@ -86,7 +81,6 @@ export default class SimpleMap extends Component<{}> {
       fastestLocationUpdateInterval: 3000,
       notificationText: "",
       allowIdenticalLocations: true,
-      // url: TRACKER_HOST + this.state.username,
       params: {
         // Required for tracker.transistorsoft.com
         device: {
@@ -98,8 +92,6 @@ export default class SimpleMap extends Component<{}> {
           framework: 'ReactNative'
         }
       },
-      // autoSync: true,
-      // autoSyncThreshold: 12,
       stopTimeout: 30,
 
       stopOnTerminate: false,
@@ -146,8 +138,6 @@ export default class SimpleMap extends Component<{}> {
         fastestLocationUpdateInterval: 3000,
         notificationText: "",
         allowIdenticalLocations: true,
-        // autoSync: true,
-        // autoSyncThreshold: 12,          
 
         stopOnTerminate: false,
         startOnBoot: true,
@@ -159,7 +149,6 @@ export default class SimpleMap extends Component<{}> {
         debug: true,
         logLevel: BackgroundGeolocation.LOG_LEVEL_WARNING,
 
-        // url: MMP_URL_UPLOAD_TRACK_POINTS_PROXY,
         locationTemplate: '{ "timestamp":"<%= timestamp %>", "latitude":"<%= latitude %>", "longitude":"<%= longitude %>" }',
         params: { extras: { "token": item }}
       });
@@ -167,7 +156,6 @@ export default class SimpleMap extends Component<{}> {
 
     try {
       await AsyncStorage.getItem('@mmp:job_id', (err, item) => { 
-        // console.log("TODAY - job ID received - " + item);
         this.setState({
           jobPolygons: [],
           jobPolygonsCoordinates: []
@@ -177,12 +165,10 @@ export default class SimpleMap extends Component<{}> {
         }
         else {
           this.onGoToLocation();
-          // console.log("TODAY - going to current position");
         }
       });
     }
     catch(exception) {
-      // console.log("TODAY - exception caught - " + exception.toString());
     }
   }
 
@@ -191,8 +177,6 @@ export default class SimpleMap extends Component<{}> {
   * 
   */
   onLocation(location) {
-    // console.log('[event] location: ', location);
-
     if (!location.sample) {
       this.addMarker(location);
       this.setState({
@@ -239,7 +223,6 @@ export default class SimpleMap extends Component<{}> {
       (position) => {
         let curr_latitude = position.coords.latitude;
         let curr_longitude = position.coords.longitude;
-        // console.log("CURRENT LOCATION OBTAINED - " + curr_longitude.toString());
         var curr_location = {lat: curr_latitude, lng: curr_longitude};
 
         this.refs.map.animateToRegion({
@@ -273,7 +256,6 @@ export default class SimpleMap extends Component<{}> {
       let isMoving = true;
       this.setState({isMoving: isMoving});
       BackgroundGeolocation.changePace(isMoving);          
-      this.startAnonymousTrack();
     });
   }
 
@@ -322,14 +304,11 @@ export default class SimpleMap extends Component<{}> {
     
     var locationsFormatted = [];
     let locations = await BackgroundGeolocation.getLocations();
-    console.log("TODAY: locations are - " + JSON.stringify(locations));
     for(var i = 0; i < locations.length; i++)
     {
       var timestampFormatted = locations[i].timestamp.replace('T', ' ').replace('Z', '').substring(0, 19);
       locationsFormatted.push({ lat: locations[i].latitude, lon: locations[i].longitude, datetime: timestampFormatted });
     }
-
-    console.log('Today - locationsFormatted.length = ' + locationsFormatted.length.toString());
 
     BackgroundGeolocation.stop();
     this.setState({
@@ -352,7 +331,6 @@ export default class SimpleMap extends Component<{}> {
       job_id: jobId,
       points: locationsFormatted
     });
-    console.log('Today - payload is ' + requestPayload);
 
     fetch(MMP_URL_UPLOAD_COMPLETE_TRACK, {
       method: 'POST',
@@ -365,7 +343,6 @@ export default class SimpleMap extends Component<{}> {
     })
     .then((response) => response.json())
     .then((responseJson) => {
-        console.log('Today - response is ' + JSON.stringify(responseJson));
         if('d' in responseJson && responseJson.d.result == 0) {
           BackgroundGeolocation.destroyLocations(function() {
             console.log('- cleared database'); 
@@ -373,11 +350,10 @@ export default class SimpleMap extends Component<{}> {
           this.setState({
             statusMessage: locationsFormatted.length.toString() + ' points uploaded to job #' + jobId.toString(),
           });
-          // this.sendTrackGPXAsEmail(locations);
         }
         else {
           this.setState({
-            statusMessage: 'Error (will save to GPX file) - \n' + responseJson.d.message,
+            statusMessage: 'Error (will email GPX file) - \n' + responseJson.d.message,
           });
           this.sendTrackGPXAsEmail(locations);
           BackgroundGeolocation.destroyLocations();
@@ -439,11 +415,8 @@ export default class SimpleMap extends Component<{}> {
     this.setState({
       coordinates: [],
       markers: [],
-      // jobPolygons: [],
-      // jobPolygonsCoordinates: [],
     });
     AsyncStorage.setItem("@mmp:locations", '{"locations": []}');
-    // AsyncStorage.setItem("@mmp:job_id", "0");
   }
 
   padDateTimeElements(input)
@@ -536,61 +509,9 @@ export default class SimpleMap extends Component<{}> {
     return rs;
   }
 
-  async startAnonymousTrack() {
-    // var auth_token = "";
-    // await AsyncStorage.getItem('@mmp:auth_token', (err, item) => auth_token = item);
-    // body = JSON.stringify({
-    //   token: auth_token,
-    //   job_id: 0,
-    //   job_new_status: 1
-    // });
-    // fetch(MMP_URL_SET_JOB_STATUS, {
-    //     method: 'POST',
-    //     headers: {
-    //     Accept: 'application/json',
-    //     'Content-Type': 'application/json; charset=utf-8;',
-    //     'Data-Type': 'json'
-    //     },
-    //     body: body,
-    // })
-    // .then((response) => {
-    //     console.log("Started an anonymous track");
-    // })
-    // .catch((error) =>{
-    //     console.error(error);
-    // });
-  }
-
-  async closeAnonymousTrack() {
-    // var auth_token = "";
-    // await AsyncStorage.getItem('@mmp:auth_token', (err, item) => auth_token = item);
-    // body = JSON.stringify({
-    //   token: auth_token,
-    //   job_id: 0,
-    //   job_new_status: 3
-    // });
-    // fetch(MMP_URL_SET_JOB_STATUS, {
-    //   method: 'POST',
-    //   headers: {
-    //       Accept: 'application/json',
-    //       'Content-Type': 'application/json; charset=utf-8;',
-    //       'Data-Type': 'json'
-    //   },
-    //   body: body,
-    //   })
-    //   .then((response) => {
-    //         console.log("Closed the anonymous track");
-    //   })
-    //   .catch((error) =>{
-    //         console.error(error);
-    //   }
-    // );
-  }
-
   async LoadJobData(jobId) {
     if(jobId == 0) {
       this.onGoToLocation();
-      // console.log("TODAY - going to current position");  
       return;
     }
     var auth_token = "";
@@ -637,14 +558,11 @@ export default class SimpleMap extends Component<{}> {
           jobPolygonsCoordinates: jobPolygonsCoordinates
         });
 
-        // console.log("TODAY - coordinates we have - " + this.state.jobPolygonsCoordinates.length.toString());
         if(this.state.jobPolygonsCoordinates.length > 1) {
           this.refs.map.fitToCoordinates(this.state.jobPolygonsCoordinates, { edgePadding: { top: 10, right: 10, bottom: 10, left: 10 }, animated: true });
-          // console.log("TODAY - going to polygons");
         }
         else {
           this.onGoToLocation();
-          // console.log("TODAY - going to current position");
         }
 
         this.setState({
@@ -657,14 +575,6 @@ export default class SimpleMap extends Component<{}> {
     });
 }
 
-  onClickNavigate(routeName) {
-    navigateAction = NavigationActions.navigate({
-        routeName: routeName,
-        params: { username: this.state.username },
-    });
-    this.props.navigation.dispatch(navigateAction);        
-  }
-
   goToStartPage() {
     this.setState({
       jobPolygons: [],
@@ -674,7 +584,6 @@ export default class SimpleMap extends Component<{}> {
       actions: [NavigationActions.navigate({ routeName: 'StartPage' })],
     });
     this.props.navigation.dispatch(resetAction);
-    // this.onClickNavigate("StartPage");
   }
 
   render() {
