@@ -57,6 +57,8 @@ export default class SimpleMap extends Component<{}> {
       unreportedCoordinates: [],
       jobPolygons: [],
       jobPolygonsCoordinates: [],
+      trackIDs: [],
+      tracks: [],
       showsUserLocation: true,
       statusMessage: 'Waiting to start tracking',
       isFollowingUser: true
@@ -516,12 +518,13 @@ export default class SimpleMap extends Component<{}> {
     }
     var auth_token = "";
 
-    this.setState({
-      jobId: jobId
-    });        
-
     await AsyncStorage.getItem('@mmp:auth_token', (err, item) => auth_token = item);
         
+    this.setState({
+      jobId: jobId,
+      auth_token: auth_token
+    });        
+
     fetch('https://managemyapi.azurewebsites.net/Mobile.asmx/GetJob', {
         method: 'POST',
         headers: {
@@ -537,8 +540,14 @@ export default class SimpleMap extends Component<{}> {
     })
     .then((response) => response.json())
     .then((responseJson) => {
+      // console.log('Today - body = ' + JSON.stringify({
+      //   token: auth_token,
+      //   job_id: jobId,
+      //   get_job_detail: 1
+      // }));
         var polygons = [];
         var jobPolygonsCoordinates = [];
+        // console.log('Today response is ' + JSON.stringify(responseJson));
         for(var i = 0; i < responseJson.d.areas.length; i++) {
           var points = [];
           var currentPolygon = responseJson.d.areas[i];
@@ -553,9 +562,16 @@ export default class SimpleMap extends Component<{}> {
           }
           points = [];
         }
+
+        trackIDs = [];
+        for(var i = 0; i < responseJson.d.tracks.length; i++) {
+          trackIDs.push(parseInt(responseJson.d.tracks[i].track_id, 10));
+        }
+
         this.setState({
           jobPolygons: polygons,
-          jobPolygonsCoordinates: jobPolygonsCoordinates
+          jobPolygonsCoordinates: jobPolygonsCoordinates,
+          trackIDs: trackIDs
         });
 
         if(this.state.jobPolygonsCoordinates.length > 1) {
@@ -565,6 +581,9 @@ export default class SimpleMap extends Component<{}> {
           this.onGoToLocation();
         }
 
+        if(trackIDs.length > 0)
+          this.LoadJobTracks(trackIDs);
+
         this.setState({
           statusMessage: 'Job ' + jobId.toString() + ' loaded with ' + this.state.jobPolygons.length.toString() + ' polygons',
         });        
@@ -573,7 +592,46 @@ export default class SimpleMap extends Component<{}> {
         console.log("Error loading job polygons");
         console.error(error);
     });
-}
+  }
+
+  async LoadJobTracks(trackIDs) {
+    var tracks = [];
+    for(var i = 0; i < trackIDs.length; i++) {
+      var trackID = trackIDs[i];
+      fetch('https://managemyapiclone.azurewebsites.net/Mobile.asmx/GetTrackSegments', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json; charset=utf-8;',
+          'Data-Type': 'json'
+        },
+        body: JSON.stringify({
+          token: this.state.auth_token,
+          track_id: trackID
+        }),
+      })
+      .then((response) => response.json())
+      .then((responseJson) => {
+          var trackPoints = [];
+          for(var j = 0; j < responseJson.d.length; j++) {
+            var point = responseJson.d[j].p;
+            trackPoints.push({ latitude: point[0], longitude: point[1] });
+          }
+          if(trackPoints.length > 3)
+            tracks.push({ track_id: trackID, points: trackPoints });
+          if(tracks.length > 0)
+          {
+            this.setState({ tracks: tracks });
+            console.log('Today - tracks = ' + JSON.stringify(tracks));
+            console.log('Today - polygons = ' + JSON.stringify(this.state.jobPolygons));
+          }
+      })
+      .catch((error) =>{
+          console.log("Error loading track");
+          console.error(error);
+      });
+    }
+  }
 
   goToStartPage() {
     this.setState({
@@ -617,15 +675,18 @@ export default class SimpleMap extends Component<{}> {
             zIndex={0}
           />        
 
-          {this.state.markers.map((marker) => (
-            <MapView.Marker
-              key={marker.key}
-              coordinate={marker.coordinate}
-              anchor={{x:0, y:0.1}}
-              title={marker.title}>
-              <View style={[styles.markerIcon]}></View>
-            </MapView.Marker>))
+          {this.state.tracks.map((track, index) => (
+            <Polyline
+              key={'track' + index}
+              coordinates={track.points}
+              geodesic={true}
+              strokeColor='rgba(0, 127, 127, 0.6)'
+              strokeWidth={2}
+              zIndex={0}>
+            </Polyline>))
           }
+
+
 
           {this.state.jobPolygons.map((polygon, index) => (
             <MapView.Polygon
