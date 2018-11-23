@@ -581,8 +581,10 @@ export default class SimpleMap extends Component<{}> {
           this.onGoToLocation();
         }
 
-        if(trackIDs.length > 0)
-          this.LoadJobTracks(trackIDs);
+        // if(trackIDs.length > 0)
+        // {
+        //   this.ToggleLoadJobMissedAddresses();
+        // }
 
         this.setState({
           statusMessage: 'Job ' + jobId.toString() + ' loaded with ' + this.state.jobPolygons.length.toString() + ' polygons',
@@ -594,7 +596,17 @@ export default class SimpleMap extends Component<{}> {
     });
   }
 
-  async LoadJobTracks(trackIDs) {
+  async ToggleLoadJobMissedAddresses() {
+    if(this.state.missedAddressesLoaded)
+    {
+      this.setState({
+        missedAddresses: [],
+        missedAddressesLoaded: false
+      });
+      return;
+    }
+
+    var trackIDs = this.state.trackIDs;
     var tracks = [];
     for(var i = 0; i < trackIDs.length; i++) {
       var trackID = trackIDs[i];
@@ -614,23 +626,92 @@ export default class SimpleMap extends Component<{}> {
       .then((responseJson) => {
           var trackPoints = [];
           for(var j = 0; j < responseJson.d.length; j++) {
-            var point = responseJson.d[j].p;
-            trackPoints.push({ latitude: point[0], longitude: point[1] });
+            var point = responseJson.d[j];
+            trackPoints.push({ latitude: point.latitude, longitude: point.longitude });
           }
-          if(trackPoints.length > 3)
-            tracks.push({ track_id: trackID, points: trackPoints });
+          tracks.push({ track_id: trackID, points: trackPoints });
           if(tracks.length > 0)
-          {
             this.setState({ tracks: tracks });
-            console.log('Today - tracks = ' + JSON.stringify(tracks));
-            console.log('Today - polygons = ' + JSON.stringify(this.state.jobPolygons));
+
+          if(tracks.length == trackIDs.length)
+          {
+            var missedAddresses = this.CollectMissedAddresses();
           }
       })
       .catch((error) =>{
-          console.log("Error loading track");
           console.error(error);
       });
     }
+  }
+
+  CollectMissedAddresses() {
+    var tracks = this.state.tracks;
+    var polygons = this.state.jobPolygons;
+
+    var geom_str = '';
+    // for(var i = 0; i < ; i++) 
+    var i = 0;
+    while(true) {
+      currentPolygon = polygons[i].points;
+      var j = 0;
+      geom_str += '(';
+      while(true) {
+        geom_str += currentPolygon[j].longitude.toString() + ' ' + currentPolygon[j].latitude.toString();
+        if(++j >= currentPolygon.length)
+          break;
+        geom_str += ',';
+      }
+      geom_str += ')';
+      if(++i >= polygons.length)
+        break;
+      geom_str += ',';
+    }
+    console.log('Today - geom_str = ' + geom_str);
+
+    for(var i = 0; i < tracks.length; i++) {
+    // var i = 0;
+    // while(true) {
+      var multiline_str = '';
+      var currentTrack = tracks[i].points;
+      if(currentTrack.length < 3) {
+        if(i >= tracks.length)
+          break;
+        continue;
+      }
+      var j = 0;
+      multiline_str += '(';
+      while(true) {
+        multiline_str += currentTrack[j].longitude.toString() + ' ' + currentTrack[j].latitude.toString();
+        if(++j >= currentTrack.length)
+          break;
+        multiline_str += ','
+      }
+      multiline_str += ')';
+      console.log('Today - multiline_str = ' + multiline_str);
+      console.log('Today - multiline_str.last_char = ' + multiline_str[multiline_str.length-1]);
+    }
+
+    fetch('https://managemyapiclone.azurewebsites.net/Mobile.asmx/ProxyMissedAddresses', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json; charset=utf-8;',
+        'Data-Type': 'json'
+      },
+      body: JSON.stringify({
+        token: this.state.auth_token,
+        geom_str: geom_str,
+        multiline_str: multiline_str
+      }),
+    })
+    .then((response) => response.json())
+    .then((responseJson) => {
+      console.log('Today - missed addresses = ' + JSON.stringify(responseJson));
+    })
+    .catch((error) =>{
+    });
+
+    this.setState({ missedAddressesLoaded: true });
   }
 
   goToStartPage() {
@@ -675,7 +756,15 @@ export default class SimpleMap extends Component<{}> {
             zIndex={0}
           />        
 
-          {this.state.tracks.map((track, index) => (
+          {/* {this.state.missedAddresses.map((address, index) => (
+            <Marker
+              key={'address' + index}
+              coordinate={address.coordinate}
+              anchor={{x:0, y:0.1}}>
+            </Marker>))
+          } */}
+
+          {/* {this.state.tracks.map((track, index) => (
             <Polyline
               key={'track' + index}
               coordinates={track.points}
@@ -684,7 +773,7 @@ export default class SimpleMap extends Component<{}> {
               strokeWidth={2}
               zIndex={0}>
             </Polyline>))
-          }
+          } */}
 
 
 
@@ -714,6 +803,9 @@ export default class SimpleMap extends Component<{}> {
                 </Button>
                 <Button onPress={this.onGoToLocation.bind(this)} style={styles.btn}>
                   <Icon name='md-locate' style={this.state.isFollowingUser ? styles.btnicondisabled: styles.btnicon}/>
+                </Button>
+                <Button onPress={this.ToggleLoadJobMissedAddresses.bind(this)} style={styles.btn}>
+                  <Icon name='md-alert' style={this.state.missedAddressesLoaded ? styles.btnicon: styles.btnicondisabled}/>
                 </Button>
                 <Button onPress={() => this.goToStartPage()} style={styles.btn}>
                   <Icon name='md-exit' style={styles.logoutbtnicon}/>
