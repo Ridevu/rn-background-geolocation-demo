@@ -797,9 +797,9 @@ export default class SimpleMap extends Component<{}> {
             <Button onPress={this.onGoToLocation.bind(this)} style={styles.btn}>
               <Icon name='md-locate' style={this.state.isFollowingUser ? styles.btnicondisabled: styles.btnicon}/>
             </Button>
-            <Button onPress={this.ToggleLoadJobMissedAddresses.bind(this)} style={styles.btn}>
+            {/* <Button onPress={this.ToggleLoadJobMissedAddresses.bind(this)} style={styles.btn}>
               <Icon name='md-alert' style={this.state.missedAddressesLoaded ? styles.btnicon: styles.btnicondisabled}/>
-            </Button>
+            </Button> */}
             <Button onPress={() => this.goToStartPage()} style={styles.btn}>
               <Icon name='md-exit' style={styles.logoutbtnicon}/>
             </Button>
