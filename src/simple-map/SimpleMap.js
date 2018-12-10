@@ -29,6 +29,7 @@ import {
 
 // react-native-maps
 import MapView, {Polyline} from 'react-native-maps';
+import {PROVIDER_GOOGLE} from 'react-native-maps';
 
 import BackgroundGeolocation from '../react-native-background-geolocation';
 
@@ -104,7 +105,7 @@ export default class SimpleMap extends Component<{}> {
       forceReloadOnHeartbeat: true,
       minimumActivityRecognitionConfidence: 50,
 
-      debug: true,
+      debug: false,
       logLevel: BackgroundGeolocation.LOG_LEVEL_WARNING,
     }, (state) => {
       this.setState({
@@ -148,7 +149,7 @@ export default class SimpleMap extends Component<{}> {
         heartbeatInterval: 60,
         forceReloadOnHeartbeat: true,
         minimumActivityRecognitionConfidence: 50,
-        debug: true,
+        debug: false,
         logLevel: BackgroundGeolocation.LOG_LEVEL_WARNING,
 
         locationTemplate: '{ "timestamp":"<%= timestamp %>", "latitude":"<%= latitude %>", "longitude":"<%= longitude %>" }',
@@ -540,14 +541,8 @@ export default class SimpleMap extends Component<{}> {
     })
     .then((response) => response.json())
     .then((responseJson) => {
-      // console.log('Today - body = ' + JSON.stringify({
-      //   token: auth_token,
-      //   job_id: jobId,
-      //   get_job_detail: 1
-      // }));
         var polygons = [];
         var jobPolygonsCoordinates = [];
-        // console.log('Today response is ' + JSON.stringify(responseJson));
         for(var i = 0; i < responseJson.d.areas.length; i++) {
           var points = [];
           var currentPolygon = responseJson.d.areas[i];
@@ -633,10 +628,10 @@ export default class SimpleMap extends Component<{}> {
           if(tracks.length > 0)
             this.setState({ tracks: tracks });
 
-          if(tracks.length == trackIDs.length)
-          {
-            var missedAddresses = this.CollectMissedAddresses();
-          }
+          // if(tracks.length == trackIDs.length)
+          // {
+          //   var missedAddresses = this.CollectMissedAddresses();
+          // }
       })
       .catch((error) =>{
           console.error(error);
@@ -666,7 +661,6 @@ export default class SimpleMap extends Component<{}> {
         break;
       geom_str += ',';
     }
-    console.log('Today - geom_str = ' + geom_str);
 
     for(var i = 0; i < tracks.length; i++) {
     // var i = 0;
@@ -687,8 +681,6 @@ export default class SimpleMap extends Component<{}> {
         multiline_str += ','
       }
       multiline_str += ')';
-      console.log('Today - multiline_str = ' + multiline_str);
-      console.log('Today - multiline_str.last_char = ' + multiline_str[multiline_str.length-1]);
     }
 
     fetch('https://managemyapiclone.azurewebsites.net/Mobile.asmx/ProxyMissedAddresses', {
@@ -729,6 +721,7 @@ export default class SimpleMap extends Component<{}> {
     return (
       <Container style={styles.container}>
         <MapView
+          provider={PROVIDER_GOOGLE}
           ref="map"
           style={styles.map}
           initialRegion={{
@@ -788,29 +781,29 @@ export default class SimpleMap extends Component<{}> {
           </MapView>
 
         <Footer style={styles.btnbackground}>
-            <FooterTab>
-                <Button onPress={this.onStartTracking.bind(this)} disabled={this.state.enabled} style={styles.btn}>
-                  <Icon name='md-play' style={this.state.enabled ? styles.btnicondisabled: styles.btnicon}/>
-                </Button>
-                <Button onPress={this.onPauseTracking.bind(this)} disabled={!this.state.enabled || this.state.paused} style={styles.btn}>
-                  <Icon name='md-pause' style={!this.state.enabled || this.state.paused ? styles.btnicondisabled: styles.btnicon}/>
-                </Button>
-                <Button onPress={this.onStopTracking.bind(this)} disabled={!this.state.enabled && !this.state.paused} style={styles.btn}>
-                  <Icon type='MaterialIcons' name='stop' style={!this.state.enabled && !this.state.paused ? styles.btnicondisabled: styles.btnicon}/>
-                </Button>
-                <Button onPress={this.onResetMarkers.bind(this)} disabled={this.state.enabled || this.state.coordinates.length == 0} style={styles.btn}>
-                  <Icon name='md-refresh' style={this.state.enabled || this.state.coordinates.length == 0 ? styles.btnicondisabled: styles.btnicon}/>
-                </Button>
-                <Button onPress={this.onGoToLocation.bind(this)} style={styles.btn}>
-                  <Icon name='md-locate' style={this.state.isFollowingUser ? styles.btnicondisabled: styles.btnicon}/>
-                </Button>
-                <Button onPress={this.ToggleLoadJobMissedAddresses.bind(this)} style={styles.btn}>
-                  <Icon name='md-alert' style={this.state.missedAddressesLoaded ? styles.btnicon: styles.btnicondisabled}/>
-                </Button>
-                <Button onPress={() => this.goToStartPage()} style={styles.btn}>
-                  <Icon name='md-exit' style={styles.logoutbtnicon}/>
-                </Button>
-            </FooterTab>
+          <FooterTab>
+            <Button onPress={this.onStartTracking.bind(this)} disabled={this.state.enabled} style={styles.btn}>
+              <Icon name='md-play' style={this.state.enabled ? styles.btnicondisabled: styles.btnicon}/>
+            </Button>
+            <Button onPress={this.onPauseTracking.bind(this)} disabled={!this.state.enabled || this.state.paused} style={styles.btn}>
+              <Icon name='md-pause' style={!this.state.enabled || this.state.paused ? styles.btnicondisabled: styles.btnicon}/>
+            </Button>
+            <Button onPress={this.onStopTracking.bind(this)} disabled={!this.state.enabled && !this.state.paused} style={styles.btn}>
+              <Icon type='MaterialIcons' name='stop' style={!this.state.enabled && !this.state.paused ? styles.btnicondisabled: styles.btnicon}/>
+            </Button>
+            <Button onPress={this.onResetMarkers.bind(this)} disabled={this.state.enabled || this.state.coordinates.length == 0} style={styles.btn}>
+              <Icon name='md-refresh' style={this.state.enabled || this.state.coordinates.length == 0 ? styles.btnicondisabled: styles.btnicon}/>
+            </Button>
+            <Button onPress={this.onGoToLocation.bind(this)} style={styles.btn}>
+              <Icon name='md-locate' style={this.state.isFollowingUser ? styles.btnicondisabled: styles.btnicon}/>
+            </Button>
+            <Button onPress={this.ToggleLoadJobMissedAddresses.bind(this)} style={styles.btn}>
+              <Icon name='md-alert' style={this.state.missedAddressesLoaded ? styles.btnicon: styles.btnicondisabled}/>
+            </Button>
+            <Button onPress={() => this.goToStartPage()} style={styles.btn}>
+              <Icon name='md-exit' style={styles.logoutbtnicon}/>
+            </Button>
+          </FooterTab>
         </Footer>
         <Footer style={styles.footer}>
           <Text style={styles.footertext}>{this.state.statusMessage} (v0.19)</Text>
