@@ -806,8 +806,9 @@ export default class SimpleMap extends Component<{}> {
                 <Button onPress={() => this.setModalVisible(!this.state.modalVisible)} style={{backgroundColor: 'transparent'}}>
                     <Icon name='md-close' style={{color: 'orange', backgroundColor: 'transparent'}}/>
                 </Button>
-                <Text>
-                  {this.state.odometer.toString()}
+                <Text style={styles.headertext}>{'Statistics:'}</Text>
+                <Text style={styles.footertext}>
+                  {'Distance: ' + this.state.odometer.toString() + 'km\nHello'}
                 </Text>
               </View>
             </Container>
@@ -893,6 +894,11 @@ var styles = StyleSheet.create({
   footertext: {
     color: 'orange',
     margin: 13
+  },
+  headertext: {
+    color: 'orange',
+    fontSize: 20,
+    margin: 13,
   },
   icon: {
     color: 'orange'
