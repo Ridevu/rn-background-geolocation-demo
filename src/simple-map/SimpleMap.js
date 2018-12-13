@@ -4,7 +4,9 @@ import {
   StyleSheet,
   View,
   AsyncStorage,
-  TouchableHighlight
+  TouchableHighlight,
+  Modal,
+
 } from 'react-native';
 
 // For dispatching back to HomeScreen
@@ -62,7 +64,8 @@ export default class SimpleMap extends Component<{}> {
       tracks: [],
       showsUserLocation: true,
       statusMessage: 'Waiting to start tracking',
-      isFollowingUser: true
+      isFollowingUser: true,
+      modalVisible: true
     };
     AsyncStorage.setItem("@mmp:next_page", 'SimpleMap');
 }
@@ -591,6 +594,10 @@ export default class SimpleMap extends Component<{}> {
     });
   }
 
+  setModalVisible(visible) {
+    this.setState({modalVisible: visible});
+  }
+
   async ToggleLoadJobMissedAddresses() {
     if(this.state.missedAddressesLoaded)
     {
@@ -720,66 +727,90 @@ export default class SimpleMap extends Component<{}> {
   render() {
     return (
       <Container style={styles.container}>
-        <MapView
-          provider={PROVIDER_GOOGLE}
-          ref="map"
-          style={styles.map}
-          initialRegion={{
-            latitude: -33.8688,
-            longitude: 151.2093,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          }}
-          onPanDrag={(e) => { this.setState({isFollowingUser:false}) }}
-          showsUserLocation={this.state.showsUserLocation}
-          followsUserLocation={false}
-          scrollEnabled={true}
-          showsMyLocationButton={false}
-          showsPointsOfInterest={false}
-          showsScale={false}
-          showsTraffic={false}
-          toolbarEnabled={false}>
+        <View style={styles.viewincontainer}>
+          <MapView
+            provider={PROVIDER_GOOGLE}
+            ref="map"
+            style={styles.map}
+            initialRegion={{
+              latitude: -33.8688,
+              longitude: 151.2093,
+              latitudeDelta: 0.0922,
+              longitudeDelta: 0.0421,
+            }}
+            onPanDrag={(e) => { this.setState({isFollowingUser:false}) }}
+            showsUserLocation={this.state.showsUserLocation}
+            followsUserLocation={false}
+            scrollEnabled={true}
+            showsMyLocationButton={false}
+            showsPointsOfInterest={false}
+            showsScale={false}
+            showsTraffic={false}
+            toolbarEnabled={false}>
 
-          <Polyline
-            key="polyline"
-            coordinates={this.state.coordinates}
-            geodesic={true}
-            strokeColor='rgba(255, 127, 0, 0.6)'
-            strokeWidth={2}
-            zIndex={0}
-          />        
-
-          {/* {this.state.missedAddresses.map((address, index) => (
-            <Marker
-              key={'address' + index}
-              coordinate={address.coordinate}
-              anchor={{x:0, y:0.1}}>
-            </Marker>))
-          } */}
-
-          {/* {this.state.tracks.map((track, index) => (
             <Polyline
-              key={'track' + index}
-              coordinates={track.points}
+              key="polyline"
+              coordinates={this.state.coordinates}
               geodesic={true}
-              strokeColor='rgba(0, 127, 127, 0.6)'
+              strokeColor='rgba(255, 127, 0, 0.6)'
               strokeWidth={2}
-              zIndex={0}>
-            </Polyline>))
-          } */}
+              zIndex={0}
+            />        
+
+            {/* {this.state.missedAddresses.map((address, index) => (
+              <Marker
+                key={'address' + index}
+                coordinate={address.coordinate}
+                anchor={{x:0, y:0.1}}>
+              </Marker>))
+            } */}
+
+            {/* {this.state.tracks.map((track, index) => (
+              <Polyline
+                key={'track' + index}
+                coordinates={track.points}
+                geodesic={true}
+                strokeColor='rgba(0, 127, 127, 0.6)'
+                strokeWidth={2}
+                zIndex={0}>
+              </Polyline>))
+            } */}
 
 
 
-          {this.state.jobPolygons.map((polygon, index) => (
-            <MapView.Polygon
-              key={"polygon" + index.toString()}
-              strokeColor={"grey"}
-              strokeWidth={2}
-              fillColor={"rgba(100,100,150,0.1)"}
-              coordinates={polygon.points} />))
-            }
-          </MapView>
+            {this.state.jobPolygons.map((polygon, index) => (
+              <MapView.Polygon
+                key={"polygon" + index.toString()}
+                strokeColor={"grey"}
+                strokeWidth={2}
+                fillColor={"rgba(100,100,150,0.1)"}
+                coordinates={polygon.points} />))
+              }
+            </MapView>
 
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={this.state.modalVisible}
+            onRequestClose={() => {
+              Alert.alert('Modal has been closed.');
+            }}>
+            <View style={{marginTop: 22}}>
+              <View>
+                <Text>Hello World!</Text>
+
+                <TouchableHighlight
+                  onPress={() => {
+                    this.setModalVisible(!this.state.modalVisible);
+                  }}>
+                  <Text>Hide Modal</Text>
+                </TouchableHighlight>
+              </View>
+            </View>
+          </Modal>
+
+
+        </View>
         <Footer style={styles.btnbackground}>
           <FooterTab>
             <Button onPress={this.onStartTracking.bind(this)} disabled={this.state.enabled} style={styles.btn}>
@@ -865,7 +896,13 @@ var styles = StyleSheet.create({
     color: 'orange'
   },
   map: {
-    flex: 1
+    // marginTop: 1.5,
+    ...StyleSheet.absoluteFillObject,
+  },
+  viewincontainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   status: {
     fontSize: 12
