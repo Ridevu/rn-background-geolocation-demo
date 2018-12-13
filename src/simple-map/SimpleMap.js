@@ -65,7 +65,8 @@ export default class SimpleMap extends Component<{}> {
       showsUserLocation: true,
       statusMessage: 'Waiting to start tracking',
       isFollowingUser: true,
-      modalVisible: true
+      modalVisible: true,
+      odometer: 0,
     };
     AsyncStorage.setItem("@mmp:next_page", 'SimpleMap');
 }
@@ -243,6 +244,7 @@ export default class SimpleMap extends Component<{}> {
   }
 
   onStartTracking(value) {
+    BackgroundGeolocation.resetOdometer();
     this.setState({
       enabled: true,
       paused: false,
@@ -421,6 +423,7 @@ export default class SimpleMap extends Component<{}> {
     this.setState({
       coordinates: [],
       markers: [],
+      odometer: 0,
     });
     AsyncStorage.setItem("@mmp:locations", '{"locations": []}');
   }
@@ -468,6 +471,9 @@ export default class SimpleMap extends Component<{}> {
     {
       this.saveLocationsToStorage();
     }
+    BackgroundGeolocation.getOdometer().then((odometer) => {
+      this.setState({odometer: odometer});
+    });
   }
 
   saveLocationsToStorage() {
@@ -795,21 +801,17 @@ export default class SimpleMap extends Component<{}> {
             onRequestClose={() => {
               Alert.alert('Modal has been closed.');
             }}>
-            <View style={{marginTop: 22}}>
+            <Container style={{marginTop: 50, marginBottom: 120, marginLeft: 20, marginRight: 20, backgroundColor: 'rgba(255, 255, 255, 0.8)'}}>
               <View>
-                <Text>Hello World!</Text>
-
-                <TouchableHighlight
-                  onPress={() => {
-                    this.setModalVisible(!this.state.modalVisible);
-                  }}>
-                  <Text>Hide Modal</Text>
-                </TouchableHighlight>
+                <Button onPress={() => this.setModalVisible(!this.state.modalVisible)} style={{backgroundColor: 'transparent'}}>
+                    <Icon name='md-close' style={{color: 'orange', backgroundColor: 'transparent'}}/>
+                </Button>
+                <Text>
+                  {this.state.odometer.toString()}
+                </Text>
               </View>
-            </View>
+            </Container>
           </Modal>
-
-
         </View>
         <Footer style={styles.btnbackground}>
           <FooterTab>
