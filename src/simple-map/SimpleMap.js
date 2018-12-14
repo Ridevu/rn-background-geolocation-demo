@@ -6,7 +6,7 @@ import {
   AsyncStorage,
   TouchableHighlight,
   Modal,
-
+  TextInput,
 } from 'react-native';
 
 // For dispatching back to HomeScreen
@@ -52,7 +52,6 @@ export default class SimpleMap extends Component<{}> {
       paused: false,
       isMoving: false,
       motionActivity: {activity: 'unknown', confidence: 100},
-      odometer: 0,
       username: props.navigation.state.params.username,
       // MapView
       markers: [],
@@ -65,8 +64,13 @@ export default class SimpleMap extends Component<{}> {
       showsUserLocation: true,
       statusMessage: 'Waiting to start tracking',
       isFollowingUser: true,
-      modalVisible: true,
+      modalVisible: false,
       odometer: 0,
+      speed: 0,
+      averageSpeed: 0,
+      maxSpeed: 0,
+      trackStartTime: 0,
+      trackTimeStr: '00:00:00',
     };
     AsyncStorage.setItem("@mmp:next_page", 'SimpleMap');
 }
@@ -187,9 +191,14 @@ export default class SimpleMap extends Component<{}> {
     if (!location.sample) {
       this.addMarker(location);
       this.setState({
-        odometer: (location.odometer/1000).toFixed(1)
+        odometer: (location.odometer/1000),
+        speed: location.coords.speed != -1 ? location.coords.speed*3.6 : this.state.speed,
+        averageSpeed: (location.odometer/1000) / ((Date.now() - this.state.trackStartTime) / 3600000.0),
+        maxSpeed: location.coords.speed*3.6 > this.state.maxSpeed ? location.coords.speed*3.6 : this.state.maxSpeed,
+        trackTimeStr: this.toHHMMSS((Date.now() - this.state.trackStartTime)/1000),
       });
     }
+
     if(this.state.isFollowingUser)
       this.setCenter(location);
   }
@@ -251,7 +260,12 @@ export default class SimpleMap extends Component<{}> {
       statusMessage: 'Now tracking...',
       isMoving: false,
       showsUserLocation: false,
-      componentStarted: true
+      componentStarted: true,
+      odometer: 0,
+      averageSpeed: 0,
+      maxSpeed: 0,
+      trackStartTime: Date.now(),
+      trackTimeStr: '00:00:00',
     });
 
     AsyncStorage.setItem("@mmp:enabled", 'true');
@@ -424,6 +438,11 @@ export default class SimpleMap extends Component<{}> {
       coordinates: [],
       markers: [],
       odometer: 0,
+      speed: 0,
+      averageSpeed: 0,
+      maxSpeed: 0,
+      trackStartTime: 0,
+      trackTimeStr: '00:00:00',
     });
     AsyncStorage.setItem("@mmp:locations", '{"locations": []}');
   }
@@ -471,9 +490,6 @@ export default class SimpleMap extends Component<{}> {
     {
       this.saveLocationsToStorage();
     }
-    BackgroundGeolocation.getOdometer().then((odometer) => {
-      this.setState({odometer: odometer});
-    });
   }
 
   saveLocationsToStorage() {
@@ -730,10 +746,29 @@ export default class SimpleMap extends Component<{}> {
     this.props.navigation.dispatch(resetAction);
   }
 
+  toHHMMSS(sec_num) {
+    if(sec_num == 0)
+      return '';
+    var hours   = Math.floor(sec_num / 3600);
+    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+    var seconds = Math.floor(sec_num - (hours * 3600) - (minutes * 60));
+
+    hoursStr = hours.toString();
+    if (hours   < 10) {hoursStr = "0"+hoursStr;}
+    minutesStr = minutes.toString();
+    if (minutes < 10) {minutesStr = "0"+minutesStr;}
+    secondsStr = seconds.toString();
+    if (seconds < 10) {secondsStr = "0"+secondsStr;}
+    return hoursStr+':'+minutesStr+':'+secondsStr;
+}
+
   render() {
     return (
       <Container style={styles.container}>
         <View style={styles.viewincontainer}>
+          <Button onPress={() => this.setModalVisible(!this.state.modalVisible)} style={{zIndex: 100, backgroundColor: 'rgba(255, 255, 255, 0.8)', position: 'absolute', top: 5, left: 5}}>
+            <Icon name='md-more' style={{color: 'orange', backgroundColor: 'transparent'}}/>
+          </Button>
           <MapView
             provider={PROVIDER_GOOGLE}
             ref="map"
@@ -801,15 +836,31 @@ export default class SimpleMap extends Component<{}> {
             onRequestClose={() => {
               Alert.alert('Modal has been closed.');
             }}>
-            <Container style={{marginTop: 50, marginBottom: 120, marginLeft: 20, marginRight: 20, backgroundColor: 'rgba(255, 255, 255, 0.8)'}}>
+            <Container style={{marginTop: 20, marginBottom: 120, marginLeft: 20, marginRight: 20, backgroundColor: 'rgba(255, 255, 255, 0.8)'}}>
               <View>
                 <Button onPress={() => this.setModalVisible(!this.state.modalVisible)} style={{backgroundColor: 'transparent'}}>
                     <Icon name='md-close' style={{color: 'orange', backgroundColor: 'transparent'}}/>
                 </Button>
                 <Text style={styles.headertext}>{'Statistics:'}</Text>
                 <Text style={styles.footertext}>
-                  {'Distance: ' + this.state.odometer.toString() + 'km\nHello'}
+                  {'Distance: ' + this.state.odometer.toFixed(1) + ' km\n'}
+                  {'Time: ' + this.state.trackTimeStr + '\n'}
+                  {'Current Speed: ' + this.state.speed.toFixed(1) + ' km/h\n'}
+                  {'Average Speed: ' + this.state.averageSpeed.toFixed(1) + ' km/h\n'}
+                  {'Top Speed: ' + this.state.maxSpeed.toFixed(1) + ' km/h\n'}
                 </Text>
+
+                <TextInput 
+                  style={styles.textinput}
+                  multiline={false}
+                  underlineColorAndroid="transparent"
+                  onChangeText={(text) => this.setState({jobIdText: text})}
+                  // value={this.state.jobIdText}
+                                  
+                  // onChangeText = {(text)=> this.onJobIdChanged(text)}
+                  placeholder = 'POI description'
+                /> 
+
               </View>
             </Container>
           </Modal>
@@ -922,5 +973,21 @@ var styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5
+  },
+  textinput: {
+    fontSize: 18,
+    fontWeight: "600",
+    height: 50,
+    color: 'white',
+    alignSelf: 'stretch',
+    alignItems: 'center',
+    padding: 14,
+    margin: 8,
+    backgroundColor: 'rgba(255, 165, 00, 0.4)',
+    borderColor: '#fff',
+    borderWidth: 0.6,
+    borderRadius: 10,
+    justifyContent: 'flex-start',
   }
+
 });
