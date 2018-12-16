@@ -7,6 +7,7 @@ import {
   TouchableHighlight,
   Modal,
   TextInput,
+  ScrollView,
 } from 'react-native';
 
 // For dispatching back to HomeScreen
@@ -837,31 +838,64 @@ export default class SimpleMap extends Component<{}> {
               Alert.alert('Modal has been closed.');
             }}>
             <Container style={{marginTop: 20, marginBottom: 120, marginLeft: 20, marginRight: 20, backgroundColor: 'rgba(255, 255, 255, 0.8)'}}>
-              <View>
-                <Button onPress={() => this.setModalVisible(!this.state.modalVisible)} style={{backgroundColor: 'transparent'}}>
-                    <Icon name='md-close' style={{color: 'orange', backgroundColor: 'transparent'}}/>
-                </Button>
-                <Text style={styles.headertext}>{'Statistics:'}</Text>
-                <Text style={styles.footertext}>
-                  {'Distance: ' + this.state.odometer.toFixed(1) + ' km\n'}
-                  {'Time: ' + this.state.trackTimeStr + '\n'}
-                  {'Current Speed: ' + this.state.speed.toFixed(1) + ' km/h\n'}
-                  {'Average Speed: ' + this.state.averageSpeed.toFixed(1) + ' km/h\n'}
-                  {'Top Speed: ' + this.state.maxSpeed.toFixed(1) + ' km/h\n'}
-                </Text>
+              <ScrollView>
+                <View>
+                  <Button onPress={() => this.setModalVisible(!this.state.modalVisible)} style={{backgroundColor: 'transparent'}}>
+                      <Icon name='md-close' style={{color: 'orange', backgroundColor: 'transparent'}}/>
+                  </Button>
+                  <Text style={styles.headertext}>{'Statistics:'}</Text>
+                  <Text style={styles.footertext}>
+                    {'Distance: ' + this.state.odometer.toFixed(1) + ' km\n'}
+                    {'Time: ' + this.state.trackTimeStr + '\n'}
+                    {'Current Speed: ' + this.state.speed.toFixed(1) + ' km/h\n'}
+                    {'Average Speed: ' + this.state.averageSpeed.toFixed(1) + ' km/h\n'}
+                    {'Top Speed: ' + this.state.maxSpeed.toFixed(1) + ' km/h\n'}
+                  </Text>
+                </View>
 
-                <TextInput 
-                  style={styles.textinput}
-                  multiline={false}
-                  underlineColorAndroid="transparent"
-                  onChangeText={(text) => this.setState({jobIdText: text})}
-                  // value={this.state.jobIdText}
-                                  
-                  // onChangeText = {(text)=> this.onJobIdChanged(text)}
-                  placeholder = 'POI description'
-                /> 
+                <View>
+                  <Text style={styles.headertext}>{'POIs Entry (disabled):'}</Text>
+                  <Button
+                    style={{backgroundColor: 'orange', borderRadius: 10, margin: 10}}
+                    title='Load empty map' onPress={() => console.log('Today - button pressed')}
+                  >
+                    <Text style={{backgroundColor: 'transparent', borderRadius: 10, margin: 10}}>Locked Premise</Text>
+                  </Button>
+                  <Button
+                    style={{backgroundColor: 'orange', borderRadius: 10, margin: 10}}
+                    title='Load empty map' onPress={() => console.log('Today - button pressed')}
+                  >
+                    <Text style={{backgroundColor: 'transparent', borderRadius: 10, margin: 10}}>No letterbox</Text>
+                  </Button>
+                  <Button
+                    style={{backgroundColor: 'orange', borderRadius: 10, margin: 10}}
+                    title='Load empty map' onPress={() => console.log('Today - button pressed')}
+                  >
+                    <Text style={{backgroundColor: 'transparent', borderRadius: 10, margin: 10}}>Vicious dog/cat/guinea pig</Text>
+                  </Button>
 
-              </View>
+                  <TextInput 
+                    style={styles.textinput}
+                    multiline={false}
+                    underlineColorAndroid="transparent"
+                    onChangeText={(text) => this.setState({jobIdText: text})}
+                    // value={this.state.jobIdText}
+                                    
+                    // onChangeText = {(text)=> this.onJobIdChanged(text)}
+                    placeholder = 'POI description'
+                  />       
+                  <Button
+                    style={{backgroundColor: 'orange', borderRadius: 10, margin: 10}}
+                    title='Load empty map' onPress={() => console.log('Today - button pressed')}
+                  >
+                    <Text style={{backgroundColor: 'transparent', borderRadius: 10, margin: 10}}>Send bespoke POI</Text>
+                  </Button>
+
+
+                </View>
+
+              </ScrollView>
+
             </Container>
           </Modal>
         </View>
@@ -891,7 +925,7 @@ export default class SimpleMap extends Component<{}> {
           </FooterTab>
         </Footer>
         <Footer style={styles.footer}>
-          <Text style={styles.footertext}>{this.state.statusMessage} (v0.19)</Text>
+          <Text style={styles.footertext}>{this.state.statusMessage} (v0.20)</Text>
         </Footer>
       </Container>
     );
@@ -926,21 +960,10 @@ var styles = StyleSheet.create({
   container: {
     backgroundColor: '#272727'
   },
-  header: {
-    backgroundColor: 'orange'
-  },
-  title: {
-    color: '#000'
-  },
   footer: {
     backgroundColor: 'white',
     paddingLeft: 10, 
     paddingRight: 10
-  },
-  footerBody: {
-    justifyContent: 'center',
-    width: 200,
-    flex: 1
   },
   footertext: {
     color: 'orange',
@@ -951,9 +974,6 @@ var styles = StyleSheet.create({
     fontSize: 20,
     margin: 13,
   },
-  icon: {
-    color: 'orange'
-  },
   map: {
     // marginTop: 1.5,
     ...StyleSheet.absoluteFillObject,
@@ -962,9 +982,6 @@ var styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  status: {
-    fontSize: 12
   },
   markerIcon: {
     borderWidth:1,
@@ -988,6 +1005,27 @@ var styles = StyleSheet.create({
     borderWidth: 0.6,
     borderRadius: 10,
     justifyContent: 'flex-start',
+  },
+  container2: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-around'
+  },
+  textinput2: {
+    fontSize: 18,
+    fontWeight: "600",
+    height: 50,
+    color: 'white',
+    alignSelf: 'stretch',
+    alignItems: 'center',
+    padding: 14,
+    marginTop: 8,
+    marginBottom: 8,
+    marginLeft: 25,
+    backgroundColor: 'rgba(255, 165, 00, 0.4)',
+    borderColor: '#fff',
+    borderWidth: 0.6,
+    borderRadius: 10,
+    justifyContent: 'flex-start',
   }
-
 });
