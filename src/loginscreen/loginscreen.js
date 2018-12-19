@@ -1,6 +1,17 @@
 import React, { Component } from 'react';
 
-import {StyleSheet, Text, View, TextInput, TouchableOpacity, Image, ImageBackground, AsyncStorage, ScrollView, ActivityIndicator} from "react-native";
+import {StyleSheet,
+    Text,
+    View,
+    TextInput,
+    TouchableOpacity,
+    Image,
+    ImageBackground,
+    AsyncStorage,
+    ScrollView,
+    ActivityIndicator,
+    KeyboardAvoidingView,
+} from "react-native";
 
 import LoginForm from '../../components/loginform';
 
@@ -26,7 +37,7 @@ export default class LoginScreen extends Component {
             loginError: false,
             loginErrorMessage: null
         }
-
+        
         AsyncStorage.getItem('mmp_username').then((value) => {this.setState({usernameValue: value || ''})});
         AsyncStorage.getItem('mmp_password').then((value) => {this.setState({passwordValue: value || ''})});
         changeUsername = (text) => {
@@ -99,7 +110,6 @@ export default class LoginScreen extends Component {
         });  
         this.props.navigation.dispatch(navigateAction);        
     }
-    
         
 render() {
     return (
@@ -108,8 +118,8 @@ render() {
             <View style={styles.logocontainer}>
                 <Image source={require('../../images/MMP.png')} style={styles.logo} />
             </View>
-
-            <View scrollEnabled={true} style={styles.loginformcontainer}>
+            
+            <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
                 <TextInput underlineColorAndroid='transparent' defaultValue={this.state.usernameValue.toString().toLocaleLowerCase()} placeholder='Username' style={styles.textinput} autoCapitalize='none' onChangeText={changeUsername} />
                 <TextInput underlineColorAndroid='transparent' defaultValue={this.state.passwordValue} placeholder='Password' secureTextEntry={true} autoCapitalize='none' style={styles.textinput}  onChangeText={changePassword} />
                 <TouchableOpacity style={styles.loginbtn} onPress={onLoginPressButton}>
@@ -122,7 +132,7 @@ render() {
                 <Text style={{color: 'red', opacity: this.state.loginErrorMessage != null? 1.0: 0.0}}>
                     {this.state.loginErrorMessage}
                 </Text>
-            </View>
+            </KeyboardAvoidingView>
         </ImageBackground>
     );
   }
