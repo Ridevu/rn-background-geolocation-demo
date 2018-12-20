@@ -66,6 +66,7 @@ export default class SimpleMap extends Component<{}> {
       statusMessage: 'Waiting to start tracking',
       isFollowingUser: true,
       modalVisible: false,
+      poisModalVisible: false,
       odometer: 0,
       speed: 0,
       averageSpeed: 0,
@@ -621,6 +622,10 @@ export default class SimpleMap extends Component<{}> {
     this.setState({modalVisible: visible});
   }
 
+  setPoisModalVisible(visible) {
+    this.setState({poisModalVisible: visible});
+  }
+
   async ToggleLoadJobMissedAddresses() {
     if(this.state.missedAddressesLoaded)
     {
@@ -767,11 +772,13 @@ export default class SimpleMap extends Component<{}> {
     return (
       <Container style={styles.container}>
         <View style={styles.viewincontainer}>
-          <Button onPress={() => this.setModalVisible(!this.state.modalVisible)} style={{zIndex: 100, backgroundColor: 'rgba(255, 255, 255, 0.8)', position: 'absolute', top: 5, left: 5}}>
-            <Icon name='md-more' style={{color: 'orange', backgroundColor: 'transparent'}}/>
+          <Button onPress={() => this.setModalVisible(!this.state.modalVisible)} style={{zIndex: 100, backgroundColor: 'rgba(255, 255, 255, 0.8)', position: 'absolute', top: 25, left: 5}}>
+            <Icon name='md-stats' style={{color: 'orange', backgroundColor: 'transparent'}}/>
+          </Button>
+          <Button onPress={() => this.setPoisModalVisible(!this.state.poisModalVisible)} style={{zIndex: 100, backgroundColor: 'rgba(255, 255, 255, 0.8)', position: 'absolute', top: 25, right: 5}}>
+            <Icon name='md-medical' style={{color: 'orange', backgroundColor: 'transparent'}}/>
           </Button>
           <MapView
-            provider={PROVIDER_GOOGLE}
             ref="map"
             style={styles.map}
             initialRegion={{
@@ -837,7 +844,7 @@ export default class SimpleMap extends Component<{}> {
             onRequestClose={() => {
               Alert.alert('Modal has been closed.');
             }}>
-            <Container style={{marginTop: 20, marginBottom: 120, marginLeft: 20, marginRight: 20, backgroundColor: 'rgba(255, 255, 255, 0.8)'}}>
+            <View style={{marginTop: 20, marginBottom: 120, marginLeft: 20, marginRight: 20, backgroundColor: 'rgba(255, 255, 255, 0.8)'}}>
               <ScrollView>
                 <View>
                   <Button onPress={() => this.setModalVisible(!this.state.modalVisible)} style={{backgroundColor: 'transparent'}}>
@@ -852,26 +859,41 @@ export default class SimpleMap extends Component<{}> {
                     {'Top Speed: ' + this.state.maxSpeed.toFixed(1) + ' km/h\n'}
                   </Text>
                 </View>
+              </ScrollView>
+            </View>
+          </Modal>
 
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={this.state.poisModalVisible}
+            onRequestClose={() => {
+              Alert.alert('Modal has been closed.');
+            }}>
+            <View style={{marginTop: 20, marginBottom: 120, marginLeft: 20, marginRight: 20, backgroundColor: 'rgba(255, 255, 255, 0.8)'}}>
+              <ScrollView>
                 <View>
+                  <Button onPress={() => this.setPoisModalVisible(!this.state.poisModalVisible)} style={{backgroundColor: 'transparent'}}>
+                      <Icon name='md-close' style={{color: 'orange', backgroundColor: 'transparent'}}/>
+                  </Button>
                   <Text style={styles.headertext}>{'POIs Entry (disabled):'}</Text>
                   <Button
-                    style={{backgroundColor: 'orange', borderRadius: 10, margin: 10}}
+                    style={styles.poibtn}
                     title='Load empty map' onPress={() => console.log('Today - button pressed')}
                   >
-                    <Text style={{backgroundColor: 'transparent', borderRadius: 10, margin: 10}}>Locked Premise</Text>
+                    <Text style={styles.btntext}>Locked premise</Text>
                   </Button>
                   <Button
-                    style={{backgroundColor: 'orange', borderRadius: 10, margin: 10}}
+                    style={styles.poibtn}
                     title='Load empty map' onPress={() => console.log('Today - button pressed')}
                   >
-                    <Text style={{backgroundColor: 'transparent', borderRadius: 10, margin: 10}}>No letterbox</Text>
+                    <Text style={styles.btntext}>No letterbox</Text>
                   </Button>
                   <Button
-                    style={{backgroundColor: 'orange', borderRadius: 10, margin: 10}}
+                    style={styles.poibtn}
                     title='Load empty map' onPress={() => console.log('Today - button pressed')}
                   >
-                    <Text style={{backgroundColor: 'transparent', borderRadius: 10, margin: 10}}>Vicious dog/cat/guinea pig</Text>
+                    <Text style={styles.btntext}>Vicious dog/cat/guinea pig</Text>
                   </Button>
 
                   <TextInput 
@@ -879,16 +901,13 @@ export default class SimpleMap extends Component<{}> {
                     multiline={false}
                     underlineColorAndroid="transparent"
                     onChangeText={(text) => this.setState({jobIdText: text})}
-                    // value={this.state.jobIdText}
-                                    
-                    // onChangeText = {(text)=> this.onJobIdChanged(text)}
                     placeholder = 'POI description'
                   />       
                   <Button
-                    style={{backgroundColor: 'orange', borderRadius: 10, margin: 10}}
+                    style={styles.poibtn}
                     title='Load empty map' onPress={() => console.log('Today - button pressed')}
                   >
-                    <Text style={{backgroundColor: 'transparent', borderRadius: 10, margin: 10}}>Send bespoke POI</Text>
+                    <Text style={styles.btntext}>Add bespoke POI</Text>
                   </Button>
 
 
@@ -896,7 +915,7 @@ export default class SimpleMap extends Component<{}> {
 
               </ScrollView>
 
-            </Container>
+            </View>
           </Modal>
         </View>
         <Footer style={styles.btnbackground}>
@@ -936,6 +955,10 @@ var styles = StyleSheet.create({
   btnbackground: {
     backgroundColor: 'orange',
   },
+  btntext: {
+    flex: 1,
+    textAlign: 'center',
+  },
   btn: {
     backgroundColor: 'white',
     borderRadius: 0,
@@ -956,6 +979,11 @@ var styles = StyleSheet.create({
     color: 'red',
     fontSize: 30,
     borderRadius: 0,
+  },
+  poibtn : {
+    backgroundColor: 'orange',
+    borderRadius: 10,
+    margin: 10,
   },
   container: {
     backgroundColor: '#272727'
