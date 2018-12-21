@@ -8,6 +8,7 @@ import {
   Modal,
   TextInput,
   ScrollView,
+  KeyboardAvoidingView,
 } from 'react-native';
 
 // For dispatching back to HomeScreen
@@ -846,7 +847,7 @@ export default class SimpleMap extends Component<{}> {
             }}>
             <View style={{marginTop: 20, marginBottom: 120, marginLeft: 20, marginRight: 20, backgroundColor: 'rgba(255, 255, 255, 0.8)'}}>
               <ScrollView>
-                <View>
+                <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
                   <Button onPress={() => this.setModalVisible(!this.state.modalVisible)} style={{backgroundColor: 'transparent'}}>
                       <Icon name='md-close' style={{color: 'orange', backgroundColor: 'transparent'}}/>
                   </Button>
@@ -858,7 +859,7 @@ export default class SimpleMap extends Component<{}> {
                     {'Average Speed: ' + this.state.averageSpeed.toFixed(1) + ' km/h\n'}
                     {'Top Speed: ' + this.state.maxSpeed.toFixed(1) + ' km/h\n'}
                   </Text>
-                </View>
+                </KeyboardAvoidingView>
               </ScrollView>
             </View>
           </Modal>
@@ -872,11 +873,11 @@ export default class SimpleMap extends Component<{}> {
             }}>
             <View style={{marginTop: 20, marginBottom: 120, marginLeft: 20, marginRight: 20, backgroundColor: 'rgba(255, 255, 255, 0.8)'}}>
               <ScrollView>
-                <View>
+                <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
                   <Button onPress={() => this.setPoisModalVisible(!this.state.poisModalVisible)} style={{backgroundColor: 'transparent'}}>
                       <Icon name='md-close' style={{color: 'orange', backgroundColor: 'transparent'}}/>
                   </Button>
-                  <Text style={styles.headertext}>{'POIs Entry (disabled):'}</Text>
+                  <Text style={styles.headertext}>{'POIs Entry (non-functional):'}</Text>
                   <Button
                     style={styles.poibtn}
                     title='Load empty map' onPress={() => console.log('Today - button pressed')}
@@ -911,7 +912,7 @@ export default class SimpleMap extends Component<{}> {
                   </Button>
 
 
-                </View>
+                </KeyboardAvoidingView>
 
               </ScrollView>
 
@@ -999,8 +1000,8 @@ var styles = StyleSheet.create({
   },
   headertext: {
     color: 'orange',
-    fontSize: 20,
-    margin: 13,
+    fontSize: 24,
+    margin: 10,
   },
   map: {
     // marginTop: 1.5,
