@@ -237,6 +237,25 @@ export default class SimpleMap extends Component<{}> {
     console.log('[event] powersavechange', isPowerSaveMode);
   }
 
+  onEnteredPOI(newPOIName) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        // let curr_latitude = position.coords.latitude;
+        // let curr_longitude = position.coords.longitude;
+        // var curr_location = {lat: curr_latitude, lng: curr_longitude};
+        AsyncStorage.getItem('@mmp:POIs', (err, item) => this.addPOIToStorage(item, position, newPOIName));
+      }
+    );    
+  }
+
+  addPOIToStorage(existingPOIsString, newPOIPosition, newPOIName) {
+    var timestampFormatted = newPOIPosition.timestamp.replace('T', ' ').replace('Z', '').substring(0, 19);
+    if(existingPOIsString.length > 0)
+      existingPOIsString += ',\n'
+    newPOIsString = existingPOIsString + '{"Latitude":"' + position.coords.latitude.toString() + '","Longitude":"' + position.coords.lingitude.toString() + '","Timestamp":"' + timestampFormatted + '", "Name": "' + newPOIName + '"}';
+    AsyncStorage.setItem("@mmp:POIs", newPOIsString);
+  }
+
   onGoToLocation() {
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -351,10 +370,14 @@ export default class SimpleMap extends Component<{}> {
     var jobId = "";
     await AsyncStorage.getItem('@mmp:job_id', (err, item) => jobId = item);
 
+    var POIsFormatted = "";
+    await AsyncStorage.getItem('@mmp:POIs', (err, item) => POIsFormatted = "[" + item + "]");
+
     var requestPayload = JSON.stringify({
       token: auth_token,
       job_id: jobId,
-      points: locationsFormatted
+      points: locationsFormatted,
+      trackPOIs: POIsFormatted,
     });
 
     fetch(MMP_URL_UPLOAD_COMPLETE_TRACK, {
@@ -880,19 +903,19 @@ export default class SimpleMap extends Component<{}> {
                   <Text style={styles.headertext}>{'POIs Entry (non-functional):'}</Text>
                   <Button
                     style={styles.poibtn}
-                    title='Load empty map' onPress={() => console.log('Today - button pressed')}
+                    title='Load empty map' onPress={() => this.onEnteredPOI('Locked premise')}
                   >
                     <Text style={styles.btntext}>Locked premise</Text>
                   </Button>
                   <Button
                     style={styles.poibtn}
-                    title='Load empty map' onPress={() => console.log('Today - button pressed')}
+                    title='Load empty map' onPress={() => this.onEnteredPOI('No Letterbox')}
                   >
                     <Text style={styles.btntext}>No letterbox</Text>
                   </Button>
                   <Button
                     style={styles.poibtn}
-                    title='Load empty map' onPress={() => console.log('Today - button pressed')}
+                    title='Load empty map' onPress={() => this.onEnteredPOI('Vicious dog/cat/guinea pig')}
                   >
                     <Text style={styles.btntext}>Vicious dog/cat/guinea pig</Text>
                   </Button>
