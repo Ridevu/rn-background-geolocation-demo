@@ -42,7 +42,7 @@ const LONGITUDE_DELTA = 0.00421;
 
 const TRACKER_HOST = 'http://tracker.transistorsoft.com/locations/';
 
-const MMP_URL_UPLOAD_COMPLETE_TRACK = 'https://managemyapiclone.azurewebsites.net/Mobile.asmx/UploadCompleteTrackToJob'
+const MMP_URL_UPLOAD_COMPLETE_TRACK = 'https://managemyapiclone.azurewebsites.net/Mobile.asmx/UploadCompleteTrackWithPOIsToJob'
 const COORDINATES_BUFFER_LENGTH = 2  ;
 
 export default class SimpleMap extends Component<{}> {
@@ -74,6 +74,7 @@ export default class SimpleMap extends Component<{}> {
       maxSpeed: 0,
       trackStartTime: 0,
       trackTimeStr: '00:00:00',
+      textForPOI: '',
     };
     AsyncStorage.setItem("@mmp:next_page", 'SimpleMap');
 }
@@ -249,10 +250,14 @@ export default class SimpleMap extends Component<{}> {
   }
 
   addPOIToStorage(existingPOIsString, newPOIPosition, newPOIName) {
-    var timestampFormatted = newPOIPosition.timestamp.replace('T', ' ').replace('Z', '').substring(0, 19);
+    console.log
+    var timestampFormatted = '2000-01-01 00:00:00';
+    // var timestampFormatted = newPOIPosition.timestamp.replace('T', ' ').replace('Z', '').substring(0, 19);
+    if(existingPOIsString == null || existingPOIsString.length == 0 || existingPOIsString == 'null')
+      existingPOIsString = '';
     if(existingPOIsString.length > 0)
       existingPOIsString += ',\n'
-    newPOIsString = existingPOIsString + '{"Latitude":"' + position.coords.latitude.toString() + '","Longitude":"' + position.coords.lingitude.toString() + '","Timestamp":"' + timestampFormatted + '", "Name": "' + newPOIName + '"}';
+    newPOIsString = existingPOIsString + '{"Latitude":"' + newPOIPosition.coords.latitude.toString() + '","Longitude":"' + newPOIPosition.coords.longitude.toString() + '","Timestamp":"' + timestampFormatted + '", "Name": "' + newPOIName + '"}';
     AsyncStorage.setItem("@mmp:POIs", newPOIsString);
   }
 
@@ -370,15 +375,25 @@ export default class SimpleMap extends Component<{}> {
     var jobId = "";
     await AsyncStorage.getItem('@mmp:job_id', (err, item) => jobId = item);
 
-    var POIsFormatted = "";
-    await AsyncStorage.getItem('@mmp:POIs', (err, item) => POIsFormatted = "[" + item + "]");
+    var POIsFormatted = '[]';
+    var POIsFromAsyncStorage = '';
+    // await AsyncStorage.getItem('@mmp:POIs', (err, item) => POIsFormatted = "[" + item != null? item : '' + "]");
+    await AsyncStorage.getItem('@mmp:POIs', (err, item) => POIsFromAsyncStorage = item);
+    if(POIsFromAsyncStorage != null)
+    {
+      console.log('Today - @mmp:POIs was ' + POIsFromAsyncStorage);
+      POIsFormatted = '[' + POIsFromAsyncStorage + ']';
+    }
+    var POIsJSON = JSON.parse(POIsFormatted);
 
     var requestPayload = JSON.stringify({
       token: auth_token,
       job_id: jobId,
       points: locationsFormatted,
-      trackPOIs: POIsFormatted,
+      trackPOIs: POIsJSON,
     });
+
+    console.log('Today - payload is ' + requestPayload);
 
     fetch(MMP_URL_UPLOAD_COMPLETE_TRACK, {
       method: 'POST',
@@ -401,7 +416,7 @@ export default class SimpleMap extends Component<{}> {
         }
         else {
           this.setState({
-            statusMessage: 'Error (will email GPX file) - \n' + responseJson.d.message,
+            statusMessage: 'Error (will email GPX file)',
           });
           this.sendTrackGPXAsEmail(locations);
           BackgroundGeolocation.destroyLocations();
@@ -471,6 +486,7 @@ export default class SimpleMap extends Component<{}> {
       trackTimeStr: '00:00:00',
     });
     AsyncStorage.setItem("@mmp:locations", '{"locations": []}');
+    AsyncStorage.setItem("@mmp:POIs", '');
   }
 
   padDateTimeElements(input)
@@ -915,7 +931,8 @@ export default class SimpleMap extends Component<{}> {
                   </Button>
                   <Button
                     style={styles.poibtn}
-                    title='Load empty map' onPress={() => this.onEnteredPOI('Vicious dog/cat/guinea pig')}
+                    title='Load empty map'
+                    onPress={() => this.onEnteredPOI('Vicious dog/cat/guinea pig')}
                   >
                     <Text style={styles.btntext}>Vicious dog/cat/guinea pig</Text>
                   </Button>
@@ -924,12 +941,14 @@ export default class SimpleMap extends Component<{}> {
                     style={styles.textinput}
                     multiline={false}
                     underlineColorAndroid="transparent"
-                    onChangeText={(text) => this.setState({jobIdText: text})}
+                    onChangeText={(text) => this.setState({textForPOI: text})}
+                    value={this.state.textForPOI}
                     placeholder = 'POI description'
                   />       
                   <Button
                     style={styles.poibtn}
-                    title='Load empty map' onPress={() => console.log('Today - button pressed')}
+                    title='Load empty map'
+                    onPress={() => this.onEnteredPOI(this.state.textForPOI)}
                   >
                     <Text style={styles.btntext}>Add bespoke POI</Text>
                   </Button>
@@ -968,7 +987,7 @@ export default class SimpleMap extends Component<{}> {
           </FooterTab>
         </Footer>
         <Footer style={styles.footer}>
-          <Text style={styles.footertext}>{this.state.statusMessage} (v0.20)</Text>
+          <Text style={styles.footertext}>{this.state.statusMessage} (v0.22)</Text>
         </Footer>
       </Container>
     );
