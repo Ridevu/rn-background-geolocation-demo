@@ -30,7 +30,7 @@ import { Row } from 'react-native-easy-grid';
 // 2.  private github repo (customers only):  react-native-background-geolocation-android
 //
 // This simply allows one to change the import in a single file.
-import BackgroundGeolocation from "../react-native-background-geolocation";
+import BackgroundGeolocation from "../react-native-background-geolocation-android";
 
 const TRACKER_HOST = 'http://tracker.transistorsoft.com/locations/';
 

@@ -22,7 +22,7 @@ import {
   Form, Item, Input, Label
 } from 'native-base';
 
-import BackgroundGeolocation from "../react-native-background-geolocation";
+import BackgroundGeolocation from "../react-native-background-geolocation-android";
 
 // import prompt from 'react-native-prompt-android';
 

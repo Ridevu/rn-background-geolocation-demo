@@ -35,7 +35,7 @@ import {
 import MapView, {Polyline} from 'react-native-maps';
 import {PROVIDER_GOOGLE} from 'react-native-maps';
 
-import BackgroundGeolocation from '../react-native-background-geolocation';
+import BackgroundGeolocation from '../react-native-background-geolocation-android';
 
 const LATITUDE_DELTA = 0.00922;
 const LONGITUDE_DELTA = 0.00421;

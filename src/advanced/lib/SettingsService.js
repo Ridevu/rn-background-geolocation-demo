@@ -16,7 +16,7 @@ import {
 import Toast from 'react-native-root-toast';
 // import prompt from 'react-native-prompt-android';
 import DeviceInfo from 'react-native-device-info';
-import BackgroundGeolocation from "../../react-native-background-geolocation";
+import BackgroundGeolocation from "../../react-native-background-geolocation-android";
 
 const STORAGE_KEY = "@transistorsoft:";
 const TRACKER_HOST = 'http://tracker.transistorsoft.com/locations/';

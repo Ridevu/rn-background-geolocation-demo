@@ -28,7 +28,7 @@ const Item = Picker.Item;
 // 2.  private github repo (customers only):  react-native-background-geolocation-android
 //
 // This simply allows one to change the import in a single file.
-import BackgroundGeolocation from "../react-native-background-geolocation";
+import BackgroundGeolocation from "../react-native-background-geolocation-android";
 
 import SettingsService from './lib/SettingsService';
 import {SOUNDS, COLORS} from './lib/config';

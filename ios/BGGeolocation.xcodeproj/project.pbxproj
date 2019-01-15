@@ -69,6 +69,8 @@
 		6FEA4B97831E4A179F0F5676 /* Octicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B55CBC8AA8B343D8A27347FF /* Octicons.ttf */; };
 		588328C9834347CCB957B0C1 /* SimpleLineIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 09AD8A4E3D4E41639C9C5D09 /* SimpleLineIcons.ttf */; };
 		569979B29C5A4EA7A6A5C2B6 /* Zocial.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C2C4C01A334B44AC926653B5 /* Zocial.ttf */; };
+		4609B5A916D647D597661F62 /* TSLocationManager.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC0F51311E3A46589DE92369 /* TSLocationManager.framework */; };
+		835ABD5260944E259AD7E2E7 /* TSLocationManager.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B3B95DC8DCC4777B7D81106 /* TSLocationManager.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -503,6 +505,8 @@
 		B55CBC8AA8B343D8A27347FF /* Octicons.ttf */ = {isa = PBXFileReference; name = "Octicons.ttf"; path = "../node_modules/react-native-vector-icons/Fonts/Octicons.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		09AD8A4E3D4E41639C9C5D09 /* SimpleLineIcons.ttf */ = {isa = PBXFileReference; name = "SimpleLineIcons.ttf"; path = "../node_modules/react-native-vector-icons/Fonts/SimpleLineIcons.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		C2C4C01A334B44AC926653B5 /* Zocial.ttf */ = {isa = PBXFileReference; name = "Zocial.ttf"; path = "../node_modules/react-native-vector-icons/Fonts/Zocial.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		DC0F51311E3A46589DE92369 /* TSLocationManager.framework */ = {isa = PBXFileReference; name = "TSLocationManager.framework"; path = "../node_modules/react-native-background-geolocation-android/ios/RNBackgroundGeolocation/TSLocationManager.framework"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = wrapper.framework; explicitFileType = undefined; includeInIndex = 0; };
+		4B3B95DC8DCC4777B7D81106 /* TSLocationManager.framework */ = {isa = PBXFileReference; name = "TSLocationManager.framework"; path = "../node_modules/react-native-background-geolocation-android/ios/RNBackgroundGeolocation/TSLocationManager.framework"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = wrapper.framework; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -540,6 +544,8 @@
 				83C11DCEFED3463082560F11 /* libz.tbd in Frameworks */,
 				8E656465CFE04735BC220E59 /* TSLocationManager.framework in Frameworks */,
 				B0AC6B18DEEE5F53A03E6543 /* libPods-BGGeolocation.a in Frameworks */,
+				4609B5A916D647D597661F62 /* TSLocationManager.framework in Frameworks */,
+				835ABD5260944E259AD7E2E7 /* TSLocationManager.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -859,6 +865,8 @@
 				3A6FECC2B5F2AE05D8CAC96E /* libPods-BGGeolocation.a */,
 				781FAB543D0C9E256640CACB /* libPods-BGGeolocation-tvOSTests.a */,
 				02A89E93D6E72A9BDC790A40 /* libPods-BGGeolocationTests.a */,
+				DC0F51311E3A46589DE92369 /* TSLocationManager.framework */,
+				4B3B95DC8DCC4777B7D81106 /* TSLocationManager.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -1734,6 +1742,7 @@
 					"$(PROJECT_DIR)/../node_modules/react-native-background-fetch/ios/**",
 					"$(PROJECT_DIR)/../node_modules/react-native-background-geolocation-android/ios/**",
 					"$(PROJECT_DIR)/../../../react-native-background-geolocation/ios/**",
+					"$(inherited)",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -1774,6 +1783,7 @@
 					"$(PROJECT_DIR)/../node_modules/react-native-background-fetch/ios/**",
 					"$(PROJECT_DIR)/../node_modules/react-native-background-geolocation-android/ios/**",
 					"$(PROJECT_DIR)/../../../react-native-background-geolocation/ios/**",
+					"$(inherited)",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1811,6 +1821,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/../node_modules/react-native-background-fetch/ios/**",
 					"$(PROJECT_DIR)/../node_modules/react-native-background-geolocation/ios/**",
+					"$(inherited)",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1846,6 +1857,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/../node_modules/react-native-background-fetch/ios/**",
 					"$(PROJECT_DIR)/../node_modules/react-native-background-geolocation/ios/**",
+					"$(inherited)",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1886,6 +1898,7 @@
 					"$(PROJECT_DIR)/../node_modules/react-native-background-fetch/ios/**",
 					"$(PROJECT_DIR)/../node_modules/react-native-background-geolocation-android/ios/**",
 					"$(PROJECT_DIR)/../../../react-native-background-geolocation/ios/**",
+					"$(inherited)",
 				);
 				GCC_NO_COMMON_BLOCKS = YES;
 				HEADER_SEARCH_PATHS = (
@@ -1930,6 +1943,7 @@
 					"$(PROJECT_DIR)/../node_modules/react-native-background-fetch/ios/**",
 					"$(PROJECT_DIR)/../node_modules/react-native-background-geolocation-android/ios/**",
 					"$(PROJECT_DIR)/../../../react-native-background-geolocation/ios/**",
+					"$(inherited)",
 				);
 				GCC_NO_COMMON_BLOCKS = YES;
 				HEADER_SEARCH_PATHS = (

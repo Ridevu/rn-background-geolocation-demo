@@ -1,7 +1,7 @@
 import { AppRegistry } from 'react-native';
 import App from './src/App';
 
-import BackgroundGeolocation from "./src/react-native-background-geolocation";
+import BackgroundGeolocation from "./src/react-native-background-geolocation-android";
 import BackgroundFetch from "react-native-background-fetch";
 
 AppRegistry.registerComponent('BGGeolocation', () => App);
