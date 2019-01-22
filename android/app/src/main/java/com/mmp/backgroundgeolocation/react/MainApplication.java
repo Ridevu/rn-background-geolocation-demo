@@ -1,4 +1,4 @@
-package com.transistorsoft.backgroundgeolocation.react;
+package com.mmp.backgroundgeolocation.react;
 
 import android.app.Application;
 

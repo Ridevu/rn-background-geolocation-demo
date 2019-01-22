@@ -100,7 +100,7 @@ android {
     buildToolsVersion rootProject.buildToolsVersion
 
     defaultConfig {
-        applicationId "com.transistorsoft.backgroundgeolocation.react"
+        applicationId "com.mmp.backgroundgeolocation.react"
         minSdkVersion 16
         targetSdkVersion rootProject.targetSdkVersion
         versionCode 212

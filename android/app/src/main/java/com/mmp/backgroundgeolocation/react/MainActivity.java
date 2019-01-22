@@ -1,4 +1,4 @@
-package com.transistorsoft.backgroundgeolocation.react;
+package com.mmp.backgroundgeolocation.react;
 
 import com.facebook.react.ReactActivity;
 
