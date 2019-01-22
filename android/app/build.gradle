@@ -114,12 +114,16 @@ android {
             /**
             * My signing configs for publishing SampleApp to play store.  You won't need this
             */
-            if (project.hasProperty('RNBACKGROUND_GEOLOCATION_SAMPLEAPP_RELEASE_STORE_FILE')) {
-                storeFile file(RNBACKGROUND_GEOLOCATION_SAMPLEAPP_RELEASE_STORE_FILE)
-                storePassword RNBACKGROUND_GEOLOCATION_SAMPLEAPP_RELEASE_STORE_FILE_RELEASE_STORE_PASSWORD
-                keyAlias RNBACKGROUND_GEOLOCATION_SAMPLEAPP_RELEASE_STORE_FILE_RELEASE_KEY_ALIAS
-                keyPassword RNBACKGROUND_GEOLOCATION_SAMPLEAPP_RELEASE_STORE_FILE_RELEASE_KEY_PASSWORD
-            }
+            // if (project.hasProperty('RNBACKGROUND_GEOLOCATION_SAMPLEAPP_RELEASE_STORE_FILE')) {
+            //     storeFile file(RNBACKGROUND_GEOLOCATION_SAMPLEAPP_RELEASE_STORE_FILE)
+            //     storePassword RNBACKGROUND_GEOLOCATION_SAMPLEAPP_RELEASE_STORE_FILE_RELEASE_STORE_PASSWORD
+            //     keyAlias RNBACKGROUND_GEOLOCATION_SAMPLEAPP_RELEASE_STORE_FILE_RELEASE_KEY_ALIAS
+            //     keyPassword RNBACKGROUND_GEOLOCATION_SAMPLEAPP_RELEASE_STORE_FILE_RELEASE_KEY_PASSWORD
+            // }
+            storeFile file(MMP_RELEASE_STORE_FILE)
+            storePassword MMP_RELEASE_STORE_PASSWORD
+            keyAlias MMP_RELEASE_KEY_ALIAS
+            keyPassword MMP_RELEASE_KEY_PASSWORD
         }
     }
     splits {
@@ -167,9 +171,12 @@ dependencies {
     implementation "com.android.support:appcompat-v7:$rootProject.supportLibVersion"
     implementation "com.facebook.react:react-native:+"  // From node_modules
 
-    implementation project(':react-native-background-geolocation-android')
-    implementation project(':react-native-background-fetch')
+    compile project(':react-native-background-geolocation-android')
+    compile project(':react-native-background-fetch')
+    // implementation project(':react-native-background-geolocation-android')
+    // implementation project(':react-native-background-fetch')
     implementation project(':react-native-maps')
+    compile "com.android.support:appcompat-v7:$rootProject.supportLibVersion"
 }
 
 // Run this once to be able to run the application with BUCK

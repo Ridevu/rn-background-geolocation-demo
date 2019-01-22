@@ -42,7 +42,7 @@
 
       <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyCINS2dyuBipK8MZzOQnzyKdrS2I1_b5I4"/>
 
-      <meta-data android:name="com.transistorsoft.locationmanager.license" android:value="1a5558143dedd16e0887f78e303b0fd28250b2b3e61b60b8c421a1bd8be98774" />
+      <meta-data android:name="com.transistorsoft.locationmanager.license" android:value="d0e194b6576dee3bc38cf3b953f0e474668ccc9caa5e452741514ebba0e2a519" />
 
     </application>
 
