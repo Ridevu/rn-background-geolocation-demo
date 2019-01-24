@@ -20,7 +20,6 @@ import email from 'react-native-email'
 
 import { NavigationActions, StackActions } from 'react-navigation';
 
-// Import native-base UI components
 import { 
   Container,
   Button, Icon,
@@ -164,7 +163,7 @@ export default class SimpleMap extends Component<{}> {
         debug: false,
         logLevel: BackgroundGeolocation.LOG_LEVEL_WARNING,
 
-        locationTemplate: '{ "timestamp":"<%= timestamp %>", "latitude":"<%= latitude %>", "longitude":"<%= longitude %>" }',
+        locationTemplate: '{ "timestamp":"<%= timestamp %>", "latitude":"<%= latitude %>", "longitude":"<%= longitude %>", "altitude":"<%= altitude %>" }',
         params: { extras: { "token": item }}
       });
     });
@@ -241,9 +240,6 @@ export default class SimpleMap extends Component<{}> {
   onEnteredPOI(newPOIName) {
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        // let curr_latitude = position.coords.latitude;
-        // let curr_longitude = position.coords.longitude;
-        // var curr_location = {lat: curr_latitude, lng: curr_longitude};
         AsyncStorage.getItem('@mmp:POIs', (err, item) => this.addPOIToStorage(item, position, newPOIName));
       }
     );    
@@ -252,7 +248,6 @@ export default class SimpleMap extends Component<{}> {
   addPOIToStorage(existingPOIsString, newPOIPosition, newPOIName) {
     console.log
     var timestampFormatted = '2000-01-01 00:00:00';
-    // var timestampFormatted = newPOIPosition.timestamp.replace('T', ' ').replace('Z', '').substring(0, 19);
     if(existingPOIsString == null || existingPOIsString.length == 0 || existingPOIsString == 'null')
       existingPOIsString = '';
     if(existingPOIsString.length > 0)
@@ -324,21 +319,6 @@ export default class SimpleMap extends Component<{}> {
     console.log('Pausing the track - we may continue later...');
   }
 
-  async uploadMockTrack(numOfPoints) {
-    for(var i = 0; i < numOfPoints; i++) {
-      if(i%10 == 0)
-        console.log('Today - i = ' + i.toString());
-      let location = await BackgroundGeolocation.getCurrentPosition({
-        timeout: 30,          // 30 second timeout to fetch location
-        persist: true,
-        maximumAge: 50,     // Accept the last-known-location if not older than 5000 ms.
-        desiredAccuracy: 10,  // Try to fetch a location with an accuracy of `10` meters.
-        samples: 1
-      });
-    }
-    this.onStopTracking();
-  }
-
   async onStopTracking(value) {
     this.setState({
       enabled: false,
@@ -356,7 +336,10 @@ export default class SimpleMap extends Component<{}> {
     for(var i = 0; i < locations.length; i++)
     {
       var timestampFormatted = locations[i].timestamp.replace('T', ' ').replace('Z', '').substring(0, 19);
-      locationsFormatted.push({ lat: locations[i].latitude, lon: locations[i].longitude, datetime: timestampFormatted });
+
+      var pointInString = JSON.stringify(locations[i]);
+  
+      locationsFormatted.push({ lat: locations[i].latitude, lon: locations[i].longitude, alt: locations[i].altitude, datetime: timestampFormatted });
     }
 
     BackgroundGeolocation.stop();
@@ -377,11 +360,9 @@ export default class SimpleMap extends Component<{}> {
 
     var POIsFormatted = '[]';
     var POIsFromAsyncStorage = '';
-    // await AsyncStorage.getItem('@mmp:POIs', (err, item) => POIsFormatted = "[" + item != null? item : '' + "]");
     await AsyncStorage.getItem('@mmp:POIs', (err, item) => POIsFromAsyncStorage = item);
     if(POIsFromAsyncStorage != null)
     {
-      console.log('Today - @mmp:POIs was ' + POIsFromAsyncStorage);
       POIsFormatted = '[' + POIsFromAsyncStorage + ']';
     }
     var POIsJSON = JSON.parse(POIsFormatted);
@@ -392,8 +373,6 @@ export default class SimpleMap extends Component<{}> {
       points: locationsFormatted,
       trackPOIs: POIsJSON,
     });
-
-    console.log('Today - payload is ' + requestPayload);
 
     fetch(MMP_URL_UPLOAD_COMPLETE_TRACK, {
       method: 'POST',
@@ -643,11 +622,6 @@ export default class SimpleMap extends Component<{}> {
           this.onGoToLocation();
         }
 
-        // if(trackIDs.length > 0)
-        // {
-        //   this.ToggleLoadJobMissedAddresses();
-        // }
-
         this.setState({
           statusMessage: 'Job ' + jobId.toString() + ' loaded with ' + this.state.jobPolygons.length.toString() + ' polygons',
         });        
@@ -702,11 +676,6 @@ export default class SimpleMap extends Component<{}> {
           tracks.push({ track_id: trackID, points: trackPoints });
           if(tracks.length > 0)
             this.setState({ tracks: tracks });
-
-          // if(tracks.length == trackIDs.length)
-          // {
-          //   var missedAddresses = this.CollectMissedAddresses();
-          // }
       })
       .catch((error) =>{
           console.error(error);
@@ -719,7 +688,6 @@ export default class SimpleMap extends Component<{}> {
     var polygons = this.state.jobPolygons;
 
     var geom_str = '';
-    // for(var i = 0; i < ; i++) 
     var i = 0;
     while(true) {
       currentPolygon = polygons[i].points;
@@ -738,8 +706,6 @@ export default class SimpleMap extends Component<{}> {
     }
 
     for(var i = 0; i < tracks.length; i++) {
-    // var i = 0;
-    // while(true) {
       var multiline_str = '';
       var currentTrack = tracks[i].points;
       if(currentTrack.length < 3) {
@@ -987,7 +953,7 @@ export default class SimpleMap extends Component<{}> {
           </FooterTab>
         </Footer>
         <Footer style={styles.footer}>
-          <Text style={styles.footertext}>{this.state.statusMessage} (v0.22)</Text>
+          <Text style={styles.footertext}>{this.state.statusMessage} (v1.0.0)</Text>
         </Footer>
       </Container>
     );
