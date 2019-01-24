@@ -113,27 +113,25 @@ export default class LoginScreen extends Component {
         
 render() {
     return (
-        <ImageBackground style={styles.container}>
-        {/* <ImageBackground source={require('../../images/background-image-for-app.jpg')} style={styles.container}> */}
-            <View style={styles.logocontainer}>
-                <Image source={require('../../images/MMP.png')} style={styles.logo} />
-            </View>
-            
             <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
-                <TextInput underlineColorAndroid='transparent' defaultValue={this.state.usernameValue.toString().toLocaleLowerCase()} placeholder='Username' style={styles.textinput} autoCapitalize='none' onChangeText={changeUsername} />
-                <TextInput underlineColorAndroid='transparent' defaultValue={this.state.passwordValue} placeholder='Password' secureTextEntry={true} autoCapitalize='none' style={styles.textinput}  onChangeText={changePassword} />
-                <TouchableOpacity style={styles.loginbtn} onPress={onLoginPressButton}>
-                    <Text style={styles.infotext}>Login</Text>
-                </ TouchableOpacity>
-                <ActivityIndicator size="large" color="darkorange" style={{opacity: this.state.loggingIn ? 1.0 : 0.0, marginTop: 10}}  animating={true} />
-                <Text style={{color: 'red', fontWeight: 'bold', opacity: this.state.loginError? 1.0: 0.0}}>
-                    Login error:
-                </Text>
-                <Text style={{color: 'red', opacity: this.state.loginErrorMessage != null? 1.0: 0.0}}>
-                    {this.state.loginErrorMessage}
-                </Text>
+                <View style={styles.logocontainer}>
+                    <Image source={require('../../images/MMP.png')} style={styles.logo} />
+                </View>
+                <View style={styles.loginform}>
+                    <TextInput underlineColorAndroid='transparent' defaultValue={this.state.usernameValue.toString().toLocaleLowerCase()} placeholder='Username' style={styles.textinput} autoCapitalize='none' onChangeText={changeUsername} />
+                    <TextInput underlineColorAndroid='transparent' defaultValue={this.state.passwordValue} placeholder='Password' secureTextEntry={true} autoCapitalize='none' style={styles.textinput}  onChangeText={changePassword} />
+                    <TouchableOpacity style={styles.loginbtn} onPress={onLoginPressButton}>
+                        <Text style={styles.infotext}>Login</Text>
+                    </ TouchableOpacity>
+                    <ActivityIndicator size="large" color="darkorange" style={{opacity: this.state.loggingIn ? 1.0 : 0.0, marginTop: 10}}  animating={true} />
+                    <Text style={{color: 'red', fontWeight: 'bold', opacity: this.state.loginError? 1.0: 0.0}}>
+                        Login error:
+                    </Text>
+                    <Text style={{color: 'red', opacity: this.state.loginErrorMessage != null? 1.0: 0.0}}>
+                        {this.state.loginErrorMessage}
+                    </Text>
+                </View>
             </KeyboardAvoidingView>
-        </ImageBackground>
     );
   }
 }
@@ -166,6 +164,9 @@ const styles = StyleSheet.create({
         width: 300,
         height: 150,
         resizeMode: 'contain'
+    },
+    loginform: {
+        flex: 2,
     },
     loginformcontainer: {
         alignItems: 'center',
