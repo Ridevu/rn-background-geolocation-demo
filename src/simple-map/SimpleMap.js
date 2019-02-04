@@ -882,25 +882,24 @@ export default class SimpleMap extends Component<{}> {
                   <Button onPress={() => this.setPoisModalVisible(!this.state.poisModalVisible)} style={{backgroundColor: 'transparent'}}>
                       <Icon name='md-close' style={{color: 'orange', backgroundColor: 'transparent'}}/>
                   </Button>
-                  <Text style={styles.headertext}>{'POIs Entry (non-functional):'}</Text>
+                  <Text style={styles.headertext}>{'POIs Entry:'}</Text>
                   <Button
                     style={styles.poibtn}
-                    title='Load empty map' onPress={() => this.onEnteredPOI('Locked premise')}
+                    title='Could not enter' onPress={() => this.onEnteredPOI('Could not enter')}
                   >
-                    <Text style={styles.btntext}>Locked premise</Text>
+                    <Text style={styles.btntext}>Could not enter</Text>
                   </Button>
                   <Button
                     style={styles.poibtn}
-                    title='Load empty map' onPress={() => this.onEnteredPOI('No Letterbox')}
+                    title='No Letterbox' onPress={() => this.onEnteredPOI('No Letterbox')}
                   >
-                    <Text style={styles.btntext}>No letterbox</Text>
+                    <Text style={styles.btntext}>No Letterbox</Text>
                   </Button>
                   <Button
                     style={styles.poibtn}
-                    title='Load empty map'
-                    onPress={() => this.onEnteredPOI('Vicious dog/cat/guinea pig')}
+                    title='One letterbox in the building' onPress={() => this.onEnteredPOI('One letterbox in the building')}
                   >
-                    <Text style={styles.btntext}>Vicious dog/cat/guinea pig</Text>
+                    <Text style={styles.btntext}>One letterbox in the building</Text>
                   </Button>
 
                   <TextInput 
@@ -953,7 +952,7 @@ export default class SimpleMap extends Component<{}> {
           </FooterTab>
         </Footer>
         <Footer style={styles.footer}>
-          <Text style={styles.footertext}>{this.state.statusMessage} (v1.0.0)</Text>
+          <Text style={styles.footertext}>{this.state.statusMessage} (v1.0.2)</Text>
         </Footer>
       </Container>
     );
