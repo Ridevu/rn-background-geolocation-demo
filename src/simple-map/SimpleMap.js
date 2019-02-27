@@ -117,7 +117,7 @@ export default class SimpleMap extends Component<{}> {
       minimumActivityRecognitionConfidence: 50,
 
       debug: false,
-      logLevel: BackgroundGeolocation.LOG_LEVEL_WARNING,
+      logLevel: BackgroundGeolocation.LOG_LEVEL_OFF,
     }, (state) => {
       this.setState({
         enabled: state.enabled,
@@ -209,7 +209,6 @@ export default class SimpleMap extends Component<{}> {
   * @event motionchange
   */
   onMotionChange(event) {
-    console.log('[event] motionchange: ', event.isMovign, event.location);
     this.setState({
       isMoving: event.isMoving
     });
@@ -219,7 +218,6 @@ export default class SimpleMap extends Component<{}> {
   * @event activitychange
   */
   onActivityChange(event) {
-    console.log('[event] activitychange: ', event);
     this.setState({
       motionActivity: event
     });
@@ -228,13 +226,11 @@ export default class SimpleMap extends Component<{}> {
   * @event providerchange
   */
   onProviderChange(event) {
-    console.log('[event] providerchange', event);
   }
   /**
   * @event powersavechange
   */
   onPowerSaveChange(isPowerSaveMode) {
-    console.log('[event] powersavechange', isPowerSaveMode);
   }
 
   onEnteredPOI(newPOIName) {
@@ -246,7 +242,6 @@ export default class SimpleMap extends Component<{}> {
   }
 
   addPOIToStorage(existingPOIsString, newPOIPosition, newPOIName) {
-    console.log
     var timestampFormatted = '2000-01-01 00:00:00';
     if(existingPOIsString == null || existingPOIsString.length == 0 || existingPOIsString == 'null')
       existingPOIsString = '';
@@ -316,7 +311,6 @@ export default class SimpleMap extends Component<{}> {
     AsyncStorage.setItem("@mmp:paused", 'true');    
 
     BackgroundGeolocation.stop();
-    console.log('Pausing the track - we may continue later...');
   }
 
   async onStopTracking(value) {
@@ -387,7 +381,6 @@ export default class SimpleMap extends Component<{}> {
     .then((responseJson) => {
         if('d' in responseJson && responseJson.d.result == 0) {
           BackgroundGeolocation.destroyLocations(function() {
-            console.log('- cleared database'); 
           });
           this.setState({
             statusMessage: locationsFormatted.length.toString() + ' points uploaded to job #' + jobId.toString(),
@@ -521,7 +514,6 @@ export default class SimpleMap extends Component<{}> {
   }
 
   loadLocationsFromStorage(locationsJson) {
-    console.log("Loading locations from storage!!!")
     if(locationsJson) {
       let locations = JSON.parse(locationsJson).locations;    
       if(locations)
@@ -627,8 +619,6 @@ export default class SimpleMap extends Component<{}> {
         });        
     })
     .catch((error) =>{
-        console.log("Error loading job polygons");
-        console.error(error);
     });
   }
 
@@ -739,7 +729,6 @@ export default class SimpleMap extends Component<{}> {
     })
     .then((response) => response.json())
     .then((responseJson) => {
-      console.log('Today - missed addresses = ' + JSON.stringify(responseJson));
     })
     .catch((error) =>{
     });
@@ -952,7 +941,7 @@ export default class SimpleMap extends Component<{}> {
           </FooterTab>
         </Footer>
         <Footer style={styles.footer}>
-          <Text style={styles.footertext}>{this.state.statusMessage} (v1.0.2)</Text>
+          <Text style={styles.footertext}>{this.state.statusMessage}</Text>
         </Footer>
       </Container>
     );
