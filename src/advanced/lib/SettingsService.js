@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 
 import Toast from 'react-native-root-toast';
-// import prompt from 'react-native-prompt-android';
+import prompt from 'react-native-prompt-android';
 import DeviceInfo from 'react-native-device-info';
 import BackgroundGeolocation from "../../react-native-background-geolocation";
 
@@ -201,28 +201,28 @@ class SettingsService {
     AsyncStorage.setItem(STORAGE_KEY+"uuid", uuid);
   }
 
-  // getEmail(callback) {
-  //   if (this.applicationState.email) {
-  //     callback(this.applicationState.email);
-  //     return;
-  //   }
-  //   prompt('Email address', 'Please enter your email address', [{
-  //     text: 'Cancel', 
-  //     style: 'cancel',
-  //     onPress: () => {
-  //       console.log('Cancel Pressed');
-  //       callback(null);
-  //     }
-  //   },{
-  //     text: 'OK', 
-  //     onPress: (email) => {
-  //       this.set('email', email);
-  //       callback(email);
-  //     }
-  //   }],{
-  //     type: 'plain-text'
-  //   });
-  // }
+  getEmail(callback) {
+    if (this.applicationState.email) {
+      callback(this.applicationState.email);
+      return;
+    }
+    prompt('Email address', 'Please enter your email address', [{
+      text: 'Cancel', 
+      style: 'cancel',
+      onPress: () => {
+        console.log('Cancel Pressed');
+        callback(null);
+      }
+    },{
+      text: 'OK', 
+      onPress: (email) => {
+        this.set('email', email);
+        callback(email);
+      }
+    }],{
+      type: 'plain-text'
+    });
+  }
 
   /**
   * Returns application-specific state
