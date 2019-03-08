@@ -27,20 +27,9 @@ target 'BGGeolocation' do
   pod 'RNDeviceInfo', :path => '../node_modules/react-native-device-info'
   # Pods for BGGeolocation
 
-  target 'BGGeolocation-tvOSTests' do
-    inherit! :search_paths
-    # Pods for testing
 
 
-
-    pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
-
-  end
-
-  target 'BGGeolocationTests' do
-    inherit! :search_paths
-    # Pods for testing
-  end
+  
 
 end
 
