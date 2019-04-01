@@ -25,7 +25,7 @@ import HelloWorld from './hello-world/HelloWorld';
 import SimpleMap from './simple-map/SimpleMap';
 import AdvancedApp from './advanced/AdvancedApp';
 import LoginScreen from './loginscreen/loginscreen';
-import StartPage from './startpage/StartPage';
+import StartPage from './startpage/startpage';
 
 class Root extends Component<{}> {  
   componentDidMount() {
