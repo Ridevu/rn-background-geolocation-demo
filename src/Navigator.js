@@ -12,19 +12,22 @@
 */
 import React, { Component } from 'react';
 import {
-  AsyncStorage,
   View,
   Text,
-  StyleSheet
+  StyleSheet,
+  AsyncStorage
 } from 'react-native';
 
-import { createStackNavigator, StackActions, NavigationActions } from 'react-navigation';
+// import AsyncStorage from '@react-native-community/async-storage';
+
+import { createAppContainer, createStackNavigator, StackActions, NavigationActions } from 'react-navigation';
 
 import Home from './home/Home';
 import HelloWorld from './hello-world/HelloWorld';
 import SimpleMap from './simple-map/SimpleMap';
 import AdvancedApp from './advanced/AdvancedApp';
 import LoginScreen from './loginscreen/loginscreen';
+import SignupScreen from './sign-up/signup'
 import StartPage from './startpage/StartPage';
 
 class Root extends Component<{}> {  
@@ -87,6 +90,9 @@ export default Navigator = createStackNavigator({
   LoginScreen: {
     screen: LoginScreen
   },
+  SignupScreen : {
+    screen: SignupScreen
+  },
   StartPage: {
     screen: StartPage
   }
@@ -97,3 +103,5 @@ export default Navigator = createStackNavigator({
     let routeName = transition.scene.route.routeName;
   }
 });
+
+// export default createAppContainer(AppNavigator);

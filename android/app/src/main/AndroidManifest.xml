@@ -1,8 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.mmp.backgroundgeolocation.react"
-    android:versionCode="210"
-    android:versionName="2.10.1">
+    android:versionCode="10003"
+    android:versionName="1.0.3">
 
     <uses-permission android:name="android.permission.INTERNET" />
     

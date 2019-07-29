@@ -7,13 +7,13 @@ import {StyleSheet,
     TouchableOpacity,
     Image,
     ImageBackground,
-    AsyncStorage,
     ScrollView,
     ActivityIndicator,
     KeyboardAvoidingView,
+    AsyncStorage
 } from "react-native";
 
-import LoginForm from '../../components/loginform';
+// import AsyncStorage from '@react-native-community/async-storage';
 
 import { NavigationActions, StackActions } from 'react-navigation';
 
@@ -79,7 +79,6 @@ export default class LoginScreen extends Component {
                     AsyncStorage.setItem('@mmp:user_id', responseJson.d.user.user_id.toString());
                     AsyncStorage.setItem('mmp_username', this.state.usernameValue);
                     AsyncStorage.setItem('mmp_password', this.state.passwordValue);
-                    AsyncStorage.getItem('@mmp:auth_token', (err, item) => console.log('Auth token in anymc storage is ' + item));
                     this.onClickNavigate('StartPage');    
                 }
                 else {
@@ -123,6 +122,7 @@ render() {
                     <TouchableOpacity style={styles.loginbtn} onPress={onLoginPressButton}>
                         <Text style={styles.infotext}>Login</Text>
                     </ TouchableOpacity>
+                    <Text>New to MMP? <Text onPress={()=> this.onClickNavigate('SignupScreen')} style = {{ color: '#00f' }}>Sign up now</Text>.</Text>
                     <ActivityIndicator size="large" color="darkorange" style={{opacity: this.state.loggingIn ? 1.0 : 0.0, marginTop: 10}}  animating={true} />
                     <Text style={{color: 'red', fontWeight: 'bold', opacity: this.state.loginError? 1.0: 0.0}}>
                         Login error:

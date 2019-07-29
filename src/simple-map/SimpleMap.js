@@ -184,6 +184,39 @@ export default class SimpleMap extends Component<{}> {
     }
     catch(exception) {
     }
+
+    AsyncStorage.getItem('mmp_username')
+      .then((mmp_username) => {
+        AsyncStorage.getItem('mmp_password')
+        .then((mmp_password) => {
+          fetch('https://managemyapi.azurewebsites.net/Mobile.asmx/AuthRequest', {
+            method: 'POST',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json; charset=utf-8;',
+              'Data-Type': 'json'
+            },
+            body: JSON.stringify({
+              username: mmp_username,
+              password: mmp_password,
+              device_id: DeviceInfo.getUniqueID()
+            }),
+          })
+          .then((response) => response.json())
+          .then((responseJson) => {
+              if(responseJson.d.auth_result == 0) {
+                  AsyncStorage.setItem('@mmp:auth_token', responseJson.d.token);
+                  AsyncStorage.setItem('@mmp:user_id', responseJson.d.user.user_id.toString());
+              }
+              else {
+                this.onClickNavigate('LoginScreen');    
+              }
+          })
+          .catch((error) =>{
+              console.error(error);
+              this.onClickNavigate('LoginScreen');    
+          });
+    })});
   }
 
   /**
