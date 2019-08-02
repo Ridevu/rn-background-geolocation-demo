@@ -33,7 +33,9 @@ export default class StartPage extends Component {
             jobList: [],
             jobListLoaded: false
         }
-
+    }
+    
+    async componentDidMount() {
         AsyncStorage.getItem('mmp_username').then((value) => {this.setState({usernameValue: value.toString().toLowerCase()})});
 
         onLoginPressButton = () => {
@@ -137,8 +139,6 @@ render() {
                         underlineColorAndroid="transparent"
                         onChangeText={(text) => this.setState({jobIdText: text})}
                         value={this.state.jobIdText}
-                                        
-                        // onChangeText = {(text)=> this.onJobIdChanged(text)}
                         placeholder = 'Enter a job ID'
                         /> 
                     </View>
@@ -154,9 +154,10 @@ render() {
 
                 <Button
                     buttonStyle={{backgroundColor: 'orange', borderRadius: 10, margin: 10}}
-                    title='Load empty map' onPress={() => this.onClickGoToEmptyMap()}
+                    title='Just start tracking' onPress={() => this.onClickGoToEmptyMap()}
                 >
                 </ Button>
+                {/* <Text style={{pading:5}}>(You'll be able to assign your track to an MMP job later)</Text> */}
                 <Button
                     buttonStyle={{backgroundColor: 'red', borderRadius: 10, margin: 10}}
                     title='Log out' onPress={() => this.onClickNavigate('LoginScreen')}

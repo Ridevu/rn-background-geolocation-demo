@@ -219,6 +219,15 @@ export default class SimpleMap extends Component<{}> {
     })});
   }
 
+  onClickNavigate(routeName) {
+    navigateAction = NavigationActions.navigate({
+        routeName: routeName,
+        params: { username: this.state.username },
+    });
+    this.props.navigation.dispatch(navigateAction);        
+  }
+
+
   /**
   * @event location;
   * 
