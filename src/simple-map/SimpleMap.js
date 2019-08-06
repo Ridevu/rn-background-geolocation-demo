@@ -117,7 +117,7 @@ export default class SimpleMap extends Component<{}> {
       minimumActivityRecognitionConfidence: 50,
 
       debug: false,
-      logLevel: BackgroundGeolocation.LOG_LEVEL_WARNING,
+      logLevel: BackgroundGeolocation.LOG_LEVEL_OFF,
     }, (state) => {
       this.setState({
         enabled: state.enabled,
@@ -184,6 +184,39 @@ export default class SimpleMap extends Component<{}> {
     }
     catch(exception) {
     }
+
+    AsyncStorage.getItem('mmp_username')
+      .then((mmp_username) => {
+        AsyncStorage.getItem('mmp_password')
+        .then((mmp_password) => {
+          fetch('https://managemyapi.azurewebsites.net/Mobile.asmx/AuthRequest', {
+            method: 'POST',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json; charset=utf-8;',
+              'Data-Type': 'json'
+            },
+            body: JSON.stringify({
+              username: mmp_username,
+              password: mmp_password,
+              device_id: DeviceInfo.getUniqueID()
+            }),
+          })
+          .then((response) => response.json())
+          .then((responseJson) => {
+              if(responseJson.d.auth_result == 0) {
+                  AsyncStorage.setItem('@mmp:auth_token', responseJson.d.token);
+                  AsyncStorage.setItem('@mmp:user_id', responseJson.d.user.user_id.toString());
+              }
+              else {
+                this.onClickNavigate('LoginScreen');    
+              }
+          })
+          .catch((error) =>{
+              console.error(error);
+              this.onClickNavigate('LoginScreen');    
+          });
+    })});
   }
 
   /**
@@ -209,7 +242,6 @@ export default class SimpleMap extends Component<{}> {
   * @event motionchange
   */
   onMotionChange(event) {
-    console.log('[event] motionchange: ', event.isMovign, event.location);
     this.setState({
       isMoving: event.isMoving
     });
@@ -219,7 +251,6 @@ export default class SimpleMap extends Component<{}> {
   * @event activitychange
   */
   onActivityChange(event) {
-    console.log('[event] activitychange: ', event);
     this.setState({
       motionActivity: event
     });
@@ -228,13 +259,11 @@ export default class SimpleMap extends Component<{}> {
   * @event providerchange
   */
   onProviderChange(event) {
-    console.log('[event] providerchange', event);
   }
   /**
   * @event powersavechange
   */
   onPowerSaveChange(isPowerSaveMode) {
-    console.log('[event] powersavechange', isPowerSaveMode);
   }
 
   onEnteredPOI(newPOIName) {
@@ -246,7 +275,6 @@ export default class SimpleMap extends Component<{}> {
   }
 
   addPOIToStorage(existingPOIsString, newPOIPosition, newPOIName) {
-    console.log
     var timestampFormatted = '2000-01-01 00:00:00';
     if(existingPOIsString == null || existingPOIsString.length == 0 || existingPOIsString == 'null')
       existingPOIsString = '';
@@ -316,7 +344,6 @@ export default class SimpleMap extends Component<{}> {
     AsyncStorage.setItem("@mmp:paused", 'true');    
 
     BackgroundGeolocation.stop();
-    console.log('Pausing the track - we may continue later...');
   }
 
   async onStopTracking(value) {
@@ -387,7 +414,6 @@ export default class SimpleMap extends Component<{}> {
     .then((responseJson) => {
         if('d' in responseJson && responseJson.d.result == 0) {
           BackgroundGeolocation.destroyLocations(function() {
-            console.log('- cleared database'); 
           });
           this.setState({
             statusMessage: locationsFormatted.length.toString() + ' points uploaded to job #' + jobId.toString(),
@@ -475,7 +501,7 @@ export default class SimpleMap extends Component<{}> {
     
   stringifyTime(timeInput)
   {
-    let timeString =	timeInput.getUTCFullYear().toString() + '-' +
+    let timeString =  timeInput.getUTCFullYear().toString() + '-' +
     this.padDateTimeElements(timeInput.getUTCMonth()+1) + '-' +
     this.padDateTimeElements(timeInput.getUTCDate()) + ' ' +
     this.padDateTimeElements(timeInput.getUTCHours()) + ':' +
@@ -521,7 +547,6 @@ export default class SimpleMap extends Component<{}> {
   }
 
   loadLocationsFromStorage(locationsJson) {
-    console.log("Loading locations from storage!!!")
     if(locationsJson) {
       let locations = JSON.parse(locationsJson).locations;    
       if(locations)
@@ -627,8 +652,6 @@ export default class SimpleMap extends Component<{}> {
         });        
     })
     .catch((error) =>{
-        console.log("Error loading job polygons");
-        console.error(error);
     });
   }
 
@@ -739,7 +762,6 @@ export default class SimpleMap extends Component<{}> {
     })
     .then((response) => response.json())
     .then((responseJson) => {
-      console.log('Today - missed addresses = ' + JSON.stringify(responseJson));
     })
     .catch((error) =>{
     });
@@ -882,25 +904,24 @@ export default class SimpleMap extends Component<{}> {
                   <Button onPress={() => this.setPoisModalVisible(!this.state.poisModalVisible)} style={{backgroundColor: 'transparent'}}>
                       <Icon name='md-close' style={{color: 'orange', backgroundColor: 'transparent'}}/>
                   </Button>
-                  <Text style={styles.headertext}>{'POIs Entry (non-functional):'}</Text>
+                  <Text style={styles.headertext}>{'POIs Entry:'}</Text>
                   <Button
                     style={styles.poibtn}
-                    title='Load empty map' onPress={() => this.onEnteredPOI('Locked premise')}
+                    title='Could not enter' onPress={() => this.onEnteredPOI('Could not enter')}
                   >
-                    <Text style={styles.btntext}>Locked premise</Text>
+                    <Text style={styles.btntext}>Could not enter</Text>
                   </Button>
                   <Button
                     style={styles.poibtn}
-                    title='Load empty map' onPress={() => this.onEnteredPOI('No Letterbox')}
+                    title='No Letterbox' onPress={() => this.onEnteredPOI('No Letterbox')}
                   >
-                    <Text style={styles.btntext}>No letterbox</Text>
+                    <Text style={styles.btntext}>No Letterbox</Text>
                   </Button>
                   <Button
                     style={styles.poibtn}
-                    title='Load empty map'
-                    onPress={() => this.onEnteredPOI('Vicious dog/cat/guinea pig')}
+                    title='One letterbox in the building' onPress={() => this.onEnteredPOI('One letterbox in the building')}
                   >
-                    <Text style={styles.btntext}>Vicious dog/cat/guinea pig</Text>
+                    <Text style={styles.btntext}>One letterbox in the building</Text>
                   </Button>
 
                   <TextInput 
@@ -953,7 +974,7 @@ export default class SimpleMap extends Component<{}> {
           </FooterTab>
         </Footer>
         <Footer style={styles.footer}>
-          <Text style={styles.footertext}>{this.state.statusMessage} (v1.0.1)</Text>
+          <Text style={styles.footertext}>- {this.state.statusMessage}</Text>
         </Footer>
       </Container>
     );
