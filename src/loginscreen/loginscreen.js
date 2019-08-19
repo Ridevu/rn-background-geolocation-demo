@@ -7,13 +7,14 @@ import {StyleSheet,
     TouchableOpacity,
     Image,
     ImageBackground,
-    AsyncStorage,
     ScrollView,
     ActivityIndicator,
     KeyboardAvoidingView,
+    AsyncStorage,
+    Linking
 } from "react-native";
 
-import LoginForm from '../../components/loginform';
+// import AsyncStorage from '@react-native-community/async-storage';
 
 import { NavigationActions, StackActions } from 'react-navigation';
 
@@ -38,8 +39,14 @@ export default class LoginScreen extends Component {
             loginErrorMessage: null
         }
         
+    }
+
+    async componentDidMount() {
         AsyncStorage.getItem('mmp_username').then((value) => {this.setState({usernameValue: value || ''})});
         AsyncStorage.getItem('mmp_password').then((value) => {this.setState({passwordValue: value || ''})});
+        AsyncStorage.setItem("@mmp:next_page", 'LoginScreen');
+    }
+
         changeUsername = (text) => {
             this.state.usernameValue = text;
             console.log('Username is: ' + text);
@@ -79,7 +86,6 @@ export default class LoginScreen extends Component {
                     AsyncStorage.setItem('@mmp:user_id', responseJson.d.user.user_id.toString());
                     AsyncStorage.setItem('mmp_username', this.state.usernameValue);
                     AsyncStorage.setItem('mmp_password', this.state.passwordValue);
-                    AsyncStorage.getItem('@mmp:auth_token', (err, item) => console.log('Auth token in anymc storage is ' + item));
                     this.onClickNavigate('StartPage');    
                 }
                 else {
@@ -99,8 +105,6 @@ export default class LoginScreen extends Component {
                 });                          
             });
         }        
-        AsyncStorage.setItem("@mmp:next_page", 'LoginScreen');
-    }
 
 
     onClickNavigate(routeName) {
@@ -118,11 +122,12 @@ render() {
                     <Image source={require('../../images/MMP.png')} style={styles.logo} />
                 </View>
                 <View style={styles.loginform}>
-                    <TextInput underlineColorAndroid='transparent' defaultValue={this.state.usernameValue.toString().toLocaleLowerCase()} placeholder='Username' style={styles.textinput} autoCapitalize='none' onChangeText={changeUsername} />
-                    <TextInput underlineColorAndroid='transparent' defaultValue={this.state.passwordValue} placeholder='Password' secureTextEntry={true} autoCapitalize='none' style={styles.textinput}  onChangeText={changePassword} />
-                    <TouchableOpacity style={styles.loginbtn} onPress={onLoginPressButton}>
+                    <TextInput underlineColorAndroid='transparent' defaultValue={this.state.usernameValue.toString().toLocaleLowerCase()} placeholder='Username' style={styles.textinput} autoCapitalize='none' onChangeText={this.changeUsername} />
+                    <TextInput underlineColorAndroid='transparent' defaultValue={this.state.passwordValue} placeholder='Password' secureTextEntry={true} autoCapitalize='none' style={styles.textinput}  onChangeText={this.changePassword} />
+                    <TouchableOpacity style={styles.loginbtn} onPress={this.onLoginPressButton}>
                         <Text style={styles.infotext}>Login</Text>
                     </ TouchableOpacity>
+                    <Text>New to MMP? <Text onPress={()=> this.onClickNavigate('SignupScreen')} style = {{ color: '#00f' }}>Sign up now</Text>.</Text>
                     <ActivityIndicator size="large" color="darkorange" style={{opacity: this.state.loggingIn ? 1.0 : 0.0, marginTop: 10}}  animating={true} />
                     <Text style={{color: 'red', fontWeight: 'bold', opacity: this.state.loginError? 1.0: 0.0}}>
                         Login error:

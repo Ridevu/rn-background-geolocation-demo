@@ -219,6 +219,15 @@ export default class SimpleMap extends Component<{}> {
     })});
   }
 
+  onClickNavigate(routeName) {
+    navigateAction = NavigationActions.navigate({
+        routeName: routeName,
+        params: { username: this.state.username },
+    });
+    this.props.navigation.dispatch(navigateAction);        
+  }
+
+
   /**
   * @event location;
   * 
@@ -501,7 +510,7 @@ export default class SimpleMap extends Component<{}> {
     
   stringifyTime(timeInput)
   {
-    let timeString =  timeInput.getUTCFullYear().toString() + '-' +
+    let timeString =	timeInput.getUTCFullYear().toString() + '-' +
     this.padDateTimeElements(timeInput.getUTCMonth()+1) + '-' +
     this.padDateTimeElements(timeInput.getUTCDate()) + ' ' +
     this.padDateTimeElements(timeInput.getUTCHours()) + ':' +
@@ -974,7 +983,7 @@ export default class SimpleMap extends Component<{}> {
           </FooterTab>
         </Footer>
         <Footer style={styles.footer}>
-          <Text style={styles.footertext}>- {this.state.statusMessage}</Text>
+          <Text style={styles.footertext}>{this.state.statusMessage}</Text>
         </Footer>
       </Container>
     );
