@@ -65,7 +65,7 @@ export default class LoginScreen extends Component {
                 loginErrorMessage: null
             });                          
 
-            fetch('https://managemyapi.azurewebsites.net/Mobile.asmx/AuthRequest', {
+            fetch('https://managemyapiclone.azurewebsites.net/Mobile.asmx/AuthRequest', {
                 method: 'POST',
                 headers: {
                   Accept: 'application/json',
@@ -127,7 +127,7 @@ render() {
                     <TouchableOpacity style={styles.loginbtn} onPress={this.onLoginPressButton}>
                         <Text style={styles.infotext}>Login</Text>
                     </ TouchableOpacity>
-                    <Text>New to MMP? <Text onPress={()=> this.onClickNavigate('SignupScreen')} style = {{ color: '#00f' }}>Sign up now</Text>.</Text>
+                    <Text style={{ fontSize: 18 }}>New to MMP? <Text onPress={()=> this.onClickNavigate('SignupScreen')} style = {{ color: '#00f' }}>Sign up now</Text>.</Text>
                     <ActivityIndicator size="large" color="darkorange" style={{opacity: this.state.loggingIn ? 1.0 : 0.0, marginTop: 10}}  animating={true} />
                     <Text style={{color: 'red', fontWeight: 'bold', opacity: this.state.loginError? 1.0: 0.0}}>
                         Login error:
@@ -205,5 +205,6 @@ const styles = StyleSheet.create({
         borderColor: 'grey',
         borderWidth: 0.8,
         borderRadius: 10,
+        marginBottom: 15
     },
 });

@@ -11,9 +11,6 @@ import {
   KeyboardAvoidingView,
 } from 'react-native';
 
-// For dispatching back to HomeScreen
-import App from '../App';
-
 // For posting to tracker.transistorsoft.com
 import DeviceInfo from 'react-native-device-info';
 import email from 'react-native-email'
@@ -74,6 +71,9 @@ export default class SimpleMap extends Component<{}> {
       trackStartTime: 0,
       trackTimeStr: '00:00:00',
       textForPOI: '',
+      oldTracks: [],
+      lastLat: 0.0,
+      lastLong: 0.0
     };
     AsyncStorage.setItem("@mmp:next_page", 'SimpleMap');
 }
@@ -87,7 +87,7 @@ export default class SimpleMap extends Component<{}> {
     BackgroundGeolocation.on('powersavechange', this.onPowerSaveChange.bind(this));
 
     // Step 2:  #configure:
-    BackgroundGeolocation.configure({
+    BackgroundGeolocation.ready({
       desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_HIGH,
       notificationPriority: BackgroundGeolocation.NOTIFICATION_PRIORITY_DEFAULT,
       distanceFilter: 0,
@@ -140,10 +140,11 @@ export default class SimpleMap extends Component<{}> {
     });
 
     AsyncStorage.getItem('@mmp:locations', (err, item) => this.loadLocationsFromStorage(item));
+    AsyncStorage.getItem('@mmp:old_tracks', (err, item) => this.loadOldTracksFromStorage(item));
 
     AsyncStorage.getItem('@mmp:auth_token', (err, item) => { 
       this.setState({auth_token: item});
-      BackgroundGeolocation.configure({
+      BackgroundGeolocation.ready({
 
         desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_HIGH,
         notificationPriority: BackgroundGeolocation.NOTIFICATION_PRIORITY_DEFAULT,
@@ -189,7 +190,7 @@ export default class SimpleMap extends Component<{}> {
       .then((mmp_username) => {
         AsyncStorage.getItem('mmp_password')
         .then((mmp_password) => {
-          fetch('https://managemyapi.azurewebsites.net/Mobile.asmx/AuthRequest', {
+          fetch('https://managemyapiclone.azurewebsites.net/Mobile.asmx/AuthRequest', {
             method: 'POST',
             headers: {
               Accept: 'application/json',
@@ -234,13 +235,15 @@ export default class SimpleMap extends Component<{}> {
   */
   onLocation(location) {
     if (!location.sample) {
-      this.addMarker(location);
+      if(this.state.enabled && !this.state.paused)
+        this.addMarker(location);
       this.setState({
         odometer: (location.odometer/1000),
         speed: location.coords.speed != -1 ? location.coords.speed*3.6 : this.state.speed,
         averageSpeed: (location.odometer/1000) / ((Date.now() - this.state.trackStartTime) / 3600000.0),
         maxSpeed: location.coords.speed*3.6 > this.state.maxSpeed ? location.coords.speed*3.6 : this.state.maxSpeed,
         trackTimeStr: this.toHHMMSS((Date.now() - this.state.trackStartTime)/1000),
+        lastKnownLocation: location,
       });
     }
 
@@ -276,11 +279,14 @@ export default class SimpleMap extends Component<{}> {
   }
 
   onEnteredPOI(newPOIName) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        AsyncStorage.getItem('@mmp:POIs', (err, item) => this.addPOIToStorage(item, position, newPOIName));
-      }
-    );    
+    let position = this.state.lastKnownLocation;
+    console.log("POI+: About to enter one...");
+    console.log("POI+: POI entered - " + newPOIName);
+    AsyncStorage.getItem('@mmp:POIs', (err, item) => this.addPOIToStorage(item, this.state.lastKnownLocation, newPOIName));
+    AsyncStorage.getItem('@mmp:POIs', (err, item) => console.log("POI+: POIs = " + item));
+    let markers = this.state.markers;
+    markers.push({label: newPOIName, coordinate: {latitude: position.lat, longitude: position.lon}});
+    this.setState({markers: markers});
   }
 
   addPOIToStorage(existingPOIsString, newPOIPosition, newPOIName) {
@@ -294,7 +300,7 @@ export default class SimpleMap extends Component<{}> {
   }
 
   onGoToLocation() {
-    navigator.geolocation.getCurrentPosition(
+    BackgroundGeolocation.getCurrentPosition({persist: false, samples: 1},
       (position) => {
         let curr_latitude = position.coords.latitude;
         let curr_longitude = position.coords.longitude;
@@ -313,6 +319,15 @@ export default class SimpleMap extends Component<{}> {
 
   onStartTracking(value) {
     BackgroundGeolocation.resetOdometer();
+    BackgroundGeolocation.start((state) => {
+      this.setState({
+        showsUserLocation: true
+      });
+      let isMoving = true;
+      this.setState({isMoving: isMoving});
+      BackgroundGeolocation.changePace(isMoving);          
+    });
+
     this.setState({
       enabled: true,
       paused: false,
@@ -329,15 +344,6 @@ export default class SimpleMap extends Component<{}> {
 
     AsyncStorage.setItem("@mmp:enabled", 'true');
     AsyncStorage.setItem("@mmp:paused", 'false');
-
-    BackgroundGeolocation.start((state) => {
-      this.setState({
-        showsUserLocation: true
-      });
-      let isMoving = true;
-      this.setState({isMoving: isMoving});
-      BackgroundGeolocation.changePace(isMoving);          
-    });
   }
 
   onPauseTracking(value) {
@@ -421,9 +427,9 @@ export default class SimpleMap extends Component<{}> {
     })
     .then((response) => response.json())
     .then((responseJson) => {
-        if('d' in responseJson && responseJson.d.result == 0) {
-          BackgroundGeolocation.destroyLocations(function() {
-          });
+      let previousOldTracks = this.state.oldTracks;
+      if('d' in responseJson && responseJson.d.result == 0) {
+          previousOldTracks.push(this.state.coordinates);
           this.setState({
             statusMessage: locationsFormatted.length.toString() + ' points uploaded to job #' + jobId.toString(),
           });
@@ -433,8 +439,14 @@ export default class SimpleMap extends Component<{}> {
             statusMessage: 'Error (will email GPX file)',
           });
           this.sendTrackGPXAsEmail(locations);
-          BackgroundGeolocation.destroyLocations();
         }
+        BackgroundGeolocation.destroyLocations();
+        this.setState({
+          oldTracks: previousOldTracks,
+          coordinates: [],
+          unreportedCoordinates: []
+        });
+        AsyncStorage.setItem("@mmp:locations", '{"locations": []}');
     })
     .catch((error) =>{
         console.error(error);
@@ -491,6 +503,7 @@ export default class SimpleMap extends Component<{}> {
   onResetMarkers() {
     this.setState({
       coordinates: [],
+      oldTracks: [],
       markers: [],
       odometer: 0,
       speed: 0,
@@ -500,6 +513,7 @@ export default class SimpleMap extends Component<{}> {
       trackTimeStr: '00:00:00',
     });
     AsyncStorage.setItem("@mmp:locations", '{"locations": []}');
+    AsyncStorage.setItem("@mmp:old_tracks", '{"old_tracks": []}');
     AsyncStorage.setItem("@mmp:POIs", '');
   }
 
@@ -510,7 +524,7 @@ export default class SimpleMap extends Component<{}> {
     
   stringifyTime(timeInput)
   {
-    let timeString =	timeInput.getUTCFullYear().toString() + '-' +
+    let timeString =  timeInput.getUTCFullYear().toString() + '-' +
     this.padDateTimeElements(timeInput.getUTCMonth()+1) + '-' +
     this.padDateTimeElements(timeInput.getUTCDate()) + ' ' +
     this.padDateTimeElements(timeInput.getUTCHours()) + ':' +
@@ -520,16 +534,8 @@ export default class SimpleMap extends Component<{}> {
   }
 
   addMarker(location) {
-    let marker = {
-      key: location.uuid,
-      title: location.timestamp,
-      heading: location.coords.heading,
-      coordinate: {
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude
-      }
-    };
-
+    if(location.coords.latitude == this.state.lastLat && location.coords.longitude == this.state.lastLong)
+      return;
     this.setState({
       coordinates: [...this.state.coordinates, {
         latitude: location.coords.latitude,
@@ -539,7 +545,9 @@ export default class SimpleMap extends Component<{}> {
         "datetime": this.stringifyTime(new Date()),
         lat: location.coords.latitude,
         lon: location.coords.longitude
-      }]
+      }],
+      lastLat: location.coords.latitude,
+      lastLong: location.coords.longitude
     });
 
     if (this.state.unreportedCoordinates.length == 1 || this.state.unreportedCoordinates.length > COORDINATES_BUFFER_LENGTH)
@@ -555,6 +563,13 @@ export default class SimpleMap extends Component<{}> {
     AsyncStorage.setItem("@mmp:locations", locationsJson);
   }
 
+  saveOldTracksToStorage() {
+    let oldTracksJson = JSON.stringify({
+      old_tracks: this.state.oldTracks
+    });
+    AsyncStorage.setItem("@mmp:old_tracks", oldTracksJson);
+  }
+
   loadLocationsFromStorage(locationsJson) {
     if(locationsJson) {
       let locations = JSON.parse(locationsJson).locations;    
@@ -564,6 +579,17 @@ export default class SimpleMap extends Component<{}> {
     else
       this.setState({ coordinates: [] });
   }
+
+  loadOldTracksFromStorage(oldTracksJson) {
+    if(oldTracksJson) {
+      let oldTracks = JSON.parse(oldTracksJson).old_tracks;    
+      if(oldTracks)
+        this.setState({ oldTracks: oldTracks });
+    }
+    else
+      this.setState({ oldTracks: [] });
+  }
+
 
   setCenter(location) {
     if (!this.refs.map) { return; }
@@ -606,7 +632,7 @@ export default class SimpleMap extends Component<{}> {
       auth_token: auth_token
     });        
 
-    fetch('https://managemyapi.azurewebsites.net/Mobile.asmx/GetJob', {
+    fetch('https://managemyapiclone.azurewebsites.net/Mobile.asmx/GetJob', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -841,7 +867,18 @@ export default class SimpleMap extends Component<{}> {
               strokeColor='rgba(255, 127, 0, 0.6)'
               strokeWidth={2}
               zIndex={0}
-            />        
+            />
+
+            {this.state.oldTracks.map((oldTrack, index) => (
+              <Polyline
+                key={"polyline" + index.toString()}
+                coordinates={oldTrack}
+                geodesic={true}
+                strokeColor='rgba(255, 0, 0, 0.6)'
+                strokeWidth={2}
+                zIndex={0}
+              />
+            ))}
 
             {/* {this.state.missedAddresses.map((address, index) => (
               <Marker
@@ -851,15 +888,12 @@ export default class SimpleMap extends Component<{}> {
               </Marker>))
             } */}
 
-            {/* {this.state.tracks.map((track, index) => (
-              <Polyline
-                key={'track' + index}
-                coordinates={track.points}
-                geodesic={true}
-                strokeColor='rgba(0, 127, 127, 0.6)'
-                strokeWidth={2}
-                zIndex={0}>
-              </Polyline>))
+            {/* {this.state.markers.map((marker, index) => (
+              <MapView.Marker
+                key={'POI' + index}
+                coordinate={marker.coordinate}
+                anchor={{x:0, y:0.1}}>
+              </MapView.Marker>))
             } */}
 
 
@@ -870,8 +904,9 @@ export default class SimpleMap extends Component<{}> {
                 strokeColor={"grey"}
                 strokeWidth={2}
                 fillColor={"rgba(100,100,150,0.1)"}
-                coordinates={polygon.points} />))
-              }
+                coordinates={polygon.points}
+              />
+            ))}
             </MapView>
 
           <Modal
@@ -968,8 +1003,8 @@ export default class SimpleMap extends Component<{}> {
             <Button onPress={this.onStopTracking.bind(this)} disabled={!this.state.enabled && !this.state.paused} style={styles.btn}>
               <Icon type='MaterialIcons' name='stop' style={!this.state.enabled && !this.state.paused ? styles.btnicondisabled: styles.btnicon}/>
             </Button>
-            <Button onPress={this.onResetMarkers.bind(this)} disabled={this.state.enabled || this.state.coordinates.length == 0} style={styles.btn}>
-              <Icon name='md-refresh' style={this.state.enabled || this.state.coordinates.length == 0 ? styles.btnicondisabled: styles.btnicon}/>
+            <Button onPress={this.onResetMarkers.bind(this)} disabled={this.state.enabled || (this.state.coordinates.length == 0 && this.state.oldTracks.length == 0)} style={styles.btn}>
+              <Icon name='md-refresh' style={this.state.enabled || (this.state.coordinates.length == 0 && this.state.oldTracks.length == 0) ? styles.btnicondisabled: styles.btnicon}/>
             </Button>
             <Button onPress={this.onGoToLocation.bind(this)} style={styles.btn}>
               <Icon name='md-locate' style={this.state.isFollowingUser ? styles.btnicondisabled: styles.btnicon}/>
@@ -1096,3 +1131,4 @@ var styles = StyleSheet.create({
     justifyContent: 'flex-start',
   }
 });
+

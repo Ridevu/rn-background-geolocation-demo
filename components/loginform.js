@@ -31,7 +31,7 @@ export default class LoginForm extends Component {
         onLoginPressButton = () => {
             console.log('State is: ' + JSON.stringify(this.state));
 
-            fetch('https://managemyapi.azurewebsites.net/Mobile.asmx/AuthRequest', {
+            fetch('https://managemyapiclone.azurewebsites.net/Mobile.asmx/AuthRequest', {
                 method: 'POST',
                 headers: {
                   Accept: 'application/json',

@@ -78,7 +78,7 @@ export default class StartPage extends Component {
         await AsyncStorage.getItem('@mmp:auth_token', (err, item) => auth_token = item);
         await AsyncStorage.getItem('@mmp:user_id', (err, item) => user_id = item);
             
-        fetch('https://managemyapi.azurewebsites.net/Mobile.asmx/GetJobs', {
+        fetch('https://managemyapiclone.azurewebsites.net/Mobile.asmx/GetJobs', {
             method: 'POST',
             headers: {
               Accept: 'application/json',
