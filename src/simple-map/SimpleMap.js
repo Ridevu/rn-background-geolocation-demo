@@ -279,14 +279,10 @@ export default class SimpleMap extends Component<{}> {
   }
 
   onEnteredPOI(newPOIName) {
-    let position = this.state.lastKnownLocation;
-    console.log("POI+: About to enter one...");
-    console.log("POI+: POI entered - " + newPOIName);
     AsyncStorage.getItem('@mmp:POIs', (err, item) => this.addPOIToStorage(item, this.state.lastKnownLocation, newPOIName));
-    AsyncStorage.getItem('@mmp:POIs', (err, item) => console.log("POI+: POIs = " + item));
     let markers = this.state.markers;
-    markers.push({label: newPOIName, coordinate: {latitude: position.lat, longitude: position.lon}});
-    this.setState({markers: markers});
+    markers.push({label: newPOIName, coordinate: this.state.lastKnownLocation.coords});
+    this.setState({markers: markers});    
   }
 
   addPOIToStorage(existingPOIsString, newPOIPosition, newPOIName) {
@@ -888,15 +884,14 @@ export default class SimpleMap extends Component<{}> {
               </Marker>))
             } */}
 
-            {/* {this.state.markers.map((marker, index) => (
+            {this.state.markers.map((marker, index) => (
               <MapView.Marker
                 key={'POI' + index}
+                title={marker.label}
                 coordinate={marker.coordinate}
                 anchor={{x:0, y:0.1}}>
               </MapView.Marker>))
-            } */}
-
-
+            }
 
             {this.state.jobPolygons.map((polygon, index) => (
               <MapView.Polygon
@@ -916,7 +911,7 @@ export default class SimpleMap extends Component<{}> {
             onRequestClose={() => {
               Alert.alert('Modal has been closed.');
             }}>
-            <View style={{marginTop: 20, marginBottom: 120, marginLeft: 20, marginRight: 20, backgroundColor: 'rgba(255, 255, 255, 0.8)'}}>
+            <View style={{marginTop: 50, marginBottom: 120, marginLeft: 20, marginRight: 20, backgroundColor: 'rgba(255, 255, 255, 0.8)'}}>
               <ScrollView>
                 <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
                   <Button onPress={() => this.setModalVisible(!this.state.modalVisible)} style={{backgroundColor: 'transparent'}}>
@@ -942,7 +937,7 @@ export default class SimpleMap extends Component<{}> {
             onRequestClose={() => {
               Alert.alert('Modal has been closed.');
             }}>
-            <View style={{marginTop: 20, marginBottom: 120, marginLeft: 20, marginRight: 20, backgroundColor: 'rgba(255, 255, 255, 0.8)'}}>
+            <View style={{marginTop: 50, marginBottom: 120, marginLeft: 20, marginRight: 20, backgroundColor: 'rgba(255, 255, 255, 0.8)'}}>
               <ScrollView>
                 <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
                   <Button onPress={() => this.setPoisModalVisible(!this.state.poisModalVisible)} style={{backgroundColor: 'transparent'}}>
