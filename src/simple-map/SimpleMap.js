@@ -443,6 +443,7 @@ export default class SimpleMap extends Component<{}> {
           unreportedCoordinates: []
         });
         AsyncStorage.setItem("@mmp:locations", '{"locations": []}');
+        AsyncStorage.setItem("@mmp:POIs", '');
     })
     .catch((error) =>{
         console.error(error);

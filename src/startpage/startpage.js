@@ -158,7 +158,7 @@ render() {
 
                 <Button
                     buttonStyle={{backgroundColor: 'orange', borderRadius: 10, margin: 10}}
-                    title='Load empty map' onPress={() => this.onClickGoToEmptyMap()}
+                    title='Just start tracking' onPress={() => this.onClickGoToEmptyMap()}
                 >
                 </ Button>
                 <Button
