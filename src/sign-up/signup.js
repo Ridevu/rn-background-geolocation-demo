@@ -51,6 +51,8 @@ export default class SignupScreen extends Component {
         AsyncStorage.getItem('mmp_username').then((value) => {this.setState({usernameValue: value || ''})});
         AsyncStorage.getItem('mmp_password').then((value) => {this.setState({passwordValue: value || ''})});
         AsyncStorage.setItem("@mmp:next_page", 'LoginScreen');
+
+        console.log("DeviceInfo: " + DeviceInfo.getDeviceCountry() + " " + DeviceInfo.getTimezone());
     }
 
         changeUsername = (text) => {
@@ -104,9 +106,9 @@ export default class SignupScreen extends Component {
                   lastname: this.state.lastnameValue,
                   email: this.state.emailAddressValue,
                   company_name: this.state.companyNameValue,
-                  country_code: "UK",
+                  country_code: DeviceInfo.getDeviceCountry(),
                   sp_id: "NSW",
-                  tz_id: "UTC"
+                  tz_id: DeviceInfo.getTimezone()
                 }),
             })
             .then((response) => response.json())
