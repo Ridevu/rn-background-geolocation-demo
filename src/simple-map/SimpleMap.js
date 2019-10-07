@@ -286,13 +286,18 @@ export default class SimpleMap extends Component<{}> {
   }
 
   addPOIToStorage(existingPOIsString, newPOIPosition, newPOIName) {
-    var timestampFormatted = '2000-01-01 00:00:00';
+    var timestampFormatted = this.getNowFormatted();
     if(existingPOIsString == null || existingPOIsString.length == 0 || existingPOIsString == 'null')
       existingPOIsString = '';
     if(existingPOIsString.length > 0)
       existingPOIsString += ',\n'
     newPOIsString = existingPOIsString + '{"Latitude":"' + newPOIPosition.coords.latitude.toString() + '","Longitude":"' + newPOIPosition.coords.longitude.toString() + '","Timestamp":"' + timestampFormatted + '", "Name": "' + newPOIName + '"}';
     AsyncStorage.setItem("@mmp:POIs", newPOIsString);
+  }
+
+  getNowFormatted() {
+    var now = new Date();
+    return now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate() + ' ' + now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();
   }
 
   onGoToLocation() {
@@ -848,6 +853,8 @@ export default class SimpleMap extends Component<{}> {
               longitudeDelta: 0.0421,
             }}
             onPanDrag={(e) => { this.setState({isFollowingUser:false}) }}
+            onPress={(e) => { this.setState({isFollowingUser:false}) }}
+            // onRegionChange={(e) => { this.setState({isFollowingUser:false}) }}
             showsUserLocation={this.state.showsUserLocation}
             followsUserLocation={false}
             scrollEnabled={true}
