@@ -36,8 +36,6 @@ import BackgroundGeolocation from '../react-native-background-geolocation';
 const LATITUDE_DELTA = 0.00922;
 const LONGITUDE_DELTA = 0.00421;
 
-const TRACKER_HOST = 'http://tracker.transistorsoft.com/locations/';
-
 const MMP_URL_UPLOAD_COMPLETE_TRACK = 'https://managemyapiclone.azurewebsites.net/Mobile.asmx/UploadCompleteTrackWithPOIsToJob'
 const COORDINATES_BUFFER_LENGTH = 2  ;
 
@@ -417,42 +415,67 @@ export default class SimpleMap extends Component<{}> {
       trackPOIs: POIsJSON,
     });
 
-    fetch(MMP_URL_UPLOAD_COMPLETE_TRACK, {
-      method: 'POST',
-      headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json; charset=utf-8;',
-      'Data-Type': 'json'
-      },
-      body: requestPayload,
-    })
-    .then((response) => response.json())
-    .then((responseJson) => {
-      let previousOldTracks = this.state.oldTracks;
-      if('d' in responseJson && responseJson.d.result == 0) {
-          previousOldTracks.push(this.state.coordinates);
-          this.setState({
-            statusMessage: locationsFormatted.length.toString() + ' points uploaded to job #' + jobId.toString(),
-          });
-        }
-        else {
-          this.setState({
-            statusMessage: 'Error (will email GPX file)',
-          });
-          this.sendTrackGPXAsEmail(locations);
-        }
-        BackgroundGeolocation.destroyLocations();
-        this.setState({
-          oldTracks: previousOldTracks,
-          coordinates: [],
-          unreportedCoordinates: []
-        });
-        AsyncStorage.setItem("@mmp:locations", '{"locations": []}');
-        AsyncStorage.setItem("@mmp:POIs", '');
-    })
-    .catch((error) =>{
-        console.error(error);
+    var numOfTries = 3;
+    this.setState({
+      trackUploadedSuccessfully: false,
     });
+    while(numOfTries > 0) {
+      await this.uploadTrack(requestPayload);
+      if(this.state.trackUploadedSuccessfully) {
+        numOfTries = 0;
+        this.setState({
+          statusMessage: locationsFormatted.length.toString() + ' points uploaded to job #' + jobId.toString(),
+        });
+        break;
+      }
+      else {
+          numOfTries--;
+          await this.sleep(2000);
+      }
+    }
+    if(!this.state.trackUploadedSuccessfully) {
+      this.setState({
+        statusMessage: 'Error (will email GPX file)',
+      });
+      await this.sendTrackGPXAsEmail(locations);
+    }
+    let previousOldTracks = this.state.oldTracks;
+    previousOldTracks.push(this.state.coordinates);
+    BackgroundGeolocation.destroyLocations();
+    this.setState({
+      oldTracks: previousOldTracks,
+      coordinates: [],
+      unreportedCoordinates: []
+    });
+    AsyncStorage.setItem("@mmp:locations", '{"locations": []}');
+    AsyncStorage.setItem("@mmp:POIs", '');
+}
+
+  async uploadTrack(requestPayload) {
+    try {
+      let response = await fetch(MMP_URL_UPLOAD_COMPLETE_TRACK, {
+        method: 'POST',
+        headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json; charset=utf-8;',
+        'Data-Type': 'json'
+        },
+        body: requestPayload,
+      });
+      let responseJson = await response.json();
+      if('d' in responseJson && responseJson.d.result == 0) {
+        this.setState({
+          trackUploadedSuccessfully: true,
+        });
+      }
+    }
+    catch(error) {
+      console.error(error);
+    }
+  }
+
+  async sleep(milliseconds){
+    return new Promise(resolve => setTimeout(resolve, milliseconds))
   }
 
   async sendTrackGPXAsEmail(locations) {
@@ -685,7 +708,7 @@ export default class SimpleMap extends Component<{}> {
         }
 
         this.setState({
-          statusMessage: 'Job ' + jobId.toString() + ' loaded with ' + this.state.jobPolygons.length.toString() + ' polygons',
+          statusMessage: 'Job ' + jobId.toString() + ' loaded with ' + this.state.jobPolygons.length.toString() + ' polygon(s)',
         });        
     })
     .catch((error) =>{
