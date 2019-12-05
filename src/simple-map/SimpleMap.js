@@ -742,112 +742,6 @@ export default class SimpleMap extends Component<{}> {
     this.setState({poisModalVisible: visible});
   }
 
-  async ToggleLoadJobMissedAddresses() {
-    if(this.state.missedAddressesLoaded)
-    {
-      this.setState({
-        missedAddresses: [],
-        missedAddressesLoaded: false
-      });
-      return;
-    }
-
-    var trackIDs = this.state.trackIDs;
-    var tracks = [];
-    for(var i = 0; i < trackIDs.length; i++) {
-      var trackID = trackIDs[i];
-      fetch('https://managemyapiclone.azurewebsites.net/Mobile.asmx/GetTrackSegments', {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json; charset=utf-8;',
-          'Data-Type': 'json'
-        },
-        body: JSON.stringify({
-          token: this.state.auth_token,
-          track_id: trackID
-        }),
-      })
-      .then((response) => response.json())
-      .then((responseJson) => {
-          var trackPoints = [];
-          for(var j = 0; j < responseJson.d.length; j++) {
-            var point = responseJson.d[j];
-            trackPoints.push({ latitude: point.latitude, longitude: point.longitude });
-          }
-          tracks.push({ track_id: trackID, points: trackPoints });
-          if(tracks.length > 0)
-            this.setState({ tracks: tracks });
-      })
-      .catch((error) =>{
-          console.error(error);
-      });
-    }
-  }
-
-  CollectMissedAddresses() {
-    var tracks = this.state.tracks;
-    var polygons = this.state.jobPolygons;
-
-    var geom_str = '';
-    var i = 0;
-    while(true) {
-      currentPolygon = polygons[i].points;
-      var j = 0;
-      geom_str += '(';
-      while(true) {
-        geom_str += currentPolygon[j].longitude.toString() + ' ' + currentPolygon[j].latitude.toString();
-        if(++j >= currentPolygon.length)
-          break;
-        geom_str += ',';
-      }
-      geom_str += ')';
-      if(++i >= polygons.length)
-        break;
-      geom_str += ',';
-    }
-
-    for(var i = 0; i < tracks.length; i++) {
-      var multiline_str = '';
-      var currentTrack = tracks[i].points;
-      if(currentTrack.length < 3) {
-        if(i >= tracks.length)
-          break;
-        continue;
-      }
-      var j = 0;
-      multiline_str += '(';
-      while(true) {
-        multiline_str += currentTrack[j].longitude.toString() + ' ' + currentTrack[j].latitude.toString();
-        if(++j >= currentTrack.length)
-          break;
-        multiline_str += ','
-      }
-      multiline_str += ')';
-    }
-
-    fetch('https://managemyapiclone.azurewebsites.net/Mobile.asmx/ProxyMissedAddresses', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json; charset=utf-8;',
-        'Data-Type': 'json'
-      },
-      body: JSON.stringify({
-        token: this.state.auth_token,
-        geom_str: geom_str,
-        multiline_str: multiline_str
-      }),
-    })
-    .then((response) => response.json())
-    .then((responseJson) => {
-    })
-    .catch((error) =>{
-    });
-
-    this.setState({ missedAddressesLoaded: true });
-  }
-
   goToStartPage() {
     this.setState({
       jobPolygons: [],
@@ -925,14 +819,6 @@ export default class SimpleMap extends Component<{}> {
                 zIndex={0}
               />
             ))}
-
-            {/* {this.state.missedAddresses.map((address, index) => (
-              <Marker
-                key={'address' + index}
-                coordinate={address.coordinate}
-                anchor={{x:0, y:0.1}}>
-              </Marker>))
-            } */}
 
             {this.state.markers.map((marker, index) => (
               <MapView.Marker
