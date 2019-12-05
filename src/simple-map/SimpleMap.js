@@ -9,6 +9,7 @@ import {
   TextInput,
   ScrollView,
   KeyboardAvoidingView,
+  Alert,
 } from 'react-native';
 
 // For posting to tracker.transistorsoft.com
@@ -316,33 +317,51 @@ export default class SimpleMap extends Component<{}> {
     );    
   }
 
-  onStartTracking(value) {
-    BackgroundGeolocation.resetOdometer();
-    BackgroundGeolocation.start((state) => {
-      this.setState({
-        showsUserLocation: true
+  async onStartTracking(value) {
+    try {
+      BackgroundGeolocation.getCurrentPosition({persist: false, samples: 1}).then((location) => {
+        BackgroundGeolocation.resetOdometer();
+        BackgroundGeolocation.start((state) => {
+          this.setState({
+            showsUserLocation: true
+          });
+          
+          this.setState({
+            enabled: true,
+            paused: false,
+            statusMessage: 'Now tracking...',
+            isMoving: false,
+            showsUserLocation: true,
+            componentStarted: true,
+            odometer: 0,
+            averageSpeed: 0,
+            maxSpeed: 0,
+            trackStartTime: Date.now(),
+            trackTimeStr: '00:00:00',
+          });
+      
+          let isMoving = true;
+          this.setState({isMoving: isMoving});
+          BackgroundGeolocation.changePace(isMoving);
+  
+          AsyncStorage.setItem("@mmp:enabled", 'true');
+          AsyncStorage.setItem("@mmp:paused", 'false'); 
+        });  
       });
-      let isMoving = true;
-      this.setState({isMoving: isMoving});
-      BackgroundGeolocation.changePace(isMoving);          
-    });
-
-    this.setState({
-      enabled: true,
-      paused: false,
-      statusMessage: 'Now tracking...',
-      isMoving: false,
-      showsUserLocation: false,
-      componentStarted: true,
-      odometer: 0,
-      averageSpeed: 0,
-      maxSpeed: 0,
-      trackStartTime: Date.now(),
-      trackTimeStr: '00:00:00',
-    });
-
-    AsyncStorage.setItem("@mmp:enabled", 'true');
-    AsyncStorage.setItem("@mmp:paused", 'false');
+    }
+    catch(error) {
+      this.setState({statusMessage: 'No device location; tracking disabled!'});
+      Alert.alert(
+        "Can't access device location",
+        "The app could not access the device location, and tracking has not started. It's likely due to insufficient permission. It's recommended to grant the app permission to access the device location, 'Always'.",
+        [
+          {
+            text: 'Dismiss',
+            style: 'cancel',
+          },
+        ],
+      );
+    }
   }
 
   onPauseTracking(value) {
