@@ -407,6 +407,13 @@ export default class SimpleMap extends Component<{}> {
       isMoving: false,
       showsUserLocation: false,
     });
+    
+    if(locationsFormatted.length == 0){
+      this.setState({
+        statusMessage: 'No locations to upload...',
+      });
+      return;
+    }
 
     this.setState({
       statusMessage: 'Track being uploaded...',
