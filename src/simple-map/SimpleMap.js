@@ -439,8 +439,10 @@ export default class SimpleMap extends Component<{}> {
       trackUploadedSuccessfully: false,
     });
     while(numOfTries > 0) {
+      console.log("Delayed upload: trying to upload");
       await this.uploadTrack(requestPayload);
       if(this.state.trackUploadedSuccessfully) {
+        console.log("Delayed upload: upload successful");
         numOfTries = 0;
         this.setState({
           statusMessage: locationsFormatted.length.toString() + ' points uploaded to job #' + jobId.toString(),
@@ -448,27 +450,40 @@ export default class SimpleMap extends Component<{}> {
         break;
       }
       else {
-          numOfTries--;
+        console.log("Delayed upload: upload failed");
+        numOfTries--;
           await this.sleep(2000);
       }
     }
-    if(!this.state.trackUploadedSuccessfully) {
+    if(this.state.trackUploadedSuccessfully) {
+      let previousOldTracks = this.state.oldTracks;
+      previousOldTracks.push(this.state.coordinates);
+      BackgroundGeolocation.destroyLocations();
       this.setState({
-        statusMessage: 'Error (will email GPX file)',
+        oldTracks: previousOldTracks,
+        coordinates: [],
+        unreportedCoordinates: []
       });
-      await this.sendTrackGPXAsEmail(locations);
+      AsyncStorage.setItem("@mmp:locations", '{"locations": []}');
+      AsyncStorage.setItem("@mmp:POIs", '');
     }
-    let previousOldTracks = this.state.oldTracks;
-    previousOldTracks.push(this.state.coordinates);
-    BackgroundGeolocation.destroyLocations();
-    this.setState({
-      oldTracks: previousOldTracks,
-      coordinates: [],
-      unreportedCoordinates: []
-    });
-    AsyncStorage.setItem("@mmp:locations", '{"locations": []}');
-    AsyncStorage.setItem("@mmp:POIs", '');
-}
+    else {
+      this.setState({
+        statusMessage: 'Error uploading - try again later (tracking paused)',
+      });
+      // await this.sendTrackGPXAsEmail(locations);
+      this.setState({
+        enabled: false,
+        paused: true,
+        statusMessage: 'Tracking paused, but track still open',
+        isMoving: false,
+        showsUserLocation: false,
+      });
+  
+      AsyncStorage.setItem("@mmp:enabled", 'false');
+      AsyncStorage.setItem("@mmp:paused", 'true');    
+    }
+  }
 
   async uploadTrack(requestPayload) {
     try {
@@ -940,9 +955,6 @@ export default class SimpleMap extends Component<{}> {
             <Button onPress={this.onGoToLocation.bind(this)} style={styles.btn}>
               <Icon name='md-locate' style={this.state.isFollowingUser ? styles.btnicondisabled: styles.btnicon}/>
             </Button>
-            {/* <Button onPress={this.ToggleLoadJobMissedAddresses.bind(this)} style={styles.btn}>
-              <Icon name='md-alert' style={this.state.missedAddressesLoaded ? styles.btnicon: styles.btnicondisabled}/>
-            </Button> */}
             <Button onPress={() => this.goToStartPage()} style={styles.btn}>
               <Icon name='md-exit' style={styles.logoutbtnicon}/>
             </Button>
