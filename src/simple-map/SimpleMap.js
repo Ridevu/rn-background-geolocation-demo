@@ -126,6 +126,26 @@ export default class SimpleMap extends Component<{}> {
       });
     });
 
+    var trackingEnabled = '';
+    await AsyncStorage.getItem('@mmp:enabled', (err, item) => { 
+      trackingEnabled = item;
+    });
+
+    if(trackingEnabled != 'true')
+    {
+      var storedAppVersion = '';
+      var appVersion = DeviceInfo.getVersion();
+      await AsyncStorage.getItem('@mmp:appVersion', (err, storedAppVersion) => {});
+  
+        if(storedAppVersion != appVersion) {
+        console.log('Versions: Version is ' + appVersion + '. Gonna have to wipe out some async storage');
+        await AsyncStorage.multiRemove(['@mmp:enabled', '@mmp:paused', '@mmp:POIs']);
+        await AsyncStorage.setItem('@mmp:locations', '{"locations": []}');
+        await AsyncStorage.setItem('@mmp:old_tracks', '{"old_tracks": []}');
+        await AsyncStorage.setItem('@mmp:appVersion', appVersion);
+      }  
+    }
+
     AsyncStorage.getItem('@mmp:enabled', (err, item) => { 
       this.setState({enabled: (item == 'true')});
       if(this.state.enabled && !this.state.paused && !this.state.componentStarted)
@@ -440,6 +460,8 @@ export default class SimpleMap extends Component<{}> {
       points: locationsFormatted,
       trackPOIs: POIsJSON,
     });
+    console.log("Location reported: track upload payload - " + requestPayload);
+    console.log("Location reported: this.state.coordinates = " + JSON.stringify(this.state.coordinates));
 
     var numOfTries = 3;
     this.setState({
@@ -602,6 +624,8 @@ export default class SimpleMap extends Component<{}> {
   addMarker(location) {
     if(location.coords.latitude == this.state.lastLat && location.coords.longitude == this.state.lastLong)
       return;
+    // console.log("Location reported: " + location.coords.latitude.toString() + ', ' + location.coords.longitude.toString());
+    // console.log("Location reported: " + JSON.stringify(location.coords));
     this.setState({
       coordinates: [...this.state.coordinates, {
         latitude: location.coords.latitude,
