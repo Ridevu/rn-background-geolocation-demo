@@ -412,14 +412,10 @@ export default class SimpleMap extends Component<{}> {
     AsyncStorage.setItem("@mmp:paused", 'false');
     
     var locationsFormatted = [];
-    let locations = await BackgroundGeolocation.getLocations();
+    var locations = this.state.coordinates;
     for(var i = 0; i < locations.length; i++)
     {
-      var timestampFormatted = locations[i].timestamp.replace('T', ' ').replace('Z', '').substring(0, 19);
-
-      var pointInString = JSON.stringify(locations[i]);
-  
-      locationsFormatted.push({ lat: locations[i].latitude, lon: locations[i].longitude, alt: locations[i].altitude, datetime: timestampFormatted });
+      locationsFormatted.push({ lat: this.state.coordinates[i].latitude, lon: this.state.coordinates[i].longitude, alt: this.state.coordinates[i].altitude, datetime: this.state.coordinates[i].datetime });
     }
 
     BackgroundGeolocation.stop();
@@ -460,8 +456,6 @@ export default class SimpleMap extends Component<{}> {
       points: locationsFormatted,
       trackPOIs: POIsJSON,
     });
-    console.log("Location reported: track upload payload - " + requestPayload);
-    console.log("Location reported: this.state.coordinates = " + JSON.stringify(this.state.coordinates));
 
     var numOfTries = 3;
     this.setState({
@@ -624,12 +618,13 @@ export default class SimpleMap extends Component<{}> {
   addMarker(location) {
     if(location.coords.latitude == this.state.lastLat && location.coords.longitude == this.state.lastLong)
       return;
-    // console.log("Location reported: " + location.coords.latitude.toString() + ', ' + location.coords.longitude.toString());
-    // console.log("Location reported: " + JSON.stringify(location.coords));
+    var timeString = this.stringifyTime(new Date());
     this.setState({
       coordinates: [...this.state.coordinates, {
         latitude: location.coords.latitude,
-        longitude: location.coords.longitude
+        longitude: location.coords.longitude,
+        altitude: location.coords.altitude,
+        datetime: timeString
       }],
       unreportedCoordinates: [...this.state.unreportedCoordinates, {
         "datetime": this.stringifyTime(new Date()),
